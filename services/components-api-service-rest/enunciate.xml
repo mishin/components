@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<enunciate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://enunciate.webcohesion.com/schemas/enunciate-2.8.0.xsd">
+	<title>BuildServer</title>
+	<application  root="/tcomp"/>
+    <api-classes>
+        <include pattern="org.talend.components.**" />
+    </api-classes>
+    
+	<modules>
+		<docs includeApplicationPath="true" />
+		<!-- <swagger disabled="true" /> -->
+		<!-- <daikon disabled="true" /> -->
+		<jackson disabled="true" />
+		<java-xml-client disableCompile="true" />
+		<swagger basePath="/tcomp"/>
+	</modules>
+</enunciate>
