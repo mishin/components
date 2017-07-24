@@ -39,7 +39,11 @@ import org.talend.components.api.test.runtime.reader.example.DummyReadService.Se
  */
 public class DummyReader extends AbstractBoundedReader<IndexedRecord> {
 
-    // Reader service
+    /**
+     * A reader Service that wrap all external API calls.<br/>
+     * Please use this approach only if the API don't offer an easy way to test.
+     * Check {@link DummyReadService} java dock for more precisions
+     */
     public DummyReadService readerService;
 
     // reader parameters

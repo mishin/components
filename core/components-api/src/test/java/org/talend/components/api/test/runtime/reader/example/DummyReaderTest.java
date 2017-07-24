@@ -12,9 +12,15 @@
 // ============================================================================
 package org.talend.components.api.test.runtime.reader.example;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
+import static org.talend.components.api.test.runtime.reader.ReaderMatchers.canAdvance;
+import static org.talend.components.api.test.runtime.reader.ReaderMatchers.canStart;
+import static org.talend.components.api.test.runtime.reader.ReaderMatchers.cannotAdvance;
+import static org.talend.components.api.test.runtime.reader.ReaderMatchers.cannotStart;
+import static org.talend.components.api.test.runtime.reader.ReaderMatchers.startAndDieOnError;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +34,6 @@ import org.mockito.junit.MockitoRule;
 import org.talend.components.api.component.runtime.Source;
 import org.talend.components.api.container.DefaultComponentRuntimeContainerImpl;
 import org.talend.components.api.container.RuntimeContainer;
-import org.talend.components.api.test.runtime.reader.ReaderAssert;
 import org.talend.components.api.test.runtime.reader.SourceReaderTest;
 import org.talend.components.api.test.runtime.reader.example.DummyReadService.ServiceException;
 import org.talend.daikon.properties.ValidationResult;
@@ -39,6 +44,10 @@ import org.talend.daikon.properties.ValidationResult;
  */
 public class DummyReaderTest implements SourceReaderTest {
 
+    /**
+     * This is only for demonstration purpose and NOT the only way to develop and test your Readers.<br/>
+     * please check {@link DummyReadService} Java doc for more information about this approach.
+     */
     @Mock
     private DummyReadService readerServiceMock;
 
@@ -64,7 +73,6 @@ public class DummyReaderTest implements SourceReaderTest {
     public void testReadSourceEmpty() {
 
         try {
-
             // setup
             properties.dieOnError.setValue(false);
             assertEquals(ValidationResult.Result.OK, source.initialize(container, properties).getStatus());
@@ -78,8 +86,8 @@ public class DummyReaderTest implements SourceReaderTest {
             reader.readerService = readerServiceMock;
 
             // assert
-            ReaderAssert.cannotStart(reader);
-            ReaderAssert.cannotAdvance(reader);
+            assertThat(reader, cannotStart());
+            assertThat(reader, cannotAdvance());
 
         } catch (ServiceException e) {
             fail("should not throw exception" + e.getMessage());
@@ -106,8 +114,8 @@ public class DummyReaderTest implements SourceReaderTest {
             reader.readerService = readerServiceMock;
 
             // assert
-            ReaderAssert.canStart(reader);
-            ReaderAssert.cannotAdvance(reader);
+            assertThat(reader, canStart());
+            assertThat(reader, cannotAdvance());
 
         } catch (ServiceException e) {
             fail("should not throw exception" + e.getMessage());
@@ -135,8 +143,8 @@ public class DummyReaderTest implements SourceReaderTest {
             reader.readerService = readerServiceMock;
 
             // assert
-            ReaderAssert.canStart(reader);
-            ReaderAssert.canAdvance(reader);
+            assertThat(reader, canStart());
+            assertThat(reader, canAdvance());
 
         } catch (ServiceException e) {
             fail("should not throw exception" + e.getMessage());
@@ -160,8 +168,8 @@ public class DummyReaderTest implements SourceReaderTest {
             reader.readerService = readerServiceMock;
 
             // assert
-            ReaderAssert.startAndDieOnError(reader);
-            ReaderAssert.cannotAdvance(reader);
+            assertThat(reader, startAndDieOnError());
+            assertThat(reader, cannotAdvance());
 
         } catch (ServiceException e) {
             fail("should not throw exception" + e.getMessage());
@@ -185,8 +193,8 @@ public class DummyReaderTest implements SourceReaderTest {
             reader.readerService = readerServiceMock;
 
             // assert
-            ReaderAssert.cannotStart(reader);
-            ReaderAssert.cannotAdvance(reader);
+            assertThat(reader, cannotStart());
+            assertThat(reader, cannotAdvance());
 
         } catch (ServiceException e) {
             fail("should not throw exception" + e.getMessage());

@@ -15,7 +15,11 @@ package org.talend.components.api.test.runtime.reader.example;
 import java.util.List;
 
 /**
- * This is an example service that wrap the interactions with the external system / API calls.
+ * This is an example service that wrap the interactions with the external system / API calls.<br/>
+ * <b>Important : </b> Note that, this is only for testing the reader matchers and not a recommended way for writing Readers.
+ * This kind of wrapper may be useful to encapsulate external API calls to mock them for unit testing, if the API don't offer a
+ * Sandbox or an in-memory execution engine or other testing methods.
+ * 
  */
 public class DummyReadService {
 
