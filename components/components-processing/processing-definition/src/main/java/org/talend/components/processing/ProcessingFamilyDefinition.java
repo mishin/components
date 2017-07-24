@@ -17,6 +17,7 @@ import org.talend.components.api.AbstractComponentFamilyDefinition;
 import org.talend.components.api.ComponentInstaller;
 import org.talend.components.api.Constants;
 import org.talend.components.api.component.runtime.DependenciesReader;
+import org.talend.components.processing.typeconverter.TypeConverterDefinition;
 import org.talend.components.processing.window.WindowDefinition;
 import org.talend.components.processing.replicate.ReplicateDefinition;
 import org.talend.components.processing.filterrow.FilterRowDefinition;
@@ -41,7 +42,8 @@ public class ProcessingFamilyDefinition extends AbstractComponentFamilyDefinitio
     public ProcessingFamilyDefinition() {
         super(NAME,
                 // Components
-                new WindowDefinition(), new ReplicateDefinition(),new FilterRowDefinition(), new PythonRowDefinition()
+                new FilterRowDefinition(), new PythonRowDefinition(), new ReplicateDefinition(), new TypeConverterDefinition(),
+                new WindowDefinition()
         // Component wizards
         );
     }
