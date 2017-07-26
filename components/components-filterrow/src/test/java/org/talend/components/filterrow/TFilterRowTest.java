@@ -121,6 +121,7 @@ public class TFilterRowTest {
         IndexedRecord successWrite = (IndexedRecord) successIterator.next();
         assertThat(successWrite.getSchema(), is(schema));
         assertThat(successWrite, is(record));
+        writer.cleanWrites();
 
         record = new GenericData.Record(schema);
         record.put(schema.getField("field1").pos(), "test123");
@@ -137,6 +138,7 @@ public class TFilterRowTest {
         assertThat(result.totalCount, is(2));
         assertThat(result.successCount, is(1));
         assertThat(result.rejectCount, is(1));
+        writer.cleanWrites();
     }
 
     private Schema newSchema(Schema metadataSchema, String newSchemaName, List<Schema.Field> moreFields) {
