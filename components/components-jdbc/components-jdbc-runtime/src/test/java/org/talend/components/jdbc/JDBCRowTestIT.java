@@ -18,6 +18,7 @@ import static org.junit.Assert.assertThat;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -159,7 +160,8 @@ public class JDBCRowTestIT {
         properties.dieOnError.setValue(true);
         randomCommit(properties);
 
-        properties.propagateQueryResultSet.setValue(true);// the field is the unique reason to use the component as a input
+        properties.propagateQueryResultSet.setValue(true);// the field is the unique reason to use the component as a
+                                                          // input
                                                           // component
         properties.beforeUseColumn();
         properties.useColumn.setValue(properties.useColumn.getPossibleValues().get(0).toString());
@@ -213,7 +215,8 @@ public class JDBCRowTestIT {
         properties.dieOnError.setValue(true);
         randomCommit(properties);
 
-        properties.propagateQueryResultSet.setValue(true);// the field is the unique reason to use the component as a input
+        properties.propagateQueryResultSet.setValue(true);// the field is the unique reason to use the component as a
+                                                          // input
                                                           // component
         properties.beforeUseColumn();
         properties.useColumn.setValue(properties.useColumn.getPossibleValues().get(0).toString());
@@ -264,7 +267,8 @@ public class JDBCRowTestIT {
         properties.dieOnError.setValue(false);
         randomCommit(properties);
 
-        properties.propagateQueryResultSet.setValue(true);// the field is the unique reason to use the component as a input
+        properties.propagateQueryResultSet.setValue(true);// the field is the unique reason to use the component as a
+                                                          // input
                                                           // component
         properties.beforeUseColumn();
         properties.useColumn.setValue(properties.useColumn.getPossibleValues().get(0).toString());
@@ -401,7 +405,8 @@ public class JDBCRowTestIT {
             r1.put(1, "xiaoming");
             writer.write(r1);
 
-            List<IndexedRecord> rejects = writer.getRejectedWrites();
+            List<IndexedRecord> rejects = new ArrayList<>(writer.getRejectedWrites());
+            writer.cleanWrites();
             assertThat(rejects, hasSize(1));
             IndexedRecord reject = rejects.get(0);
             Assert.assertEquals(4, reject.get(0));
@@ -415,7 +420,8 @@ public class JDBCRowTestIT {
             r2.put(1, "xiaobai");
             writer.write(r2);
 
-            rejects = writer.getRejectedWrites();
+            rejects = new ArrayList<>(writer.getRejectedWrites());
+            writer.cleanWrites();
             assertThat(rejects, hasSize(1));
             reject = rejects.get(0);
             Assert.assertEquals(5, reject.get(0));
@@ -518,7 +524,8 @@ public class JDBCRowTestIT {
             writer.write(r1);
 
             assertThat(writer.getRejectedWrites(), empty());
-            List<IndexedRecord> successfulWrites = writer.getSuccessfulWrites();
+            List<IndexedRecord> successfulWrites = new ArrayList<>(writer.getSuccessfulWrites());
+            writer.cleanWrites();
             assertThat(successfulWrites, hasSize(1));
             IndexedRecord successRecord = successfulWrites.get(0);
             Assert.assertEquals(4, successRecord.get(0));
@@ -536,7 +543,7 @@ public class JDBCRowTestIT {
             writer.write(r2);
 
             assertThat(writer.getRejectedWrites(), empty());
-            successfulWrites = writer.getSuccessfulWrites();
+            successfulWrites = new ArrayList<>(writer.getSuccessfulWrites());
             assertThat(successfulWrites, hasSize(1));
             successRecord = successfulWrites.get(0);
             Assert.assertEquals(5, successRecord.get(0));
