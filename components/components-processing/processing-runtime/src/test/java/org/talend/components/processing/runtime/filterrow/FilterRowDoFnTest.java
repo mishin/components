@@ -24,8 +24,10 @@ import org.apache.avro.generic.IndexedRecord;
 import org.apache.avro.util.Utf8;
 import org.apache.beam.sdk.transforms.DoFnTester;
 import org.junit.Test;
-import org.talend.components.processing.filterrow.ConditionsRowConstant;
-import org.talend.components.processing.filterrow.FilterRowProperties;
+import org.talend.components.processing.definition.filterrow.ConditionsRowConstant;
+import org.talend.components.processing.definition.filterrow.FilterRowProperties;
+import org.talend.components.processing.runtime.filterrow.FilterRowDoFn;
+import org.talend.components.processing.runtime.filterrow.FilterRowRuntime;
 import org.talend.daikon.exception.TalendRuntimeException;
 
 public class FilterRowDoFnTest {
@@ -59,7 +61,7 @@ public class FilterRowDoFnTest {
     private void checkSimpleInputNoOutput(DoFnTester<Object, IndexedRecord> fnTester) throws Exception {
         List<IndexedRecord> outputs = fnTester.processBundle(inputSimpleRecord);
         assertEquals(0, outputs.size());
-        List<IndexedRecord> rejects = fnTester.takeSideOutputElements(FilterRowRuntime.rejectOutput);
+        List<IndexedRecord> rejects = fnTester.peekOutputElements(FilterRowRuntime.rejectOutput);
         assertEquals(0, rejects.size());
     }
 
@@ -69,14 +71,14 @@ public class FilterRowDoFnTest {
         assertEquals("aaa", outputs.get(0).get(0));
         assertEquals("BBB", outputs.get(0).get(1));
         assertEquals("Ccc", outputs.get(0).get(2));
-        List<IndexedRecord> rejects = fnTester.takeSideOutputElements(FilterRowRuntime.rejectOutput);
+        List<IndexedRecord> rejects = fnTester.peekOutputElements(FilterRowRuntime.rejectOutput);
         assertEquals(0, rejects.size());
     }
 
     private void checkSimpleInputInvalidOutput(DoFnTester<Object, IndexedRecord> fnTester) throws Exception {
         List<IndexedRecord> outputs = fnTester.processBundle(inputSimpleRecord);
         assertEquals(0, outputs.size());
-        List<IndexedRecord> rejects = fnTester.takeSideOutputElements(FilterRowRuntime.rejectOutput);
+        List<IndexedRecord> rejects = fnTester.peekOutputElements(FilterRowRuntime.rejectOutput);
         assertEquals(1, rejects.size());
         assertEquals("aaa", rejects.get(0).get(0));
         assertEquals("BBB", rejects.get(0).get(1));
@@ -86,13 +88,13 @@ public class FilterRowDoFnTest {
     private void checkNumericInputNoOutput(DoFnTester<Object, IndexedRecord> fnTester) throws Exception {
         List<IndexedRecord> outputs = fnTester.processBundle(inputNumericRecord);
         assertEquals(0, outputs.size());
-        List<IndexedRecord> rejects = fnTester.takeSideOutputElements(FilterRowRuntime.rejectOutput);
+        List<IndexedRecord> rejects = fnTester.peekOutputElements(FilterRowRuntime.rejectOutput);
         assertEquals(0, rejects.size());
     }
 
     private void checkNumericInputValidOutput(DoFnTester<Object, IndexedRecord> fnTester) throws Exception {
         List<IndexedRecord> outputs = fnTester.processBundle(inputNumericRecord);
-        List<IndexedRecord> rejects = fnTester.takeSideOutputElements(FilterRowRuntime.rejectOutput);
+        List<IndexedRecord> rejects = fnTester.peekOutputElements(FilterRowRuntime.rejectOutput);
         assertEquals(1, outputs.size());
         assertEquals(10, outputs.get(0).get(0));
         assertEquals(-100, outputs.get(0).get(1));
@@ -102,7 +104,7 @@ public class FilterRowDoFnTest {
 
     private void checkNumericInputInvalidOutput(DoFnTester<Object, IndexedRecord> fnTester) throws Exception {
         List<IndexedRecord> outputs = fnTester.processBundle(inputNumericRecord);
-        List<IndexedRecord> rejects = fnTester.takeSideOutputElements(FilterRowRuntime.rejectOutput);
+        List<IndexedRecord> rejects = fnTester.peekOutputElements(FilterRowRuntime.rejectOutput);
         assertEquals(0, outputs.size());
         assertEquals(1, rejects.size());
         assertEquals(10, rejects.get(0).get(0));
@@ -296,7 +298,7 @@ public class FilterRowDoFnTest {
         assertEquals(new Utf8("aaa"), outputs.get(0).get(0));
         assertEquals(new Utf8("BBB"), outputs.get(0).get(1));
         assertEquals(new Utf8("Ccc"), outputs.get(0).get(2));
-        List<IndexedRecord> rejects = fnTester.takeSideOutputElements(FilterRowRuntime.rejectOutput);
+        List<IndexedRecord> rejects = fnTester.peekOutputElements(FilterRowRuntime.rejectOutput);
         assertEquals(0, rejects.size());
 
         function = new FilterRowDoFn().withProperties(properties) //
@@ -307,7 +309,7 @@ public class FilterRowDoFnTest {
         assertEquals(new Utf8("aaa"), outputs.get(0).get(0));
         assertEquals(new Utf8("BBB"), outputs.get(0).get(1));
         assertEquals(new Utf8("Ccc"), outputs.get(0).get(2));
-        rejects = fnTester.takeSideOutputElements(FilterRowRuntime.rejectOutput);
+        rejects = fnTester.peekOutputElements(FilterRowRuntime.rejectOutput);
         assertEquals(0, rejects.size());
 
         function = new FilterRowDoFn().withProperties(properties) //
@@ -315,7 +317,7 @@ public class FilterRowDoFnTest {
         fnTester = DoFnTester.of(function);
         outputs = fnTester.processBundle(inputSimpleRecord);
         assertEquals(0, outputs.size());
-        rejects = fnTester.takeSideOutputElements(FilterRowRuntime.rejectOutput);
+        rejects = fnTester.peekOutputElements(FilterRowRuntime.rejectOutput);
         assertEquals(0, rejects.size());
     }
 

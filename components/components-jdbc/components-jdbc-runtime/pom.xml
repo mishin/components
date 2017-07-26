@@ -12,6 +12,10 @@
     <artifactId>components-jdbc-runtime</artifactId>
     <packaging>bundle</packaging>
 
+    <properties>
+        <coverage.sonar.reportRoot>${project.basedir}/..</coverage.sonar.reportRoot>
+    </properties>
+
     <dependencies>
     	<dependency>
             <groupId>org.talend.components</groupId>
@@ -51,12 +55,6 @@
         <dependency>
             <groupId>org.talend.daikon</groupId>
             <artifactId>daikon-spring-utils</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.url</groupId>
-            <artifactId>pax-url-aether</artifactId>             
-            <version>2.4.7</version>
             <scope>test</scope>
         </dependency>
         

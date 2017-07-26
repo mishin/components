@@ -24,7 +24,7 @@ import org.talend.components.adapter.beam.BeamJobBuilder;
 import org.talend.components.adapter.beam.BeamJobContext;
 import org.talend.components.api.component.runtime.RuntimableRuntime;
 import org.talend.components.api.container.RuntimeContainer;
-import org.talend.components.processing.filterrow.FilterRowProperties;
+import org.talend.components.processing.definition.filterrow.FilterRowProperties;
 import org.talend.daikon.properties.ValidationResult;
 
 public class FilterRowRuntime extends PTransform<PCollection<Object>, PCollectionTuple>
@@ -56,7 +56,7 @@ public class FilterRowRuntime extends PTransform<PCollection<Object>, PCollectio
 				.withOutputSchema(hasFlow) //
 				.withRejectSchema(hasReject);
 		return inputPCollection.apply(properties.getName(),
-				ParDo.withOutputTags(flowOutput, TupleTagList.of(rejectOutput)).of(doFn));
+				ParDo.of(doFn).withOutputTags(flowOutput, TupleTagList.of(rejectOutput)));
 
 	}
 

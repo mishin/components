@@ -17,7 +17,6 @@ import static org.talend.components.salesforce.SalesforceOutputProperties.Output
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -31,18 +30,23 @@ import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.IndexedRecord;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.Result;
 import org.talend.components.api.component.runtime.WriteOperation;
 import org.talend.components.api.component.runtime.WriterWithFeedback;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.salesforce.SalesforceOutputProperties;
+import org.talend.components.salesforce.runtime.common.ConnectionHolder;
 import org.talend.components.salesforce.tsalesforceoutput.TSalesforceOutputProperties;
 import org.talend.daikon.avro.AvroUtils;
-import org.talend.daikon.avro.LogicalTypeUtils;
+import org.talend.daikon.avro.SchemaConstants;
 import org.talend.daikon.avro.converter.IndexedRecordConverter;
 import org.talend.daikon.exception.ExceptionContext;
 import org.talend.daikon.exception.error.DefaultErrorCode;
+import org.talend.daikon.i18n.GlobalI18N;
+import org.talend.daikon.i18n.I18nMessages;
 
 import com.sforce.soap.partner.DeleteResult;
 import com.sforce.soap.partner.Error;
@@ -51,10 +55,17 @@ import com.sforce.soap.partner.SaveResult;
 import com.sforce.soap.partner.UpsertResult;
 import com.sforce.soap.partner.sobject.SObject;
 import com.sforce.ws.ConnectionException;
+import com.sforce.ws.bind.CalendarCodec;
+import com.sforce.ws.bind.DateCodec;
 import com.sforce.ws.bind.XmlObject;
+import com.sforce.ws.types.Time;
 import com.sforce.ws.util.Base64;
 
 final class SalesforceWriter implements WriterWithFeedback<Result, IndexedRecord, IndexedRecord> {
+
+    private transient static final Logger LOGGER = LoggerFactory.getLogger(SalesforceWriter.class);
+
+    private static final I18nMessages MESSAGES = GlobalI18N.getI18nMessageProvider().getI18nMessages(SalesforceWriter.class);
 
     private final SalesforceWriteOperation salesforceWriteOperation;
 
@@ -102,6 +113,10 @@ final class SalesforceWriter implements WriterWithFeedback<Result, IndexedRecord
 
     private final List<String> nullValueFields = new ArrayList<>();
 
+    private CalendarCodec calendarCodec = new CalendarCodec();
+
+    private DateCodec dateCodec = new DateCodec();
+
     private BufferedWriter logWriter;
 
     public SalesforceWriter(SalesforceWriteOperation salesforceWriteOperation, RuntimeContainer container) {
@@ -126,7 +141,11 @@ final class SalesforceWriter implements WriterWithFeedback<Result, IndexedRecord
     @Override
     public void open(String uId) throws IOException {
         this.uId = uId;
-        connection = sink.connect(container).connection;
+        ConnectionHolder ch = sink.connect(container);
+        connection = ch.connection;
+        if (ch.bulkConnection != null) {
+            LOGGER.info(MESSAGES.getMessage("info.bulkConnectionUsage"));
+        }
         if (null == mainSchema) {
             mainSchema = sprops.module.main.schema.getValue();
             moduleSchema = sink.getSchema(connection, sprops.module.moduleName.getStringValue());
@@ -184,7 +203,7 @@ final class SalesforceWriter implements WriterWithFeedback<Result, IndexedRecord
                 Schema.Field se = moduleSchema.getField(f.name());
                 if (se != null) {
                     if (value != null && !value.toString().isEmpty()) {
-                        addSObjectField(so, se.schema(), se.name(), value);
+                        addSObjectField(so, se.schema().getType(), se.name(), value);
                     } else {
                         if (UPDATE.equals(sprops.outputAction.getValue())) {
                             nullValueFields.add(f.name());
@@ -216,9 +235,8 @@ final class SalesforceWriter implements WriterWithFeedback<Result, IndexedRecord
                     String lookupRelationshipFieldName = relationMap.get("lookupRelationshipFieldName");
                     so.setField(lookupRelationshipFieldName, null);
                     so.getChild(lookupRelationshipFieldName).setField("type", relationMap.get("lookupFieldModuleName"));
-                    // No need get the real type. Because of the External IDs should not be special type in
-                    // addSObjectField()
-                    addSObjectField(so.getChild(lookupRelationshipFieldName), se.schema(),
+                    // No need get the real type. Because of the External IDs should not be special type in addSObjectField()
+                    addSObjectField(so.getChild(lookupRelationshipFieldName), se.schema().getType(),
                             relationMap.get("lookupFieldExternalIdName"), value);
                 } else {
                     // Skip column "Id" for upsert, when "Id" is not specified as "upsertKeyColumn"
@@ -226,11 +244,11 @@ final class SalesforceWriter implements WriterWithFeedback<Result, IndexedRecord
                         Schema.Field fieldInModule = moduleSchema.getField(se.name());
                         if (fieldInModule != null) {
                             // The real type is need in addSObjectField()
-                            addSObjectField(so, fieldInModule.schema(), se.name(), value);
+                            addSObjectField(so, fieldInModule.schema().getType(), se.name(), value);
                         } else {
                             // This is keep old behavior, when set a field which is not exist.
                             // It would throw a exception for this.
-                            addSObjectField(so, se.schema(), se.name(), value);
+                            addSObjectField(so, se.schema().getType(), se.name(), value);
                         }
                     }
                 }
@@ -252,42 +270,47 @@ final class SalesforceWriter implements WriterWithFeedback<Result, IndexedRecord
         return so;
     }
 
-    /**
-     * Converts Avro value to Salesforce value and sets it as Salesforce object field
-     * 
-     * @param xmlObject Salesforce object
-     * @param fieldSchema record field schema
-     * @param fieldName record field name
-     * @param value Avro value
-     */
-    private void addSObjectField(XmlObject xmlObject, Schema fieldSchema, String fieldName, Object value) {
+    private void addSObjectField(XmlObject xmlObject, Schema.Type expected, String fieldName, Object value) {
+        Object valueToAdd = null;
         // Convert stuff here
-        Schema basicSchema = AvroUtils.unwrapIfNullable(fieldSchema);
-        if (LogicalTypeUtils.isLogicalTimestampMillis(basicSchema) || AvroUtils.isSameType(basicSchema, AvroUtils._date())) {
-            // Add Pattern handling
-            xmlObject.setField(fieldName, SalesforceRuntime.convertDateToCalendar(new Date((Long) value)));
-        } else {
-            if (basicSchema.getType() == Schema.Type.BYTES) {
+        switch (expected) {
+        case BYTES:
+            if ((value instanceof String) || (value instanceof byte[])) {
                 byte[] base64Data = null;
-                // TODO remove it. This should never happen as Avro BYTES field should store byte[] value
-                if (value instanceof String) {
-                    base64Data = ((String) value).getBytes();
-                }
                 if (value instanceof byte[]) {
                     base64Data = (byte[]) value;
+                } else {
+                    base64Data = ((String) value).getBytes();
                 }
                 if (Base64.isBase64(new String(base64Data))) {
-                    value = Base64.decode(base64Data);
+                    valueToAdd = Base64.decode(base64Data);
+                    break;
                 }
-            } else if (AvroUtils.isSameType(basicSchema, AvroUtils._decimal())) {
-                value = new BigDecimal((String) value);
             }
+        default:
+            valueToAdd = value;
+            break;
+        }
+        if (valueToAdd instanceof Date) {
+            xmlObject.setField(fieldName, SalesforceRuntime.convertDateToCalendar((Date) valueToAdd));
+        } else {
             Schema.Field se = moduleSchema.getField(fieldName);
-            if (se != null && value instanceof String) {
-                xmlObject.setField(fieldName,
-                        SalesforceAvroRegistry.get().getConverterFromString(se).convertToAvro((String) value));
+            if (se != null && valueToAdd instanceof String) {
+                String datePattern = se.getProp(SchemaConstants.TALEND_COLUMN_PATTERN);
+                if (datePattern != null && !datePattern.toString().isEmpty()) {
+                    if ("yyyy-MM-dd'T'HH:mm:ss'.000Z'".equals(datePattern)) {
+                        xmlObject.setField(fieldName, calendarCodec.deserialize((String) valueToAdd));
+                    } else if ("yyyy-MM-dd".equals(datePattern)) {
+                        xmlObject.setField(fieldName, dateCodec.deserialize((String) valueToAdd));
+                    } else {
+                        xmlObject.setField(fieldName, new Time((String) valueToAdd));
+                    }
+                } else {
+                    xmlObject.setField(fieldName,
+                            SalesforceAvroRegistry.get().getConverterFromString(se).convertToAvro((String) valueToAdd));
+                }
             } else {
-                xmlObject.setField(fieldName, value);
+                xmlObject.setField(fieldName, valueToAdd);
             }
         }
     }

@@ -14,10 +14,10 @@
 	<packaging>bundle</packaging>
 
 	<properties>
-
 		<!-- runtime properties -->
 		<runtime.di.maven.artifactId>components-jdbc-runtime</runtime.di.maven.artifactId>
 		<runtime.beam.maven.artifactId>components-jdbc-runtime-beam</runtime.beam.maven.artifactId>
+		<coverage.sonar.reportRoot>${project.basedir}/..</coverage.sonar.reportRoot>
 	</properties>
 
 	<dependencies>
@@ -52,7 +52,6 @@
 			<groupId>org.ops4j.pax.url</groupId>
 			<artifactId>pax-url-aether</artifactId>
 			<version>2.4.7</version>
-			<scope>test</scope>
 		</dependency>
 
 		<dependency>
