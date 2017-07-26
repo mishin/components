@@ -216,7 +216,8 @@ final class SalesforceWriter implements WriterWithFeedback<Result, IndexedRecord
                     String lookupRelationshipFieldName = relationMap.get("lookupRelationshipFieldName");
                     so.setField(lookupRelationshipFieldName, null);
                     so.getChild(lookupRelationshipFieldName).setField("type", relationMap.get("lookupFieldModuleName"));
-                    // No need get the real type. Because of the External IDs should not be special type in addSObjectField()
+                    // No need get the real type. Because of the External IDs should not be special type in
+                    // addSObjectField()
                     addSObjectField(so.getChild(lookupRelationshipFieldName), se.schema(),
                             relationMap.get("lookupFieldExternalIdName"), value);
                 } else {
@@ -268,7 +269,7 @@ final class SalesforceWriter implements WriterWithFeedback<Result, IndexedRecord
         } else {
             if (basicSchema.getType() == Schema.Type.BYTES) {
                 byte[] base64Data = null;
-                // TODO remove it. This should never happen as Avro BYTES field should store byte[] value 
+                // TODO remove it. This should never happen as Avro BYTES field should store byte[] value
                 if (value instanceof String) {
                     base64Data = ((String) value).getBytes();
                 }
@@ -290,7 +291,6 @@ final class SalesforceWriter implements WriterWithFeedback<Result, IndexedRecord
             }
         }
     }
-    
 
     private SaveResult[] insert(IndexedRecord input) throws IOException {
         insertItems.add(input);
@@ -302,8 +302,6 @@ final class SalesforceWriter implements WriterWithFeedback<Result, IndexedRecord
 
     private SaveResult[] doInsert() throws IOException {
         if (insertItems.size() > 0) {
-            // Clean the feedback records at each batch write.
-            cleanWrites();
             SObject[] accs = new SObject[insertItems.size()];
             for (int i = 0; i < insertItems.size(); i++)
                 accs[i] = createSObject(insertItems.get(i));
@@ -342,8 +340,6 @@ final class SalesforceWriter implements WriterWithFeedback<Result, IndexedRecord
 
     private SaveResult[] doUpdate() throws IOException {
         if (updateItems.size() > 0) {
-            // Clean the feedback records at each batch write.
-            cleanWrites();
             SObject[] upds = new SObject[updateItems.size()];
             for (int i = 0; i < updateItems.size(); i++)
                 upds[i] = createSObject(updateItems.get(i));
@@ -386,8 +382,6 @@ final class SalesforceWriter implements WriterWithFeedback<Result, IndexedRecord
 
     private UpsertResult[] doUpsert() throws IOException {
         if (upsertItems.size() > 0) {
-            // Clean the feedback records at each batch write.
-            cleanWrites();
             SObject[] upds = new SObject[upsertItems.size()];
             for (int i = 0; i < upsertItems.size(); i++)
                 upds[i] = createSObjectForUpsert(upsertItems.get(i));
@@ -535,8 +529,6 @@ final class SalesforceWriter implements WriterWithFeedback<Result, IndexedRecord
 
     private DeleteResult[] doDelete() throws IOException {
         if (deleteItems.size() > 0) {
-            // Clean the feedback records at each batch write.
-            cleanWrites();
             String[] delIDs = new String[deleteItems.size()];
             String[] changedItemKeys = new String[delIDs.length];
             for (int ix = 0; ix < delIDs.length; ++ix) {

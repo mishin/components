@@ -142,8 +142,6 @@ abstract public class JDBCOutputWriter implements WriterWithFeedback<Result, Ind
     public void write(Object datum) throws IOException {
         result.totalCount++;
 
-        successfulWrites.clear();
-        rejectedWrites.clear();
     }
 
     @Override

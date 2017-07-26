@@ -212,8 +212,6 @@ public abstract class NetSuiteOutputWriter<T, RefT> implements WriterWithFeedbac
             return;
         }
 
-        cleanWrites();
-
         // Transduce IndexedRecords to NetSuite data model objects
 
         List<T> nsObjectList = new ArrayList<>(indexedRecordList.size());

@@ -208,8 +208,6 @@ public class MarketoListOperationWriter extends MarketoWriter {
     }
 
     private void processResult(MarketoSyncResult mktoResult) {
-        successfulWrites.clear();
-        rejectedWrites.clear();
         result.apiCalls++;
         if (!mktoResult.isSuccess()) {
             if (dieOnError) {

@@ -146,9 +146,6 @@ public class AzureStorageTableWriter implements WriterWithFeedback<Result, Index
         if (object == null) {
             return;
         }
-        // initialize feedback collections for the write operation
-        successfulWrites = new ArrayList<>();
-        rejectedWrites = new ArrayList<>();
 
         result.totalCount++;
         IndexedRecord inputRecord = (IndexedRecord) object;
@@ -185,7 +182,8 @@ public class AzureStorageTableWriter implements WriterWithFeedback<Result, Index
                     handleReject(record, e, 1);
 
                 } catch (URISyntaxException | InvalidKeyException e) {
-                    throw new ComponentException(e); // connection problem so next operation will also fail, we stop the process
+                    throw new ComponentException(e); // connection problem so next operation will also fail, we stop the
+                                                     // process
                 }
             }
         });

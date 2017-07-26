@@ -134,8 +134,6 @@ public class MarketoOutputWriter extends MarketoWriter {
     }
 
     public void processResult(MarketoSyncResult mktoResult) {
-        successfulWrites.clear();
-        rejectedWrites.clear();
         result.apiCalls++;
         if (!mktoResult.isSuccess()) {
             if (dieOnError) {

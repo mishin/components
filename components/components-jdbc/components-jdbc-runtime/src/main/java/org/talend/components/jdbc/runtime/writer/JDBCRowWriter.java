@@ -136,9 +136,6 @@ public class JDBCRowWriter implements WriterWithFeedback<Result, IndexedRecord, 
     public void write(Object datum) throws IOException {
         result.totalCount++;
 
-        successfulWrites.clear();
-        rejectedWrites.clear();
-
         IndexedRecord input = this.getFactory(datum).convertToAvro(datum);
 
         try {
