@@ -364,6 +364,7 @@ public class MarketoListOperationWriterTestIT extends MarketoBaseTestIT {
             for (IndexedRecord success : writer.getSuccessfulWrites()) {
                 assertEquals("memberof", success.get(props.schemaFlow.schema.getValue().getField(FIELD_STATUS).pos()));
             }
+            writer.cleanWrites();
         }
         writer.close();
         assertEquals(TEST_NB_LEADS, writer.result.getTotalCount());

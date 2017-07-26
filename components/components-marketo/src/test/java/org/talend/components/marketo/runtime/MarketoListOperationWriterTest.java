@@ -15,7 +15,7 @@ package org.talend.components.marketo.runtime;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -122,10 +122,12 @@ public class MarketoListOperationWriterTest extends MarketoRuntimeTestBase {
         writer.open("test");
         writer.write(record);
         assertEquals(1, writer.getSuccessfulWrites().size());
+        writer.cleanWrites();
         record.put(1, "TEST2");
         writer.write(record);
         assertNotNull(writer.close());
         assertEquals(1, writer.getSuccessfulWrites().size());
+        writer.cleanWrites();
         //
     }
 
