@@ -175,5 +175,20 @@ public class CommonUtils {
         setting.setUsername(connection.userPassword.userId.getValue());
         setting.setPassword(connection.userPassword.password.getValue());
     }
+    
+    
+    public static List<String> getAllSchemaFieldNames(Schema schema) {
+        List<String> values = new ArrayList<>();
+        
+        if (schema == null) {
+            return values;
+        }
+
+        for (Schema.Field field : schema.getFields()) {
+            values.add(field.name());
+        }
+        
+        return values;
+    }
 
 }
