@@ -442,6 +442,8 @@ public class SalesforceWriterTestIT extends SalesforceTestBase {
         assertThat(sfWriter.getSuccessfulWrites(), hasSize(1));
         assertThat(sfWriter.getSuccessfulWrites().get(0), is(r));
 
+        sfWriter.cleanWrites();
+
         // Rejected and successful writes are reset on the next record.
         r = new GenericData.Record(SCHEMA_INSERT_ACCOUNT);
         r.put(0, UNIQUE_NAME + "_" + UNIQUE_ID);
@@ -455,6 +457,8 @@ public class SalesforceWriterTestIT extends SalesforceTestBase {
         assertThat(sfWriter.getRejectedWrites(), empty());
         assertThat(sfWriter.getSuccessfulWrites(), hasSize(1));
         assertThat(sfWriter.getSuccessfulWrites().get(0), is(r));
+
+        sfWriter.cleanWrites();
 
         // Finish the Writer, WriteOperation and Sink.
         Result wr1 = sfWriter.close();
@@ -752,6 +756,7 @@ public class SalesforceWriterTestIT extends SalesforceTestBase {
         sfWriterInsert.write(insertRecord_2);
         assertThat(sfWriterInsert.getSuccessfulWrites(), empty());
         assertThat(sfWriterInsert.getRejectedWrites(), hasSize(1));
+        sfWriterInsert.cleanWrites();
         LOGGER.debug("1 record is reject by insert action.");
 
         sfWriterInsert.write(insertRecord_1);
@@ -766,6 +771,7 @@ public class SalesforceWriterTestIT extends SalesforceTestBase {
         LOGGER.debug("1 record insert successfully and get record Id: " + recordID);
         // Finish the Writer, WriteOperation and Sink for insert action
         Result wr1 = sfWriterInsert.close();
+        sfWriterInsert.cleanWrites();
 
         inputProperties.copyValuesFrom(sfProps);
         inputProperties.condition.setValue("Name='" + UNIQUE_NAME + "_" + UNIQUE_ID + "_insert'");
@@ -828,6 +834,7 @@ public class SalesforceWriterTestIT extends SalesforceTestBase {
 
         assertEquals(1, wr2.getSuccessCount());
         assertEquals(2, wr2.getRejectCount());
+        sfWriter_Update.cleanWrites();
 
         // Check record in server side
         inputProperties.copyValuesFrom(sfProps);
@@ -887,6 +894,7 @@ public class SalesforceWriterTestIT extends SalesforceTestBase {
         Result wr3 = sfWriter_Upsert.close();
         assertEquals(1, wr3.getSuccessCount());
         assertEquals(1, wr3.getRejectCount());
+        sfWriter_Upsert.cleanWrites();
 
         // Check record in server side
         inputProperties.copyValuesFrom(sfProps);
@@ -928,6 +936,7 @@ public class SalesforceWriterTestIT extends SalesforceTestBase {
         wr3 = sfWriter_Upsert.close();
         assertEquals(0, wr3.getSuccessCount());
         assertEquals(1, wr3.getRejectCount());
+        sfWriter_Upsert.cleanWrites();
 
         // Check error log
         assertTrue(file.exists());
@@ -966,6 +975,7 @@ public class SalesforceWriterTestIT extends SalesforceTestBase {
         Result wr4 = sfWriter_Delete.close();
         assertEquals(1, wr4.getSuccessCount());
         assertEquals(1, wr4.getRejectCount());
+        sfWriter_Delete.cleanWrites();
 
         // Check record in server side
         inputProperties.copyValuesFrom(sfProps);
@@ -1111,18 +1121,22 @@ public class SalesforceWriterTestIT extends SalesforceTestBase {
             writer.write(r1);
             successRecords.addAll(writer.getSuccessfulWrites());
             rejectRecords.addAll(writer.getRejectedWrites());
+            writer.cleanWrites();
             // reject
             writer.write(r2);
             successRecords.addAll(writer.getSuccessfulWrites());
             rejectRecords.addAll(writer.getRejectedWrites());
+            writer.cleanWrites();
             // insert
             writer.write(r3);
             successRecords.addAll(writer.getSuccessfulWrites());
             rejectRecords.addAll(writer.getRejectedWrites());
+            writer.cleanWrites();
             // update
             writer.write(r4);
             successRecords.addAll(writer.getSuccessfulWrites());
             rejectRecords.addAll(writer.getRejectedWrites());
+            writer.cleanWrites();
         } finally {
             writer.close();
         }
