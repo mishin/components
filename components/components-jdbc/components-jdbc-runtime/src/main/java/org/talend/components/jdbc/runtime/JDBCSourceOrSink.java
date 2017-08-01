@@ -73,6 +73,7 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
         // TODO use another registry which use the db mapping files
         avroRegistry = JDBCAvroRegistry.get();
         converter = new JDBCResultSetIndexedRecordConverter();
+        ((JDBCResultSetIndexedRecordConverter) converter).setInfluencer(setting);
 
         return ValidationResult.OK;
     }
