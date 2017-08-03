@@ -166,9 +166,6 @@ public class CommonUtils {
         return newSchema;
     }
 
-    // TOOD use a common one
-    private static final String TALEND6_DYNAMIC_COLUMN_POSITION = "di.dynamic.column.position";
-
     public static Schema mergeRuntimeSchema2DesignSchema4Dynamic(Schema designSchema, Schema runtimeSchema) {
         List<Field> designFields = designSchema.getFields();
         Set<String> designFieldSet = new HashSet<>();
@@ -186,7 +183,7 @@ public class CommonUtils {
             }
         }
 
-        int dynPosition = Integer.valueOf(designSchema.getProp(TALEND6_DYNAMIC_COLUMN_POSITION));
+        int dynPosition = Integer.valueOf(designSchema.getProp(ComponentConstants.TALEND6_DYNAMIC_COLUMN_POSITION));
         return CommonUtils.newSchema(designSchema, designSchema.getName(), dynamicFields, dynPosition - 1);
     }
 
@@ -217,6 +214,20 @@ public class CommonUtils {
 
         for (Schema.Field field : schema.getFields()) {
             values.add(field.name());
+        }
+
+        return values;
+    }
+
+    public static List<String> getAllSchemaFieldDBNames(Schema schema) {
+        List<String> values = new ArrayList<>();
+
+        if (schema == null) {
+            return values;
+        }
+
+        for (Schema.Field field : schema.getFields()) {
+            values.add(field.getProp(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME));
         }
 
         return values;
