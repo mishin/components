@@ -25,9 +25,8 @@ import org.apache.avro.util.Utf8;
 import org.apache.beam.sdk.transforms.DoFnTester;
 import org.junit.Test;
 import org.talend.components.processing.definition.filterrow.ConditionsRowConstant;
+import org.talend.components.processing.definition.filterrow.FilterRowFilterProperties;
 import org.talend.components.processing.definition.filterrow.FilterRowProperties;
-import org.talend.components.processing.runtime.filterrow.FilterRowDoFn;
-import org.talend.components.processing.runtime.filterrow.FilterRowRuntime;
 import org.talend.daikon.exception.TalendRuntimeException;
 
 public class FilterRowDoFnTest {
@@ -232,10 +231,11 @@ public class FilterRowDoFnTest {
 
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowFilterProperties filterProp = new FilterRowFilterProperties("filter");
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("a");
-        properties.value.setValue("aaa");
-
+        filterProp.columnName.setValue("a");
+        filterProp.value.setValue("aaa");
+        properties.filters.addRow(filterProp);
         runSimpleTestValidSession(properties);
     }
 

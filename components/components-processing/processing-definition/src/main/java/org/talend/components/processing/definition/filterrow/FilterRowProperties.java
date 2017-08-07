@@ -22,9 +22,9 @@ import org.talend.components.api.component.ISchemaListener;
 import org.talend.components.api.component.PropertyPathConnector;
 import org.talend.components.common.FixedConnectorsComponentProperties;
 import org.talend.components.common.SchemaProperties;
+import org.talend.daikon.properties.PropertiesList;
 import org.talend.daikon.properties.presentation.Form;
-import org.talend.daikon.properties.property.Property;
-import org.talend.daikon.properties.property.PropertyFactory;
+import org.talend.daikon.properties.presentation.Widget;
 
 /**
  * TODO We currently support only one condition for each FilterRow.
@@ -61,43 +61,16 @@ public class FilterRowProperties extends FixedConnectorsComponentProperties {
 
     public SchemaProperties schemaReject = new SchemaProperties("schemaReject");
 
-    /**
-     * This enum will be filled with the name of the input columns.
-     */
-    public Property<String> columnName = PropertyFactory.newString("columnName", "");
+    // list of filters
+    public PropertiesList<FilterRowFilterProperties> filters = new PropertiesList<>("filters",
+            new PropertiesList.NestedPropertiesFactory<FilterRowFilterProperties>() {
 
-    /**
-     * This enum represent the function applicable to the input value before making the comparison. The functions
-     * displayed by the UI are dependent of the type of the columnName.
-     * 
-     * If columnName's type is numerical (Integer, Long, Float or Double), Function will contain "ABS_VALUE" and "EMPTY"
-     * 
-     * If columnName's type is String, Function will contain "LC", "UC", "LCFIRST", "UCFIRST", "LENGTH", "MATCH" and
-     * "EMPTY"
-     * 
-     * For any other case, Function will contain "EMPTY".
-     */
-    public Property<String> function = PropertyFactory.newString("function", "EMPTY")
-            .setPossibleValues(ConditionsRowConstant.ALL_FUNCTIONS);
+                @Override
+                public FilterRowFilterProperties createAndInit(String name) {
+                    return (FilterRowFilterProperties) new FilterRowFilterProperties(name).init();
+                }
 
-    /**
-     * This enum represent the comparison function. The operator displayed by the UI are dependent of the function
-     * selected by the user.
-     * 
-     * If the function is "MATCH", Operator will contain only "==" and "!=".
-     * 
-     * If the function is not "MATCH" but the columnName's type is String, Operator will contain only "==", "!=",
-     * "<", "<=", ">", ">=" and "CONTAINS".
-     * 
-     * For any other case, Operator will contain "==", "!=", "<", "<=", ">" and ">=".
-     */
-    public Property<String> operator = PropertyFactory.newString("operator", "==")
-            .setPossibleValues(ConditionsRowConstant.DEFAULT_OPERATORS);
-
-    /**
-     * This field is the reference value of the comparison. It will be filled directly by the user.
-     */
-    public Property<String> value = PropertyFactory.newString("value");
+            });
 
     public transient ISchemaListener schemaListener;
 
@@ -109,10 +82,13 @@ public class FilterRowProperties extends FixedConnectorsComponentProperties {
     public void setupLayout() {
         super.setupLayout();
         Form mainForm = new Form(this, Form.MAIN);
-        mainForm.addRow(columnName);
-        mainForm.addColumn(function);
-        mainForm.addColumn(operator);
-        mainForm.addColumn(value);
+        mainForm.addRow(Widget.widget(filters).setWidgetType(Widget.NESTED_PROPERTIES));
+
+        // mainForm.addRow(columnName);
+        // mainForm.addColumn(function);
+        // mainForm.addColumn(operator);
+        // mainForm.addColumn(value);
+
     }
 
     @Override
@@ -164,14 +140,14 @@ public class FilterRowProperties extends FixedConnectorsComponentProperties {
      * TODO: This method will be used once trigger will be implemented on TFD UI
      */
     private void updateOperatorColumn() {
-        operator.setPossibleValues(ConditionsRowConstant.DEFAULT_OPERATORS);
+        // operator.setPossibleValues(ConditionsRowConstant.DEFAULT_OPERATORS);
     }
 
     /**
      * TODO: This method will be used once the field autocompletion will be implemented
      */
     private void updateFunctionColumn() {
-        function.setPossibleValues(ConditionsRowConstant.ALL_FUNCTIONS);
+        // function.setPossibleValues(ConditionsRowConstant.ALL_FUNCTIONS);
 
         // Finally check the operator
         updateOperatorColumn();
