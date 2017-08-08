@@ -1,6 +1,7 @@
 package org.talend.components.processing.definition.filterrow;
 
 import org.talend.daikon.properties.PropertiesImpl;
+import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
 
@@ -49,5 +50,13 @@ public class FilterRowFilterProperties extends PropertiesImpl {
     public Property<String> value = PropertyFactory.newString("value");
 
 
-
+    @Override
+    public void setupLayout() {
+        super.setupLayout();
+        Form mainForm = new Form(this, Form.MAIN);
+        mainForm.addRow(columnName);
+        mainForm.addColumn(function);
+        mainForm.addColumn(operator);
+        mainForm.addColumn(value);
+    }
 }
