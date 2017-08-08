@@ -13,157 +13,102 @@
 package org.talend.components.processing.definition.filterrow;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Set;
 
-import org.apache.avro.Schema;
-import org.apache.avro.Schema.Field.Order;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.talend.components.api.component.PropertyPathConnector;
-import org.talend.daikon.avro.AvroRegistry;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
 
-public class FilterRowPropertiesTest {
+public class FilterRowCriteriaPropertiesTest {
 
     /**
-     * Checks {@link FilterRowProperties} sets correctly initial schema property
+     * Checks {@link FilterRowCriteriaProperties} sets correctly initial schema property
      */
     @Test
     public void testDefaultProperties() {
-        FilterRowProperties properties = new FilterRowProperties("test");
-        assertNull(properties.main.schema.getValue());
-        assertNull(properties.schemaFlow.schema.getValue());
-        assertNull(properties.schemaReject.schema.getValue());
-        assertEquals(properties.filters.subProperties.size(), 0);
-        properties.init();
-        assertEquals("EmptyRecord", properties.main.schema.getValue().getName());
-        assertEquals("EmptyRecord", properties.schemaFlow.schema.getValue().getName());
-        assertEquals("EmptyRecord", properties.schemaReject.schema.getValue().getName());
-        assertEquals(0, properties.filters.subProperties.size());
-        properties.filters.createAndAddRow();
-        assertEquals(1, properties.filters.subProperties.size());
-        FilterRowCriteriaProperties row2 = new FilterRowCriteriaProperties("row2");
-        row2.init();
-        properties.filters.addRow(row2);
-        assertEquals(2, properties.filters.subProperties.size());
+        FilterRowCriteriaProperties properties = new FilterRowCriteriaProperties("test");
+        assertEquals("", properties.columnName.getValue());
+        assertEquals("EMPTY", properties.function.getValue());
+        assertEquals("==", properties.operator.getValue());
+        assertNull(properties.value.getValue());
     }
 
     /**
-     * Checks {@link FilterRowProperties} update correctly * schema property
-     */
-    @Ignore("Need to be able to have a schema in order to provide a column name checking.")
-    @Test
-    public void testSetupSchema() {
-        FilterRowProperties properties = new FilterRowProperties("test");
-        properties.init();
-        AvroRegistry registry = new AvroRegistry();
-        Schema stringSchema = registry.getConverter(String.class).getSchema();
-        Schema.Field inputValue1Field = new Schema.Field("inputValue1", stringSchema, null, null, Order.ASCENDING);
-        Schema.Field inputValue2Field = new Schema.Field("inputValue2", stringSchema, null, null, Order.ASCENDING);
-        Schema inputSchema = Schema.createRecord("inputSchema", null, null, false,
-                Arrays.asList(inputValue1Field, inputValue2Field));
-        properties.main.schema.setValue(inputSchema);
-
-        // properties.columnName.setValue("invalid");
-        // properties.function.setValue("invalid");
-        // properties.operator.setValue("invalid");
-        // properties.value.setValue("valid");
-
-        // Direct call since we are directly using the component property
-        // instead of using PropertiesDynamicMethodHelper
-        properties.schemaListener.afterSchema();
-
-        assertThat(properties.main.schema.getValue(), equalTo(inputSchema));
-        assertThat(properties.schemaFlow.schema.getValue(), equalTo(inputSchema));
-        assertThat(properties.schemaReject.schema.getValue(), equalTo(inputSchema));
-
-        // the afterScheam trigger an update to the columnName
-        // assertEquals("inputValue1", properties.columnName.getValue());
-        // assertEquals("EMPTY", properties.function.getValue());
-        // assertEquals("==", properties.operator.getValue());
-        // assertEquals("valid", properties.value.getValue());
-    }
-
-    /**
-     * Checks {@link FilterRowProperties} update correctly * schema property
+     * Checks {@link FilterRowCriteriaProperties} update correctly * schema property
      */
     @Ignore("Need to be able to have a schema in order to provide a column name checking.")
     @Test
     public void testConditions() {
-        FilterRowProperties properties = new FilterRowProperties("test");
-        properties.init();
-        AvroRegistry registry = new AvroRegistry();
-        Schema stringSchema = registry.getConverter(String.class).getSchema();
-        Schema.Field inputValue1Field = new Schema.Field("inputValue1", stringSchema, null, null, Order.ASCENDING);
-        Schema.Field inputValue2Field = new Schema.Field("inputValue2", stringSchema, null, null, Order.ASCENDING);
-        Schema inputSchema = Schema.createRecord("inputSchema", null, null, false,
-                Arrays.asList(inputValue1Field, inputValue2Field));
-        properties.main.schema.setValue(inputSchema);
-
-        // default value, "columName" will change
-        properties.schemaListener.afterSchema();
-
+        // FilterRowCriteriaProperties properties = new FilterRowCriteriaProperties("test");
+        // properties.init();
+        // AvroRegistry registry = new AvroRegistry();
+        // Schema stringSchema = registry.getConverter(String.class).getSchema();
+        // Schema.Field inputValue1Field = new Schema.Field("inputValue1", stringSchema, null, null, Order.ASCENDING);
+        // Schema.Field inputValue2Field = new Schema.Field("inputValue2", stringSchema, null, null, Order.ASCENDING);
+        // Schema inputSchema = Schema.createRecord("inputSchema", null, null, false,
+        // Arrays.asList(inputValue1Field, inputValue2Field));
+        // properties.main.schema.setValue(inputSchema);
+        //
+        // // default value, "columName" will change
+        // properties.schemaListener.afterSchema();
+        //
         // assertEquals("inputValue1", properties.columnName.getValue());
         // assertEquals("EMPTY", properties.function.getValue());
         // assertEquals("==", properties.operator.getValue());
         // assertNull(properties.value.getValue());
-
-        // specific value, "function" will change cause inputValue1's type is
-        // not a compatible with "ABS_VALUE"
+        //
+        // // specific value, "function" will change cause inputValue1's type is
+        // // not a compatible with "ABS_VALUE"
         // properties.columnName.setValue("inputValue1");
         // properties.function.setValue("ABS_VALUE");
         // properties.operator.setValue("!=");
         // properties.value.setValue("1111");
         // properties.schemaListener.afterSchema();
-
+        //
         // assertEquals("inputValue1", properties.columnName.getValue());
         // assertEquals("EMPTY", properties.function.getValue());
         // assertEquals("!=", properties.operator.getValue());
         // assertEquals("1111", properties.value.getValue());
-
-        // specific value, will not change
+        //
+        // // specific value, will not change
         // properties.columnName.setValue("inputValue2");
         // properties.function.setValue("LC");
         // properties.operator.setValue("==");
         // properties.value.setValue("2222");
         // properties.schemaListener.afterSchema();
-
+        //
         // assertEquals("inputValue2", properties.columnName.getValue());
         // assertEquals("LC", properties.function.getValue());
         // assertEquals("==", properties.operator.getValue());
         // assertEquals("2222", properties.value.getValue());
-
-        // specific value, "operator" will change cause the function "MATCH" is
-        // not a compatible with "<"
-        // PROPERTIES.COLUMNNAME.SETVALUE("INPUTVALUE1");
-        // PROPERTIES.FUNCTION.SETVALUE("MATCH");
-        // PROPERTIES.OPERATOR.SETVALUE("<");
-        // PROPERTIES.VALUE.SETVALUE("3333");
-        // PROPERTIES.SCHEMALISTENER.AFTERSCHEMA();
-
+        //
+        // // specific value, "operator" will change cause the function "MATCH" is
+        // // not a compatible with "<"
+        // properties.columnName.setValue("inputValue1");
+        // properties.function.setValue("MATCH");
+        // properties.operator.setValue("<");
+        // properties.value.setValue("3333");
+        // properties.schemaListener.afterSchema();
+        //
         // assertEquals("inputValue1", properties.columnName.getValue());
         // assertEquals("MATCH", properties.function.getValue());
         // assertEquals("==", properties.operator.getValue());
         // assertEquals("3333", properties.value.getValue());
-
-        // specific value, "operator" will change cause the function "CONTAINS" is
-        // not a compatible with "<"
+        //
+        // // specific value, "operator" will change cause the function "CONTAINS" is
+        // // not a compatible with "<"
         // properties.columnName.setValue("inputValue1");
         // properties.function.setValue("CONTAINS");
         // properties.operator.setValue("<");
         // properties.value.setValue("4444");
         // properties.schemaListener.afterSchema();
-
+        //
         // assertEquals("inputValue1", properties.columnName.getValue());
         // assertEquals("CONTAINS", properties.function.getValue());
         // assertEquals("==", properties.operator.getValue());
@@ -171,12 +116,12 @@ public class FilterRowPropertiesTest {
     }
 
     /**
-     * Checks {@link FilterRowProperties#refreshLayout(Form)}
+     * Checks {@link FilterRowCriteriaProperties#refreshLayout(Form)}
      */
     @Ignore("Need to be able to have a schema in order to provide a column name checking.")
     @Test
     public void testRefreshLayoutMainInitial() {
-        // FilterRowProperties properties = new FilterRowProperties("test");
+        // FilterRowCriteriaProperties properties = new FilterRowCriteriaProperties("test");
         // properties.init();
         // AvroRegistry registry = new AvroRegistry();
         // Schema stringSchema = registry.getConverter(String.class).getSchema();
@@ -211,9 +156,7 @@ public class FilterRowPropertiesTest {
 
     @Test
     public void testSetupLayout() {
-        FilterRowProperties properties = new FilterRowProperties("test");
-        properties.schemaFlow.init();
-        properties.main.init();
+        FilterRowCriteriaProperties properties = new FilterRowCriteriaProperties("test");
 
         properties.setupLayout();
 
@@ -221,40 +164,15 @@ public class FilterRowPropertiesTest {
         assertThat(main, notNullValue());
 
         Collection<Widget> mainWidgets = main.getWidgets();
-        assertThat(mainWidgets, hasSize(1));
-        // assertThat(mainWidgets, hasSize(4));
-        // Widget columnNameWidget = main.getWidget("columnName");
-        // assertThat(columnNameWidget, notNullValue());
-        // Widget function = main.getWidget("function");
-        // assertThat(function, notNullValue());
-        // Widget operator = main.getWidget("operator");
-        // assertThat(operator, notNullValue());
-        // Widget value = main.getWidget("value");
-        // assertThat(value, notNullValue());
-    }
-
-    /**
-     * Checks {@link FilterRowProperties#getAllSchemaPropertiesConnectors(boolean)} returns a {@link Set} with the main
-     * link, for input
-     */
-    @Test
-    public void testGetAllSchemaPropertiesConnectorsInput() {
-        FilterRowProperties properties = new FilterRowProperties("test");
-
-        Set<PropertyPathConnector> inputConnectors = properties.getAllSchemaPropertiesConnectors(false);
-        assertEquals(1, inputConnectors.size());
-        assertTrue(inputConnectors.contains(properties.MAIN_CONNECTOR));
-
-    }
-
-    @Test
-    public void testGetAllSchemaPropertiesConnectorsOutput() {
-        FilterRowProperties properties = new FilterRowProperties("test");
-
-        Set<PropertyPathConnector> outputConnectors = properties.getAllSchemaPropertiesConnectors(true);
-        assertEquals(2, outputConnectors.size());
-        assertTrue(outputConnectors.contains(properties.FLOW_CONNECTOR));
-        assertTrue(outputConnectors.contains(properties.REJECT_CONNECTOR));
+        assertThat(mainWidgets, hasSize(4));
+        Widget columnNameWidget = main.getWidget("columnName");
+        assertThat(columnNameWidget, notNullValue());
+        Widget function = main.getWidget("function");
+        assertThat(function, notNullValue());
+        Widget operator = main.getWidget("operator");
+        assertThat(operator, notNullValue());
+        Widget value = main.getWidget("value");
+        assertThat(value, notNullValue());
     }
 
     // testing conditions update specific case
@@ -270,7 +188,7 @@ public class FilterRowPropertiesTest {
         // Arrays.asList(inputValue1Field, inputValue2Field));
         //
         // // default value, "columName" will change
-        // FilterRowProperties properties = new FilterRowProperties("condition0");
+        // FilterRowCriteriaProperties properties = new FilterRowCriteriaProperties("condition0");
         // properties.init();
         // properties.main.schema.setValue(inputSchema);
         // properties.updateOutputSchemas();
@@ -302,7 +220,7 @@ public class FilterRowPropertiesTest {
         //
         // // specific value, "function" will change cause inputValue1's type is
         // // not a compatible with ConditionsRow.ABS_VALUE
-        // FilterRowProperties properties = new FilterRowProperties("condition1");
+        // FilterRowCriteriaProperties properties = new FilterRowCriteriaProperties("condition1");
         // properties.init();
         // properties.main.schema.setValue(inputSchema);
         // properties.updateOutputSchemas();
@@ -338,7 +256,7 @@ public class FilterRowPropertiesTest {
         // Arrays.asList(inputValue1Field, inputValue2Field));
         //
         // // specific value, will not change
-        // FilterRowProperties properties = new FilterRowProperties("condition2");
+        // FilterRowCriteriaProperties properties = new FilterRowCriteriaProperties("condition2");
         // properties.init();
         // properties.main.schema.setValue(inputSchema);
         // properties.updateOutputSchemas();
@@ -374,7 +292,7 @@ public class FilterRowPropertiesTest {
         // Arrays.asList(inputValue1Field, inputValue2Field));
         //
         // // specific value, will change due to type compatibility
-        // FilterRowProperties properties = new FilterRowProperties("condition4");
+        // FilterRowCriteriaProperties properties = new FilterRowCriteriaProperties("condition4");
         // properties.init();
         // properties.main.schema.setValue(inputSchema);
         // properties.updateOutputSchemas();
@@ -410,7 +328,7 @@ public class FilterRowPropertiesTest {
         // Arrays.asList(inputValue1Field, inputValue2Field));
         //
         // // specific value, will change due to type compatibility
-        // FilterRowProperties properties = new FilterRowProperties("condition4");
+        // FilterRowCriteriaProperties properties = new FilterRowCriteriaProperties("condition4");
         // properties.init();
         // properties.main.schema.setValue(inputSchema);
         // properties.updateOutputSchemas();
@@ -446,7 +364,7 @@ public class FilterRowPropertiesTest {
         // Arrays.asList(inputValue1Field, inputValue2Field));
         //
         // // specific value, will change due to type compatibility
-        // FilterRowProperties properties = new FilterRowProperties("condition4");
+        // FilterRowCriteriaProperties properties = new FilterRowCriteriaProperties("condition4");
         // properties.init();
         // properties.main.schema.setValue(inputSchema);
         // properties.updateOutputSchemas();
@@ -482,7 +400,7 @@ public class FilterRowPropertiesTest {
         // Arrays.asList(inputValue1Field, inputValue2Field));
         //
         // // specific value, will change due to type compatibility
-        // FilterRowProperties properties = new FilterRowProperties("condition4");
+        // FilterRowCriteriaProperties properties = new FilterRowCriteriaProperties("condition4");
         // properties.init();
         // properties.main.schema.setValue(inputSchema);
         // properties.updateOutputSchemas();
@@ -518,7 +436,7 @@ public class FilterRowPropertiesTest {
         // Arrays.asList(inputValue1Field, inputValue2Field));
         //
         // // specific value, will change due to type compatibility
-        // FilterRowProperties properties = new FilterRowProperties("condition5");
+        // FilterRowCriteriaProperties properties = new FilterRowCriteriaProperties("condition5");
         // properties.init();
         // properties.main.schema.setValue(inputSchema);
         // properties.updateOutputSchemas();

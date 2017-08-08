@@ -5,9 +5,9 @@ import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
 
-public class FilterRowFilterProperties extends PropertiesImpl {
+public class FilterRowCriteriaProperties extends PropertiesImpl {
 
-    public FilterRowFilterProperties(String name) {
+    public FilterRowCriteriaProperties(String name) {
         super(name);
     }
 
@@ -48,7 +48,6 @@ public class FilterRowFilterProperties extends PropertiesImpl {
      * This field is the reference value of the comparison. It will be filled directly by the user.
      */
     public Property<String> value = PropertyFactory.newString("value");
-
 
     @Override
     public void setupLayout() {

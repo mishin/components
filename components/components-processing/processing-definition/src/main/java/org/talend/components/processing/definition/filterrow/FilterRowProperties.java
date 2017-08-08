@@ -62,12 +62,12 @@ public class FilterRowProperties extends FixedConnectorsComponentProperties {
     public SchemaProperties schemaReject = new SchemaProperties("schemaReject");
 
     // list of filters
-    public PropertiesList<FilterRowFilterProperties> filters = new PropertiesList<>("filters",
-            new PropertiesList.NestedPropertiesFactory<FilterRowFilterProperties>() {
+    public PropertiesList<FilterRowCriteriaProperties> filters = new PropertiesList<>("filters",
+            new PropertiesList.NestedPropertiesFactory<FilterRowCriteriaProperties>() {
 
                 @Override
-                public FilterRowFilterProperties createAndInit(String name) {
-                    return (FilterRowFilterProperties) new FilterRowFilterProperties(name).init();
+                public FilterRowCriteriaProperties createAndInit(String name) {
+                    return (FilterRowCriteriaProperties) new FilterRowCriteriaProperties(name).init();
                 }
 
             });

@@ -23,7 +23,7 @@ import org.apache.avro.generic.GenericRecordBuilder;
 import org.apache.avro.generic.IndexedRecord;
 import org.apache.beam.sdk.transforms.DoFnTester;
 import org.junit.Test;
-import org.talend.components.processing.definition.filterrow.FilterRowFilterProperties;
+import org.talend.components.processing.definition.filterrow.FilterRowCriteriaProperties;
 import org.talend.components.processing.definition.filterrow.FilterRowProperties;
 
 public class FilterRowDoFnTest {
@@ -228,7 +228,7 @@ public class FilterRowDoFnTest {
 
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
-        FilterRowFilterProperties filterProp = new FilterRowFilterProperties("filter");
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
         properties.schemaListener.afterSchema();
         filterProp.columnName.setValue("a");
         filterProp.value.setValue("aaa");
