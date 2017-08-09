@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.components.processing.definition.filterrow;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -134,14 +135,21 @@ public class FilterRowProperties extends FixedConnectorsComponentProperties {
      * TODO: This method will be used once trigger will be implemented on TFD UI
      */
     private void updateOperatorColumn() {
-        // operator.setPossibleValues(ConditionsRowConstant.DEFAULT_OPERATORS);
+        Collection<FilterRowCriteriaProperties> criterias = filters.getPropertiesList();
+        for (FilterRowCriteriaProperties filterRowCriteriaProperties : criterias) {
+            filterRowCriteriaProperties.operator.setPossibleValues(ConditionsRowConstant.DEFAULT_OPERATORS);
+        }
+
     }
 
     /**
      * TODO: This method will be used once the field autocompletion will be implemented
      */
     private void updateFunctionColumn() {
-        // function.setPossibleValues(ConditionsRowConstant.ALL_FUNCTIONS);
+        Collection<FilterRowCriteriaProperties> criterias = filters.getPropertiesList();
+        for (FilterRowCriteriaProperties filterRowCriteriaProperties : criterias) {
+            filterRowCriteriaProperties.function.setPossibleValues(ConditionsRowConstant.ALL_FUNCTIONS);
+        }
 
         // Finally check the operator
         updateOperatorColumn();
