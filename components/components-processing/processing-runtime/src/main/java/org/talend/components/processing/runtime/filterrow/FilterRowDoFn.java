@@ -89,10 +89,10 @@ public class FilterRowDoFn extends DoFn<Object, IndexedRecord> {
         }
     }
 
-    private <T extends Comparable<T>> Boolean checkCondition(Object inputValue, FilterRowCriteriaProperties currentFilter) {
-        String function = currentFilter.function.getValue();
-        String conditionOperator = currentFilter.operator.getValue();
-        String referenceValue = currentFilter.value.getValue();
+    private <T extends Comparable<T>> Boolean checkCondition(Object inputValue, FilterRowCriteriaProperties filter) {
+        String function = filter.function.getValue();
+        String conditionOperator = filter.operator.getValue();
+        String referenceValue = filter.value.getValue();
 
         // Apply the transformation function on the input value
         inputValue = FilterRowUtils.applyFunction(inputValue, function);
