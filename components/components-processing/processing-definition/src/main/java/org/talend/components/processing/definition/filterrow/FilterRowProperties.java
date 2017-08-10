@@ -26,15 +26,11 @@ import org.talend.components.common.SchemaProperties;
 import org.talend.daikon.properties.PropertiesList;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
+import org.talend.daikon.properties.property.Property;
+import org.talend.daikon.properties.property.PropertyFactory;
 
 /**
- * TODO We currently support only one condition for each FilterRow.
- * 
- * We can, for example, filter the name equals to "talend" or we can filter the age superior at 20, but there is no
- * possibility to do both on a single component. This is due to a restriction on the daikon framework, that do not
- * support a way to represent the Talend Studio tab, where you can dynamically add, remove and sort elements.
- * 
- * (see TKDN-84)
+ * Contains a nested list of {@link FilterRowCriteriaProperties} so that we can combine several filtering criterias
  */
 
 public class FilterRowProperties extends FixedConnectorsComponentProperties {
@@ -62,6 +58,12 @@ public class FilterRowProperties extends FixedConnectorsComponentProperties {
 
     public SchemaProperties schemaReject = new SchemaProperties("schemaReject");
 
+    // min items
+    public Property<Integer> minItems = PropertyFactory.newInteger("minItems", 1);
+
+    // max items
+    public Property<Integer> maxItems = PropertyFactory.newInteger("maxItems", 3);
+
     // list of filters
     public PropertiesList<FilterRowCriteriaProperties> filters = new PropertiesList<>("filters",
             new PropertiesList.NestedPropertiesFactory<FilterRowCriteriaProperties>() {
@@ -77,6 +79,7 @@ public class FilterRowProperties extends FixedConnectorsComponentProperties {
 
     public FilterRowProperties(String name) {
         super(name);
+        filters.init();
     }
 
     @Override
@@ -89,6 +92,10 @@ public class FilterRowProperties extends FixedConnectorsComponentProperties {
     @Override
     public void setupProperties() {
         super.setupProperties();
+        setupLayout();
+        // Add a default filter criteria
+        filters.createAndAddRow();
+
         schemaListener = new ISchemaListener() {
 
             @Override

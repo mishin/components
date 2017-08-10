@@ -3,6 +3,7 @@ package org.talend.components.processing.definition.filterrow;
 import org.talend.components.api.component.ISchemaListener;
 import org.talend.daikon.properties.PropertiesImpl;
 import org.talend.daikon.properties.presentation.Form;
+import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
 
@@ -56,7 +57,7 @@ public class FilterRowCriteriaProperties extends PropertiesImpl {
     public void setupLayout() {
         super.setupLayout();
         Form mainForm = new Form(this, Form.MAIN);
-        mainForm.addRow(columnName);
+        mainForm.addRow(Widget.widget(columnName).setWidgetType(Widget.DATALIST_WIDGET_TYPE));
         mainForm.addColumn(function);
         mainForm.addColumn(operator);
         mainForm.addColumn(value);

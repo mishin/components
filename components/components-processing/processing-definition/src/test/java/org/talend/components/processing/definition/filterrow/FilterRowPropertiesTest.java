@@ -38,6 +38,7 @@ import org.talend.daikon.avro.AvroRegistry;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.serialize.jsonschema.JsonSchemaUtil;
+import org.talend.daikon.serialize.jsonschema.JsonSchemaUtilTest;
 
 public class FilterRowPropertiesTest {
 
@@ -565,6 +566,7 @@ public class FilterRowPropertiesTest {
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
         String jsonValue = JsonSchemaUtil.toJson(properties, Form.MAIN, FilterRowDefinition.COMPONENT_NAME);
+        JsonSchemaUtilTest.writeJson(jsonValue, "FilterRowProperties.json");
         // Assert.assertEquals(expectedJson, jsonValue);
         Assert.assertTrue(true);
     }
