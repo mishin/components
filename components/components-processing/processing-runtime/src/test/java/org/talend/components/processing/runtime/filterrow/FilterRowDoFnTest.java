@@ -57,6 +57,24 @@ public class FilterRowDoFnTest {
             .set("b", -100) //
             .set("c", 1000) //
             .build();
+    
+    private final GenericRecord inputa10Record = new GenericRecordBuilder(inputSimpleSchema) //
+            .set("a", 10) //
+            .set("b", 100) //
+            .set("c", 1000) //
+            .build();
+
+    private final GenericRecord inputa20Record = new GenericRecordBuilder(inputSimpleSchema) //
+            .set("a", 20) //
+            .set("b", 200) //
+            .set("c", 2000) //
+            .build();
+
+    private final GenericRecord input30Record = new GenericRecordBuilder(inputSimpleSchema) //
+            .set("a", 30) //
+            .set("b", 300) //
+            .set("c", 3000) //
+            .build();
 
     private void checkSimpleInputNoOutput(DoFnTester<Object, IndexedRecord> fnTester) throws Exception {
         List<IndexedRecord> outputs = fnTester.processBundle(inputSimpleRecord);
@@ -650,6 +668,35 @@ public class FilterRowDoFnTest {
         runNumericTestInvalidSession(properties);
     }
 
+    @Test
+    public void test_FilterBetween() throws Exception {
+        FilterRowProperties properties = new FilterRowProperties("test");
+        properties.init();
+        FilterRowCriteriaProperties filterGreater = new FilterRowCriteriaProperties("filter1");
+        filterGreater.init();
+        filterGreater.columnName.setValue("a");
+        filterGreater.operator.setValue(ConditionsRowConstant.Operator.GREATER);
+        filterGreater.value.setValue("10");
+        properties.filters.addRow(filterGreater);
+        FilterRowCriteriaProperties filterLess = new FilterRowCriteriaProperties("filter2");
+        filterLess.init();
+        filterLess.columnName.setValue("a");
+        filterLess.operator.setValue(ConditionsRowConstant.Operator.LOWER);
+        filterLess.value.setValue("30");
+        properties.filters.addRow(filterLess);
+
+        FilterRowDoFn function = new FilterRowDoFn().withProperties(properties) //
+                .withOutputSchema(true).withRejectSchema(true);
+        DoFnTester<Object, IndexedRecord> fnTester = DoFnTester.of(function);
+
+        List<IndexedRecord> outputs = fnTester.processBundle(input30Record, inputa10Record, inputa20Record);
+        List<IndexedRecord> rejects = fnTester.peekOutputElements(FilterRowRuntime.rejectOutput);
+
+        assertEquals(1, outputs.size());
+        assertEquals(2, rejects.size());
+
+    }
+    
     @Test
     public void test_FilterMatch_Valid() throws Exception {
 
