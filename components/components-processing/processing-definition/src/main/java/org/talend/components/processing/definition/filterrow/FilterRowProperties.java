@@ -137,9 +137,8 @@ public class FilterRowProperties extends FixedConnectorsComponentProperties {
     private void updateOperatorColumn() {
         Collection<FilterRowCriteriaProperties> criterias = filters.getPropertiesList();
         for (FilterRowCriteriaProperties filterRowCriteriaProperties : criterias) {
-            filterRowCriteriaProperties.operator.setPossibleValues(ConditionsRowConstant.DEFAULT_OPERATORS);
+            filterRowCriteriaProperties.updateOperatorColumn();
         }
-
     }
 
     /**
@@ -148,7 +147,7 @@ public class FilterRowProperties extends FixedConnectorsComponentProperties {
     private void updateFunctionColumn() {
         Collection<FilterRowCriteriaProperties> criterias = filters.getPropertiesList();
         for (FilterRowCriteriaProperties filterRowCriteriaProperties : criterias) {
-            filterRowCriteriaProperties.function.setPossibleValues(ConditionsRowConstant.ALL_FUNCTIONS);
+            filterRowCriteriaProperties.updateFuntionColumn();
         }
 
         // Finally check the operator

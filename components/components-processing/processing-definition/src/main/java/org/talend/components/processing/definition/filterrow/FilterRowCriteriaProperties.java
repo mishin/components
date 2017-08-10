@@ -1,5 +1,6 @@
 package org.talend.components.processing.definition.filterrow;
 
+import org.talend.components.api.component.ISchemaListener;
 import org.talend.daikon.properties.PropertiesImpl;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.property.Property;
@@ -49,6 +50,8 @@ public class FilterRowCriteriaProperties extends PropertiesImpl {
      */
     public Property<String> value = PropertyFactory.newString("value");
 
+    public transient ISchemaListener schemaListener;
+
     @Override
     public void setupLayout() {
         super.setupLayout();
@@ -57,5 +60,27 @@ public class FilterRowCriteriaProperties extends PropertiesImpl {
         mainForm.addColumn(function);
         mainForm.addColumn(operator);
         mainForm.addColumn(value);
+    }
+
+    @Override
+    public void setupProperties() {
+        super.setupProperties();
+        schemaListener = new ISchemaListener() {
+
+            @Override
+            public void afterSchema() {
+                updateFuntionColumn();
+                updateOperatorColumn();
+            }
+
+        };
+    }
+
+    public void updateFuntionColumn() {
+        function.setPossibleValues(ConditionsRowConstant.ALL_FUNCTIONS);
+    }
+
+    public void updateOperatorColumn() {
+        operator.setPossibleValues(ConditionsRowConstant.DEFAULT_OPERATORS);
     }
 }
