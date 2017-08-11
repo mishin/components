@@ -25,6 +25,7 @@ import org.talend.components.api.component.ISchemaListener;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.common.SchemaProperties;
+import org.talend.components.common.dataset.DatasetProperties;
 import org.talend.components.salesforce.common.ExceptionUtil;
 import org.talend.components.salesforce.common.SalesforceRuntimeSourceOrSink;
 import org.talend.daikon.NamedThing;
@@ -34,9 +35,10 @@ import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.StringProperty;
 import org.talend.daikon.sandbox.SandboxedInstance;
 
-public class SalesforceModuleProperties extends ComponentPropertiesImpl implements SalesforceProvideConnectionProperties {
+public class SalesforceModuleProperties extends ComponentPropertiesImpl
+        implements SalesforceProvideDatastoreProperties, DatasetProperties<SalesforceDatastoreProperties2> {
 
-    public SalesforceConnectionProperties connection = new SalesforceConnectionProperties("connection");
+    public SalesforceDatastoreProperties2 connection = new SalesforceDatastoreProperties2("connection");
 
     //
     // Properties
@@ -98,7 +100,7 @@ public class SalesforceModuleProperties extends ComponentPropertiesImpl implemen
             } else {
                 return vr;
             }
-            
+
             return ValidationResult.OK;
         }
     }
@@ -111,7 +113,7 @@ public class SalesforceModuleProperties extends ComponentPropertiesImpl implemen
             ValidationResult vr = ss.validate(null);
             if (vr.getStatus() == ValidationResult.Result.OK) {
                 try {
-                    Schema schema = ss.getEndpointSchema(null,moduleName.getStringValue());
+                    Schema schema = ss.getEndpointSchema(null, moduleName.getStringValue());
                     main.schema.setValue(schema);
                 } catch (Exception ex) {
                     throw new ComponentException(ExceptionUtil.exceptionToValidationResult(ex));
@@ -119,13 +121,24 @@ public class SalesforceModuleProperties extends ComponentPropertiesImpl implemen
             } else {
                 throw new ComponentException(vr);
             }
-            
+
             return ValidationResult.OK;
         }
     }
 
     @Override
-    public SalesforceConnectionProperties getConnectionProperties() {
+    public SalesforceDatastoreProperties2 getDatastoreProperties() {
+        return connection;
+    }
+
+    @Override
+    public void setDatastoreProperties(SalesforceDatastoreProperties2 datastoreProperties) {
+        connection = datastoreProperties;
+
+    }
+
+    @Override
+    public SalesforceDatastoreProperties2 getSalesforceDatastoreProperties() {
         return connection;
     }
 }

@@ -56,7 +56,7 @@ public class SalesforceSource extends SalesforceSourceOrSink implements BoundedS
         if (properties instanceof TSalesforceInputProperties) {
             TSalesforceInputProperties sfInProperties = (TSalesforceInputProperties) properties;
             boolean isBulk = TSalesforceInputProperties.QueryMode.Bulk.equals(sfInProperties.queryMode.getValue());
-            sfInProperties.connection.bulkConnection.setValue(isBulk);
+            sfInProperties.datastore.bulkConnection.setValue(isBulk);
             if (isBulk) {
                 return new SalesforceBulkQueryInputReader(adaptor, this, sfInProperties);
             } else {
@@ -69,7 +69,7 @@ public class SalesforceSource extends SalesforceSourceOrSink implements BoundedS
         } else if (properties instanceof TSalesforceGetUpdatedProperties) {
             return new SalesforceGetUpdatedReader(adaptor, this, (TSalesforceGetUpdatedProperties) properties);
         } else if (properties instanceof TSalesforceBulkExecProperties) {
-            ((TSalesforceBulkExecProperties) properties).connection.bulkConnection.setValue(true);
+            ((TSalesforceBulkExecProperties) properties).datastore.bulkConnection.setValue(true);
             return new SalesforceBulkExecReader(adaptor, this, (TSalesforceBulkExecProperties) properties);
         }
         return null;

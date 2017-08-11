@@ -224,9 +224,9 @@ public class TSalesforceInputProperties extends SalesforceConnectionModuleProper
             form.getWidget(normalizeDelimiter.getName()).setHidden(isBulkQuery);
             form.getWidget(columnNameDelimiter.getName()).setHidden(isBulkQuery);
             form.getWidget(batchSize.getName()).setHidden(isBulkQuery);
-            connection.bulkConnection.setValue(isBulkQuery);
-            connection.afterBulkConnection();
-            form.getChildForm(connection.getName()).getWidget(connection.bulkConnection.getName()).setHidden(true);
+            datastore.bulkConnection.setValue(isBulkQuery);
+            datastore.afterBulkConnection();
+            form.getChildForm(datastore.getName()).getWidget(datastore.bulkConnection.getName()).setHidden(true);
         }
     }
 

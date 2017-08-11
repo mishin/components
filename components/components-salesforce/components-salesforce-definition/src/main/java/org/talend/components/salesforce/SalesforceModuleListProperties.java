@@ -35,9 +35,9 @@ import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.service.Repository;
 import org.talend.daikon.sandbox.SandboxedInstance;
 
-public class SalesforceModuleListProperties extends ComponentPropertiesImpl implements SalesforceProvideConnectionProperties {
+public class SalesforceModuleListProperties extends ComponentPropertiesImpl implements SalesforceProvideDatastoreProperties {
 
-    public SalesforceConnectionProperties connection = new SalesforceConnectionProperties("connection");
+    public SalesforceDatastoreProperties2 connection = new SalesforceDatastoreProperties2("connection");
 
     private String repositoryLocation;
 
@@ -53,7 +53,7 @@ public class SalesforceModuleListProperties extends ComponentPropertiesImpl impl
         super(name);
     }
 
-    public SalesforceModuleListProperties setConnection(SalesforceConnectionProperties connection) {
+    public SalesforceModuleListProperties setConnection(SalesforceDatastoreProperties2 connection) {
         this.connection = connection;
         return this;
     }
@@ -123,7 +123,7 @@ public class SalesforceModuleListProperties extends ComponentPropertiesImpl impl
     }
 
     @Override
-    public SalesforceConnectionProperties getConnectionProperties() {
+    public SalesforceDatastoreProperties2 getSalesforceDatastoreProperties() {
         return connection;
     }
 }

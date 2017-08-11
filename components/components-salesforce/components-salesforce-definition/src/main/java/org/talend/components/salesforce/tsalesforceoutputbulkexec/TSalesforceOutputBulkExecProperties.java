@@ -101,7 +101,7 @@ public class TSalesforceOutputBulkExecProperties extends TSalesforceBulkExecProp
         // add quotes for generation)
         bulkExecProperties.upsertRelationTable.columnName.setPossibleValues(upsertRelationTable.columnName.getPossibleValues());
 
-        bulkExecProperties.connection.referencedComponent.componentInstanceId.setTaggedValue(UpsertRelationTable.ADD_QUOTES,
+        bulkExecProperties.datastore.referencedComponent.componentInstanceId.setTaggedValue(UpsertRelationTable.ADD_QUOTES,
                 true);
         bulkExecProperties.module.connection.referencedComponent.componentInstanceId
                 .setTaggedValue(UpsertRelationTable.ADD_QUOTES, true);

@@ -70,7 +70,7 @@ public abstract class SalesforceDefinition extends AbstractComponentDefinition {
     @SuppressWarnings("unchecked")
     @Override
     public Class<? extends ComponentProperties>[] getNestedCompatibleComponentPropertiesClass() {
-        return new Class[] { SalesforceConnectionProperties.class };
+        return new Class[] { SalesforceDatastoreProperties2.class };
     }
 
     @Override

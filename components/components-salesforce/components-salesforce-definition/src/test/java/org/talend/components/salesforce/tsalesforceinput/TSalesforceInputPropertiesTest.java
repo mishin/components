@@ -110,8 +110,8 @@ public class TSalesforceInputPropertiesTest extends SalesforceTestBase {
         Assert.assertFalse(properties.getForm(Form.ADVANCED).getWidget(properties.batchSize.getName()).isHidden());
         Assert.assertTrue(properties.getForm(Form.ADVANCED).getWidget(properties.pkChunking.getName()).isHidden());
         Assert.assertTrue(properties.getForm(Form.ADVANCED).getWidget(properties.chunkSize.getName()).isHidden());
-        Assert.assertTrue(properties.getForm(Form.ADVANCED).getChildForm(properties.connection.getName())
-                .getWidget(properties.connection.bulkConnection.getName()).isHidden());
+        Assert.assertTrue(properties.getForm(Form.ADVANCED).getChildForm(properties.datastore.getName())
+                .getWidget(properties.datastore.bulkConnection.getName()).isHidden());
 
         properties.queryMode.setValue(QueryMode.Bulk);
         properties.manualQuery.setValue(false);
@@ -129,8 +129,8 @@ public class TSalesforceInputPropertiesTest extends SalesforceTestBase {
         Assert.assertTrue(properties.getForm(Form.ADVANCED).getWidget(properties.batchSize.getName()).isHidden());
         Assert.assertFalse(properties.getForm(Form.ADVANCED).getWidget(properties.pkChunking.getName()).isHidden());
         Assert.assertFalse(properties.getForm(Form.ADVANCED).getWidget(properties.chunkSize.getName()).isHidden());
-        Assert.assertTrue(properties.getForm(Form.ADVANCED).getChildForm(properties.connection.getName())
-                .getWidget(properties.connection.bulkConnection.getName()).isHidden());
+        Assert.assertTrue(properties.getForm(Form.ADVANCED).getChildForm(properties.datastore.getName())
+                .getWidget(properties.datastore.bulkConnection.getName()).isHidden());
     }
 
     @Test
@@ -331,7 +331,7 @@ public class TSalesforceInputPropertiesTest extends SalesforceTestBase {
     private void setupProperties() {
         //Initializing all inner properties
         properties.setupProperties();
-        properties.connection.init();
+        properties.datastore.init();
         properties.module.init();
     }
 

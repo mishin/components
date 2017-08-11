@@ -47,7 +47,7 @@ public class SalesforceModuleWizardDefinitionTest {
     @Test
     public void testSupportsProperties() {
         assertTrue(definition.supportsProperties(SalesforceModuleListProperties.class));
-        assertFalse(definition.supportsProperties(SalesforceConnectionProperties.class));
+        assertFalse(definition.supportsProperties(SalesforceDatastoreProperties2.class));
     }
 
     @Test

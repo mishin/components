@@ -43,7 +43,7 @@ import org.talend.components.api.service.common.ComponentServiceImpl;
 import org.talend.components.api.service.common.DefinitionRegistry;
 import org.talend.components.api.test.AbstractComponentTest;
 import org.talend.components.salesforce.SalesforceConnectionModuleProperties;
-import org.talend.components.salesforce.SalesforceConnectionProperties;
+import org.talend.components.salesforce.SalesforceDatastoreProperties2;
 import org.talend.components.salesforce.SalesforceFamilyDefinition;
 import org.talend.components.salesforce.SalesforceModuleProperties;
 import org.talend.components.salesforce.SalesforceOutputProperties.OutputAction;
@@ -115,9 +115,9 @@ public class SalesforceTestBase extends AbstractComponentTest {
         return afterProperty;
     }
 
-    static public SalesforceConnectionProperties setupProps(SalesforceConnectionProperties props, boolean addQuotes) {
+    static public SalesforceDatastoreProperties2 setupProps(SalesforceDatastoreProperties2 props, boolean addQuotes) {
         if (props == null) {
-            props = (SalesforceConnectionProperties) new SalesforceConnectionProperties("foo").init();
+            props = (SalesforceDatastoreProperties2) new SalesforceDatastoreProperties2("foo").init();
         }
         Properties userPassword = (Properties) props.getProperty("userPassword");
         ((Property) userPassword.getProperty("userId")).setValue(addQuotes ? "\"" + userId + "\"" : userId);
@@ -318,7 +318,7 @@ public class SalesforceTestBase extends AbstractComponentTest {
 
     protected List<IndexedRecord> readRows(SalesforceConnectionModuleProperties props) throws IOException {
         TSalesforceInputProperties inputProps = (TSalesforceInputProperties) new TSalesforceInputProperties("bar").init();
-        inputProps.connection = props.connection;
+        inputProps.datastore = props.datastore;
         inputProps.module = props.module;
         inputProps.batchSize.setValue(200);
         inputProps.queryMode.setValue(TSalesforceInputProperties.QueryMode.Query);
@@ -392,7 +392,7 @@ public class SalesforceTestBase extends AbstractComponentTest {
         if (null == properties) {
             properties = (TSalesforceInputProperties) new TSalesforceInputProperties("foo").init(); //$NON-NLS-1$
         }
-        setupProps(properties.connection, !ADD_QUOTES);
+        setupProps(properties.datastore, !ADD_QUOTES);
         properties.batchSize.setValue(200);
         properties.module.moduleName.setValue(moduleName);
         properties.module.main.schema.setValue(
@@ -426,13 +426,13 @@ public class SalesforceTestBase extends AbstractComponentTest {
         }
         // filtering rows
         TSalesforceOutputProperties salesforceoutputProperties = createSalesforceoutputProperties(EXISTING_MODULE_NAME);
-        setupProps(salesforceoutputProperties.connection, !ADD_QUOTES);
+        setupProps(salesforceoutputProperties.datastore, !ADD_QUOTES);
         new SalesforceTestBase().deleteRows(rows, salesforceoutputProperties);
     }
 
     private static TSalesforceOutputProperties createSalesforceoutputProperties(String moduleName) throws Exception {
         TSalesforceOutputProperties props = (TSalesforceOutputProperties) new TSalesforceOutputProperties("foo").init();
-        setupProps(props.connection, !ADD_QUOTES);
+        setupProps(props.datastore, !ADD_QUOTES);
         props.module.moduleName.setValue(moduleName);
         props.module.afterModuleName();// to setup schema.
         return props;

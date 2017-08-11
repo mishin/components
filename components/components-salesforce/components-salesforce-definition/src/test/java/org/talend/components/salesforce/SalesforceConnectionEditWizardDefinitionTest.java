@@ -34,19 +34,19 @@ public class SalesforceConnectionEditWizardDefinitionTest {
     private final String repoLocation = "___DRI";
 
     private SalesforceConnectionEditWizardDefinition definition;
-    private SalesforceConnectionProperties properties;
+    private SalesforceDatastoreProperties2 properties;
 
     @Before
     public void setUp() {
         definition = new SalesforceConnectionEditWizardDefinition();
 
-        properties = new SalesforceConnectionProperties("connection");
+        properties = new SalesforceDatastoreProperties2("connection");
         properties.init();
     }
 
     @Test
     public void testSupportsProperties() {
-        assertTrue(definition.supportsProperties(SalesforceConnectionProperties.class));
+        assertTrue(definition.supportsProperties(SalesforceDatastoreProperties2.class));
         assertFalse(definition.supportsProperties(SalesforceModuleListProperties.class));
     }
 

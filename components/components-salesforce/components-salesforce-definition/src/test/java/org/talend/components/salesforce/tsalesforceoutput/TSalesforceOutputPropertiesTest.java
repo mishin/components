@@ -141,7 +141,7 @@ public class TSalesforceOutputPropertiesTest extends SalesforceTestBase {
         properties.init();
 
         try (MockRuntimeSourceOrSinkTestFixture testFixture = new MockRuntimeSourceOrSinkTestFixture(
-                properties.connection, createDefaultTestDataset())) {
+                properties.datastore, createDefaultTestDataset())) {
             testFixture.setUp();
 
             propertiesService.beforePropertyActivate("moduleName", properties.module);
@@ -157,7 +157,7 @@ public class TSalesforceOutputPropertiesTest extends SalesforceTestBase {
         properties.init();
 
         try (MockRuntimeSourceOrSinkTestFixture testFixture = new MockRuntimeSourceOrSinkTestFixture(
-                properties.connection, createDefaultTestDataset())) {
+                properties.datastore, createDefaultTestDataset())) {
             testFixture.setUp();
 
             when(testFixture.runtimeSourceOrSink.getSchemaNames(any(RuntimeContainer.class)))
@@ -175,7 +175,7 @@ public class TSalesforceOutputPropertiesTest extends SalesforceTestBase {
         properties.init();
 
         try (MockRuntimeSourceOrSinkTestFixture testFixture = new MockRuntimeSourceOrSinkTestFixture(
-                properties.connection, createDefaultTestDataset())) {
+                properties.datastore, createDefaultTestDataset())) {
             testFixture.setUp();
 
             properties.outputAction.setValue(SalesforceOutputProperties.OutputAction.INSERT);
@@ -196,7 +196,7 @@ public class TSalesforceOutputPropertiesTest extends SalesforceTestBase {
         properties.init();
 
         try (MockRuntimeSourceOrSinkTestFixture testFixture = new MockRuntimeSourceOrSinkTestFixture(
-                properties.connection, createDefaultTestDataset())) {
+                properties.datastore, createDefaultTestDataset())) {
             testFixture.setUp();
 
             properties.outputAction.setValue(SalesforceOutputProperties.OutputAction.UPSERT);
@@ -215,7 +215,7 @@ public class TSalesforceOutputPropertiesTest extends SalesforceTestBase {
         properties.init();
 
         try (MockRuntimeSourceOrSinkTestFixture testFixture = new MockRuntimeSourceOrSinkTestFixture(
-                properties.connection, createDefaultTestDataset())) {
+                properties.datastore, createDefaultTestDataset())) {
             testFixture.setUp();
 
             when(testFixture.runtimeSourceOrSink.getEndpointSchema(any(RuntimeContainer.class), eq("Customer")))

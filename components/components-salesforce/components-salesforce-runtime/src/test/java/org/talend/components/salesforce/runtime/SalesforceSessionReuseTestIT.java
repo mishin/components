@@ -39,7 +39,7 @@ import org.talend.components.api.container.DefaultComponentRuntimeContainerImpl;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.api.test.ComponentTestUtils;
-import org.talend.components.salesforce.SalesforceConnectionProperties;
+import org.talend.components.salesforce.SalesforceDatastoreProperties2;
 import org.talend.components.salesforce.runtime.common.ConnectionHolder;
 import org.talend.components.salesforce.test.SalesforceTestBase;
 import org.talend.components.salesforce.tsalesforceconnection.TSalesforceConnectionDefinition;
@@ -104,7 +104,7 @@ public class SalesforceSessionReuseTestIT extends SalesforceTestBase {
         File sessionFolder = new File(tempFolder.getRoot().getPath() + "/tsalesforceconnection/");
         assertEquals(0, sessionFolder.getTotalSpace());
         LOGGER.debug("session folder: " + sessionFolder.getAbsolutePath());
-        SalesforceConnectionProperties props = setupProps(null, !ADD_QUOTES);
+        SalesforceDatastoreProperties2 props = setupProps(null, !ADD_QUOTES);
         // setup session function
         props.reuseSession.setValue(true);
         props.sessionDirectory.setValue(sessionFolder.getAbsolutePath());
@@ -125,7 +125,7 @@ public class SalesforceSessionReuseTestIT extends SalesforceTestBase {
         File sessionFolder = new File(tempFolder.getRoot().getPath() + "/tsalesforceconnection_1/");
         assertEquals(0, sessionFolder.getTotalSpace());
         LOGGER.debug("session folder: " + sessionFolder.getAbsolutePath());
-        SalesforceConnectionProperties connProps = (SalesforceConnectionProperties) getComponentService()
+        SalesforceDatastoreProperties2 connProps = (SalesforceDatastoreProperties2) getComponentService()
                 .getComponentProperties(TSalesforceConnectionDefinition.COMPONENT_NAME);
         setupProps(connProps, !ADD_QUOTES);
         // setup session function
@@ -167,10 +167,10 @@ public class SalesforceSessionReuseTestIT extends SalesforceTestBase {
         // Input component get connection from the tSalesforceConnection
         TSalesforceInputProperties inProps = (TSalesforceInputProperties) getComponentService()
                 .getComponentProperties(TSalesforceInputDefinition.COMPONENT_NAME);
-        inProps.connection.referencedComponent.componentInstanceId.setValue(currentComponentName);
-        inProps.connection.referencedComponent.setReference(connProps);
-        checkAndAfter(inProps.connection.referencedComponent.getReference().getForm(Form.REFERENCE), "referencedComponent",
-                inProps.connection);
+        inProps.datastore.referencedComponent.componentInstanceId.setValue(currentComponentName);
+        inProps.datastore.referencedComponent.setReference(connProps);
+        checkAndAfter(inProps.datastore.referencedComponent.getReference().getForm(Form.REFERENCE), "referencedComponent",
+                inProps.datastore);
 
         ComponentTestUtils.checkSerialize(inProps, errorCollector);
 
@@ -235,18 +235,18 @@ public class SalesforceSessionReuseTestIT extends SalesforceTestBase {
         TSalesforceInputProperties props = (TSalesforceInputProperties) new TSalesforceInputProperties("foo").init(); //$NON-NLS-1$
         props.module.moduleName.setValue(EXISTING_MODULE_NAME);
         props.module.main.schema.setValue(getMakeRowSchema(false));
-        props.connection = setupProps(null, !ADD_QUOTES);
+        props.datastore = setupProps(null, !ADD_QUOTES);
 
         // setup session function
-        props.connection.reuseSession.setValue(true);
-        props.connection.sessionDirectory.setValue(sessionFolder.getAbsolutePath());
+        props.datastore.reuseSession.setValue(true);
+        props.datastore.sessionDirectory.setValue(sessionFolder.getAbsolutePath());
 
         // Init session
         assertEquals(ValidationResult.Result.OK, testConnection(props).getStatus());
         assertNotEquals(0, sessionFolder.getTotalSpace());
 
         // Invalid session, test whether it can be renew the session
-        invalidSession(props.connection, null);
+        invalidSession(props.datastore, null);
 
         List<IndexedRecord> records = readRows(props);
         assertNotNull(records);
@@ -254,7 +254,7 @@ public class SalesforceSessionReuseTestIT extends SalesforceTestBase {
         assertNotEquals(0, records.size());
 
         // Set wrong pwd to test reuse session from session folder
-        props.connection.userPassword.password.setValue(WRONG_PWD);
+        props.datastore.userPassword.password.setValue(WRONG_PWD);
 
         try {
             testConnection(props);
@@ -263,7 +263,7 @@ public class SalesforceSessionReuseTestIT extends SalesforceTestBase {
             LOGGER.debug("current records number in module " + EXISTING_MODULE_NAME + ": " + records.size());
             assertNotEquals(0, records.size());
             // Test reuse session fails with wrong pwd
-            invalidSession(props.connection, null);
+            invalidSession(props.datastore, null);
             // This means that the session is disabled by current test
         } catch (IOException e) {
             Throwable caused = e.getCause();
@@ -285,7 +285,7 @@ public class SalesforceSessionReuseTestIT extends SalesforceTestBase {
         }
 
         // Disable reuse session function
-        props.connection.reuseSession.setValue(false);
+        props.datastore.reuseSession.setValue(false);
         LOGGER.debug("expect login fails:");
         assertEquals(ValidationResult.Result.ERROR, testConnection(props).getStatus());
 
@@ -297,10 +297,10 @@ public class SalesforceSessionReuseTestIT extends SalesforceTestBase {
         TSalesforceInputProperties props = (TSalesforceInputProperties) new TSalesforceInputProperties("foo").init(); //$NON-NLS-1$
         props.module.moduleName.setValue(EXISTING_MODULE_NAME);
         props.module.main.schema.setValue(getMakeRowSchema(false));
-        props.connection = setupProps(null, !ADD_QUOTES);
+        props.datastore = setupProps(null, !ADD_QUOTES);
 
         // setup session function
-        props.connection.bulkConnection.setValue(true);
+        props.datastore.bulkConnection.setValue(true);
         props.queryMode.setValue(TSalesforceInputProperties.QueryMode.Bulk);
         props.condition.setValue("Name = '"+ randomizedValue + "'");
         // Init session
@@ -317,7 +317,7 @@ public class SalesforceSessionReuseTestIT extends SalesforceTestBase {
 
         Thread.sleep(1000);
 
-        invalidSession(props.connection, sessionIdBeforeRenew);
+        invalidSession(props.datastore, sessionIdBeforeRenew);
         // Test renew session for bulk connections
         try {
             reader.start();
@@ -349,18 +349,18 @@ public class SalesforceSessionReuseTestIT extends SalesforceTestBase {
         TSalesforceOutputProperties props = (TSalesforceOutputProperties) new TSalesforceOutputProperties("foo").init(); //$NON-NLS-1$
         props.module.moduleName.setValue(EXISTING_MODULE_NAME);
         props.module.main.schema.setValue(getMakeRowSchema(false));
-        props.connection = setupProps(null, !ADD_QUOTES);
+        props.datastore = setupProps(null, !ADD_QUOTES);
 
         // setup session function
-        props.connection.reuseSession.setValue(true);
-        props.connection.sessionDirectory.setValue(sessionFolder.getAbsolutePath());
+        props.datastore.reuseSession.setValue(true);
+        props.datastore.sessionDirectory.setValue(sessionFolder.getAbsolutePath());
 
         // Init session
         assertEquals(ValidationResult.Result.OK, testConnection(props).getStatus());
         assertNotEquals(0, sessionFolder.getTotalSpace());
 
         // Invalid session, test whether it can be renew the session
-        invalidSession(props.connection, null);
+        invalidSession(props.datastore, null);
         // length=260
         String invalidName = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
                 + "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
@@ -377,7 +377,7 @@ public class SalesforceSessionReuseTestIT extends SalesforceTestBase {
             LOGGER.debug("expect exception: " + e.getMessage());
         }
         // Set wrong pwd to test reuse session from session folder
-        props.connection.userPassword.password.setValue(WRONG_PWD);
+        props.datastore.userPassword.password.setValue(WRONG_PWD);
         try {
             doWriteRows(props, records);
         } catch (IOException e) {
@@ -393,7 +393,7 @@ public class SalesforceSessionReuseTestIT extends SalesforceTestBase {
                 LOGGER.debug("expect exception: " + e.getMessage());
                 // This means that the session not disabled by other test
 
-                invalidSession(props.connection, null);
+                invalidSession(props.datastore, null);
                 // This means that the session is disabled by current test
             }
         }
@@ -410,7 +410,7 @@ public class SalesforceSessionReuseTestIT extends SalesforceTestBase {
         }
 
         // Disable reuse session function
-        props.connection.reuseSession.setValue(false);
+        props.datastore.reuseSession.setValue(false);
         LOGGER.debug("expect login fails:");
         assertEquals(ValidationResult.Result.ERROR, testConnection(props).getStatus());
 
@@ -423,7 +423,7 @@ public class SalesforceSessionReuseTestIT extends SalesforceTestBase {
         return result;
     }
 
-    protected void invalidSession(SalesforceConnectionProperties props, String sessionId) throws Exception {
+    protected void invalidSession(SalesforceDatastoreProperties2 props, String sessionId) throws Exception {
         SalesforceSourceOrSink sourceOrSink = new SalesforceSourceOrSink();
         sourceOrSink.initialize(null, props);
         ConnectionHolder connectionHolder = sourceOrSink.connect(null);

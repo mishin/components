@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 import org.junit.Before;
 import org.junit.Test;
 import org.talend.components.api.container.RuntimeContainer;
-import org.talend.components.salesforce.SalesforceConnectionProperties;
+import org.talend.components.salesforce.SalesforceDatastoreProperties2;
 import org.talend.components.salesforce.SalesforceTestBase;
 import org.talend.daikon.properties.ValidationResult;
 import org.talend.daikon.properties.ValidationResultMutable;
@@ -40,20 +40,20 @@ import org.talend.daikon.properties.presentation.Form;
  */
 public class SalesforceConnectionPropertiesTest extends SalesforceTestBase {
 
-    private SalesforceConnectionProperties properties;
+    private SalesforceDatastoreProperties2 properties;
 
     @Before
     public void setUp() {
-        properties = spy(new SalesforceConnectionProperties("connection"));
+        properties = spy(new SalesforceDatastoreProperties2("connection"));
     }
 
     @Test
     public void testSetupProperties() {
         properties.setupProperties();
 
-        assertEquals(SalesforceConnectionProperties.URL, properties.endpoint.getValue());
-        assertEquals(SalesforceConnectionProperties.DEFAULT_API_VERSION, properties.apiVersion.getValue());
-        assertEquals(SalesforceConnectionProperties.LoginType.Basic, properties.loginType.getValue());
+        assertEquals(SalesforceDatastoreProperties2.URL, properties.endpoint.getValue());
+        assertEquals(SalesforceDatastoreProperties2.DEFAULT_API_VERSION, properties.apiVersion.getValue());
+        assertEquals(SalesforceDatastoreProperties2.LoginType.Basic, properties.loginType.getValue());
         assertEquals(Boolean.FALSE, properties.reuseSession.getValue());
         assertEquals(Integer.valueOf(60000), properties.timeout.getValue());
         assertEquals(Boolean.TRUE, properties.httpChunked.getValue());
@@ -76,7 +76,7 @@ public class SalesforceConnectionPropertiesTest extends SalesforceTestBase {
         Form refForm = properties.getForm(Form.REFERENCE);
         assertNotNull(refForm);
 
-        Form wizardForm = properties.getForm(SalesforceConnectionProperties.FORM_WIZARD);
+        Form wizardForm = properties.getForm(SalesforceDatastoreProperties2.FORM_WIZARD);
         assertNotNull(wizardForm);
     }
 
@@ -102,24 +102,24 @@ public class SalesforceConnectionPropertiesTest extends SalesforceTestBase {
 
         reset(properties);
 
-        properties.loginType.setValue(SalesforceConnectionProperties.LoginType.OAuth);
+        properties.loginType.setValue(SalesforceDatastoreProperties2.LoginType.OAuth);
         properties.afterLoginType();
 
         verify(properties, times(3)).refreshLayout(any(Form.class));
 
         Form mainForm = properties.getForm(Form.MAIN);
-        assertEquals(SalesforceConnectionProperties.OAUTH_URL, properties.endpoint.getValue());
+        assertEquals(SalesforceDatastoreProperties2.OAUTH_URL, properties.endpoint.getValue());
         testLoginTypeWidgets(mainForm);
 
-        Form wizardForm = properties.getForm(SalesforceConnectionProperties.FORM_WIZARD);
+        Form wizardForm = properties.getForm(SalesforceDatastoreProperties2.FORM_WIZARD);
         testLoginTypeWidgets(wizardForm);
 
         // Switch back to Basic auth mode
 
-        properties.loginType.setValue(SalesforceConnectionProperties.LoginType.Basic);
+        properties.loginType.setValue(SalesforceDatastoreProperties2.LoginType.Basic);
         properties.afterLoginType();
 
-        assertEquals(SalesforceConnectionProperties.URL, properties.endpoint.getValue());
+        assertEquals(SalesforceDatastoreProperties2.URL, properties.endpoint.getValue());
     }
 
     @Test
@@ -128,7 +128,7 @@ public class SalesforceConnectionPropertiesTest extends SalesforceTestBase {
 
         reset(properties);
 
-        SalesforceConnectionProperties referencedProperties = new SalesforceConnectionProperties("reference");
+        SalesforceDatastoreProperties2 referencedProperties = new SalesforceDatastoreProperties2("reference");
 
         properties.referencedComponent.componentInstanceId.setValue("tSalesforceConnection_1");
         properties.referencedComponent.setReference(referencedProperties);
@@ -154,7 +154,7 @@ public class SalesforceConnectionPropertiesTest extends SalesforceTestBase {
     public void testValidateTestConnection() throws Exception {
         properties.init();
 
-        Form wizardForm = properties.getForm(SalesforceConnectionProperties.FORM_WIZARD);
+        Form wizardForm = properties.getForm(SalesforceDatastoreProperties2.FORM_WIZARD);
 
         try (MockRuntimeSourceOrSinkTestFixture testFixture = new MockRuntimeSourceOrSinkTestFixture(
                 equalTo(properties), createDefaultTestDataset())) {

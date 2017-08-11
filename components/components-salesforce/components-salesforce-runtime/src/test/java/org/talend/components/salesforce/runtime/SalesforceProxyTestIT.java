@@ -26,7 +26,7 @@ import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 import org.talend.components.api.component.runtime.Reader;
 import org.talend.components.api.component.runtime.Source;
 import org.talend.components.api.component.runtime.SourceOrSink;
-import org.talend.components.salesforce.SalesforceConnectionProperties;
+import org.talend.components.salesforce.SalesforceDatastoreProperties2;
 import org.talend.components.salesforce.test.SalesforceRuntimeTestUtil;
 import org.talend.components.salesforce.test.SalesforceTestBase;
 import org.talend.components.salesforce.tsalesforceconnection.TSalesforceConnectionDefinition;
@@ -80,7 +80,7 @@ public class SalesforceProxyTestIT extends SalesforceTestBase {
     public void testProxy() {
         TSalesforceConnectionDefinition definition = (TSalesforceConnectionDefinition) getComponentService()
                 .getComponentDefinition(TSalesforceConnectionDefinition.COMPONENT_NAME);
-        SalesforceConnectionProperties properties = (SalesforceConnectionProperties) definition.createRuntimeProperties();
+        SalesforceDatastoreProperties2 properties = (SalesforceDatastoreProperties2) definition.createRuntimeProperties();
 
         properties.bulkConnection.setValue(true);
         properties.userPassword.userId.setValue(userId);
@@ -99,16 +99,16 @@ public class SalesforceProxyTestIT extends SalesforceTestBase {
                 .getComponentDefinition(TSalesforceInputDefinition.COMPONENT_NAME);
         TSalesforceInputProperties properties = (TSalesforceInputProperties) definition.createRuntimeProperties();
 
-        properties.connection.bulkConnection.setValue(true);
+        properties.datastore.bulkConnection.setValue(true);
         properties.queryMode.setValue(QueryMode.Bulk);
 
         SalesforceRuntimeTestUtil util = new SalesforceRuntimeTestUtil();
         properties.module.moduleName.setValue(util.getTestModuleName());
         properties.module.main.schema.setValue(util.getTestSchema1());
 
-        properties.connection.userPassword.userId.setValue(userId);
-        properties.connection.userPassword.password.setValue(password);
-        properties.connection.userPassword.securityKey.setValue(securityKey);
+        properties.datastore.userPassword.userId.setValue(userId);
+        properties.datastore.userPassword.password.setValue(password);
+        properties.datastore.userPassword.securityKey.setValue(securityKey);
 
         Source source = new SalesforceSource();
         source.initialize(null, properties);

@@ -22,16 +22,16 @@ import org.talend.daikon.properties.presentation.Form;
  */
 public class SalesforceConnectionWizard extends ComponentWizard {
 
-    SalesforceConnectionProperties cProps;
+    SalesforceDatastoreProperties2 cProps;
 
     SalesforceModuleListProperties mProps;
 
     SalesforceConnectionWizard(ComponentWizardDefinition def, String repositoryLocation) {
         super(def, repositoryLocation);
 
-        cProps = new SalesforceConnectionProperties("connection");
+        cProps = new SalesforceDatastoreProperties2("connection");
         cProps.init();
-        addForm(cProps.getForm(SalesforceConnectionProperties.FORM_WIZARD));
+        addForm(cProps.getForm(SalesforceDatastoreProperties2.FORM_WIZARD));
 
         mProps = new SalesforceModuleListProperties("mProps").setConnection(cProps)
                 .setRepositoryLocation(getRepositoryLocation());
@@ -40,10 +40,10 @@ public class SalesforceConnectionWizard extends ComponentWizard {
     }
 
     public boolean supportsProperties(ComponentProperties properties) {
-        return properties instanceof SalesforceConnectionProperties;
+        return properties instanceof SalesforceDatastoreProperties2;
     }
 
-    public void setupProperties(SalesforceConnectionProperties cPropsOther) {
+    public void setupProperties(SalesforceDatastoreProperties2 cPropsOther) {
         cProps.copyValuesFrom(cPropsOther);
         mProps.setConnection(cProps);
     }

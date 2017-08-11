@@ -110,7 +110,7 @@ public class SalesforceOutputProperties extends SalesforceConnectionModuleProper
         setupRejectSchema();
 
         module = new ModuleSubclass("module");
-        module.connection = connection;
+        module.connection = datastore;
         module.setupProperties();
         upsertRelationTable.setUsePolymorphic(false);
     }

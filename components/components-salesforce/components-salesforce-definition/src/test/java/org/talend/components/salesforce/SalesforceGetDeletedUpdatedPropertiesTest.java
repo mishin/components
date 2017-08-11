@@ -51,18 +51,18 @@ public class SalesforceGetDeletedUpdatedPropertiesTest extends SalesforceTestBas
         properties.init();
 
         Form mainForm = properties.getForm(Form.MAIN);
-        assertNotNull(mainForm.getWidget(properties.getConnectionProperties().getName()));
-        assertNotNull(mainForm.getChildForm(properties.getConnectionProperties().getName())
-                .getChildForm(properties.getConnectionProperties().getName()));
+        assertNotNull(mainForm.getWidget(properties.getSalesforceDatastoreProperties().getName()));
+        assertNotNull(mainForm.getChildForm(properties.getSalesforceDatastoreProperties().getName())
+                .getChildForm(properties.getSalesforceDatastoreProperties().getName()));
         assertNotNull(mainForm.getWidget(properties.startDate.getName()));
         assertNotNull(mainForm.getWidget(properties.endDate.getName()));
 
         Form advForm = properties.getForm(Form.ADVANCED);
-        assertNotNull(advForm.getWidget(properties.getConnectionProperties().getName()));
-        assertNotNull(advForm.getChildForm(properties.getConnectionProperties().getName()).getWidget(
-                properties.getConnectionProperties().bulkConnection.getName()));
-        assertNotNull(advForm.getChildForm(properties.getConnectionProperties().getName()).getWidget(
-                properties.getConnectionProperties().httpTraceMessage.getName()));
+        assertNotNull(advForm.getWidget(properties.getSalesforceDatastoreProperties().getName()));
+        assertNotNull(advForm.getChildForm(properties.getSalesforceDatastoreProperties().getName()).getWidget(
+                properties.getSalesforceDatastoreProperties().bulkConnection.getName()));
+        assertNotNull(advForm.getChildForm(properties.getSalesforceDatastoreProperties().getName()).getWidget(
+                properties.getSalesforceDatastoreProperties().httpTraceMessage.getName()));
     }
 
     @Test
@@ -71,16 +71,16 @@ public class SalesforceGetDeletedUpdatedPropertiesTest extends SalesforceTestBas
 
         properties.refreshLayout(properties.getForm(Form.MAIN));
         Form mainForm = properties.getForm(Form.MAIN);
-        assertTrue(mainForm.getChildForm(properties.getConnectionProperties().getName())
-                .getChildForm(properties.getConnectionProperties().getName())
-                .getWidget(properties.getConnectionProperties().loginType.getName()).isVisible());
+        assertTrue(mainForm.getChildForm(properties.getSalesforceDatastoreProperties().getName())
+                .getChildForm(properties.getSalesforceDatastoreProperties().getName())
+                .getWidget(properties.getSalesforceDatastoreProperties().loginType.getName()).isVisible());
 
         properties.refreshLayout(properties.getForm(Form.ADVANCED));
         Form advForm = properties.getForm(Form.ADVANCED);
-        assertFalse(advForm.getChildForm(properties.getConnectionProperties().getName()).getWidget(
-                properties.getConnectionProperties().bulkConnection.getName()).isVisible());
-        assertFalse(advForm.getChildForm(properties.getConnectionProperties().getName()).getWidget(
-                properties.getConnectionProperties().httpTraceMessage.getName()).isVisible());
+        assertFalse(advForm.getChildForm(properties.getSalesforceDatastoreProperties().getName()).getWidget(
+                properties.getSalesforceDatastoreProperties().bulkConnection.getName()).isVisible());
+        assertFalse(advForm.getChildForm(properties.getSalesforceDatastoreProperties().getName()).getWidget(
+                properties.getSalesforceDatastoreProperties().httpTraceMessage.getName()).isVisible());
     }
 
     @Test

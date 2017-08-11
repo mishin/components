@@ -44,7 +44,7 @@ public class SalesforceModuleListPropertiesTest extends SalesforceTestBase {
 
     private PropertiesService propertiesService;
 
-    private SalesforceConnectionProperties connectionProperties;
+    private SalesforceDatastoreProperties2 connectionProperties;
 
     private SalesforceModuleListProperties properties;
 
@@ -52,7 +52,7 @@ public class SalesforceModuleListPropertiesTest extends SalesforceTestBase {
     public void setUp() {
         propertiesService = new PropertiesServiceImpl();
 
-        connectionProperties = new SalesforceConnectionProperties("connection");
+        connectionProperties = new SalesforceDatastoreProperties2("connection");
         connectionProperties.name.setValue(connectionName);
 
         properties = new SalesforceModuleListProperties("root");
@@ -64,8 +64,8 @@ public class SalesforceModuleListPropertiesTest extends SalesforceTestBase {
     public void testSetupProperties() {
         properties.setupProperties();
 
-        assertNotNull(properties.getConnectionProperties());
-        assertEquals(connectionProperties, properties.getConnectionProperties());
+        assertNotNull(properties.getSalesforceDatastoreProperties());
+        assertEquals(connectionProperties, properties.getSalesforceDatastoreProperties());
         assertNotNull(properties.getRepositoryLocation());
         assertEquals(repoLocation, properties.getRepositoryLocation());
     }
@@ -129,7 +129,7 @@ public class SalesforceModuleListPropertiesTest extends SalesforceTestBase {
 
             TestRepository.Entry connRepoEntry = repoEntries.get(0);
             assertEquals(connectionName, connRepoEntry.getName());
-            assertThat(connRepoEntry.getProperties(), instanceOf(SalesforceConnectionProperties.class));
+            assertThat(connRepoEntry.getProperties(), instanceOf(SalesforceDatastoreProperties2.class));
 
             // Module entry 1
 
@@ -141,7 +141,7 @@ public class SalesforceModuleListPropertiesTest extends SalesforceTestBase {
             assertThat(repoEntry1.getProperties(), instanceOf(SalesforceModuleProperties.class));
 
             SalesforceModuleProperties modProps1 = (SalesforceModuleProperties) repoEntry1.getProperties();
-            assertEquals(connectionProperties, modProps1.getConnectionProperties());
+            assertEquals(connectionProperties, modProps1.getSalesforceDatastoreProperties());
             assertEquals("Account", modProps1.moduleName.getValue());
             assertEquals(testFixture.getTestDataset().getSchema("Account"), modProps1.main.schema.getValue());
             assertNotNull(modProps1.getForm(Form.MAIN));
@@ -156,7 +156,7 @@ public class SalesforceModuleListPropertiesTest extends SalesforceTestBase {
             assertThat(repoEntry2.getProperties(), instanceOf(SalesforceModuleProperties.class));
 
             SalesforceModuleProperties modProps2 = (SalesforceModuleProperties) repoEntry2.getProperties();
-            assertEquals(connectionProperties, modProps2.getConnectionProperties());
+            assertEquals(connectionProperties, modProps2.getSalesforceDatastoreProperties());
             assertEquals("Customer", modProps2.moduleName.getValue());
             assertEquals(testFixture.getTestDataset().getSchema("Customer"), modProps2.main.schema.getValue());
             assertNotNull(modProps2.getForm(Form.MAIN));

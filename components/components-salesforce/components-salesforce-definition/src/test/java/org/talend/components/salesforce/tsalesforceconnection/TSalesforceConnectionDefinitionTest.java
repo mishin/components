@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.talend.components.api.component.ConnectorTopology;
 import org.talend.components.api.component.runtime.ExecutionEngine;
 import org.talend.components.api.component.runtime.JarRuntimeInfo;
-import org.talend.components.salesforce.SalesforceConnectionProperties;
+import org.talend.components.salesforce.SalesforceDatastoreProperties2;
 import org.talend.components.salesforce.SalesforceTestBase;
 import org.talend.daikon.runtime.RuntimeInfo;
 
@@ -40,13 +40,13 @@ public class TSalesforceConnectionDefinitionTest extends SalesforceTestBase {
 
     private TSalesforceConnectionDefinition definition;
 
-    private SalesforceConnectionProperties properties;
+    private SalesforceDatastoreProperties2 properties;
 
     @Before
     public void setUp() {
         definition = new TSalesforceConnectionDefinition();
 
-        properties = new SalesforceConnectionProperties("connection");
+        properties = new SalesforceDatastoreProperties2("connection");
         properties.init();
     }
 

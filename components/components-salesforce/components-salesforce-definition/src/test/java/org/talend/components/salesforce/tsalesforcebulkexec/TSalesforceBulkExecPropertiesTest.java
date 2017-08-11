@@ -60,8 +60,8 @@ public class TSalesforceBulkExecPropertiesTest extends SalesforceTestBase {
     public void testSetupProperties() {
         properties.setupProperties();
 
-        assertEquals(Boolean.TRUE, properties.connection.bulkConnection.getValue());
-        assertEquals(Boolean.FALSE, properties.connection.httpChunked.getValue());
+        assertEquals(Boolean.TRUE, properties.datastore.bulkConnection.getValue());
+        assertEquals(Boolean.FALSE, properties.datastore.httpChunked.getValue());
         assertTrue(properties.upsertRelationTable.isUsePolymorphic());
     }
 
@@ -70,16 +70,16 @@ public class TSalesforceBulkExecPropertiesTest extends SalesforceTestBase {
         properties.init();
 
         Form mainForm = properties.getForm(Form.MAIN);
-        assertNotNull(mainForm.getWidget(properties.getConnectionProperties().getName()));
-        assertNotNull(mainForm.getChildForm(properties.getConnectionProperties().getName())
-                .getChildForm(properties.getConnectionProperties().getName()));
+        assertNotNull(mainForm.getWidget(properties.getSalesforceDatastoreProperties().getName()));
+        assertNotNull(mainForm.getChildForm(properties.getSalesforceDatastoreProperties().getName())
+                .getChildForm(properties.getSalesforceDatastoreProperties().getName()));
 
         Form advForm = properties.getForm(Form.ADVANCED);
-        assertNotNull(advForm.getWidget(properties.getConnectionProperties().getName()));
-        assertNotNull(advForm.getChildForm(properties.getConnectionProperties().getName()).getWidget(
-                properties.getConnectionProperties().bulkConnection.getName()));
-        assertNotNull(advForm.getChildForm(properties.getConnectionProperties().getName()).getWidget(
-                properties.getConnectionProperties().httpTraceMessage.getName()));
+        assertNotNull(advForm.getWidget(properties.getSalesforceDatastoreProperties().getName()));
+        assertNotNull(advForm.getChildForm(properties.getSalesforceDatastoreProperties().getName()).getWidget(
+                properties.getSalesforceDatastoreProperties().bulkConnection.getName()));
+        assertNotNull(advForm.getChildForm(properties.getSalesforceDatastoreProperties().getName()).getWidget(
+                properties.getSalesforceDatastoreProperties().httpTraceMessage.getName()));
     }
 
     @Test
@@ -90,18 +90,18 @@ public class TSalesforceBulkExecPropertiesTest extends SalesforceTestBase {
 
         properties.refreshLayout(mainForm);
 
-        assertTrue(mainForm.getChildForm(properties.getConnectionProperties().getName())
-                .getChildForm(properties.getConnectionProperties().getName())
-                .getWidget(properties.getConnectionProperties().loginType.getName()).isVisible());
+        assertTrue(mainForm.getChildForm(properties.getSalesforceDatastoreProperties().getName())
+                .getChildForm(properties.getSalesforceDatastoreProperties().getName())
+                .getWidget(properties.getSalesforceDatastoreProperties().loginType.getName()).isVisible());
 
         Form advForm = properties.getForm(Form.ADVANCED);
 
         properties.refreshLayout(advForm);
 
-        assertFalse(advForm.getChildForm(properties.getConnectionProperties().getName()).getWidget(
-                properties.getConnectionProperties().bulkConnection.getName()).isVisible());
-        assertTrue(advForm.getChildForm(properties.getConnectionProperties().getName()).getWidget(
-                properties.getConnectionProperties().httpTraceMessage.getName()).isVisible());
+        assertFalse(advForm.getChildForm(properties.getSalesforceDatastoreProperties().getName()).getWidget(
+                properties.getSalesforceDatastoreProperties().bulkConnection.getName()).isVisible());
+        assertTrue(advForm.getChildForm(properties.getSalesforceDatastoreProperties().getName()).getWidget(
+                properties.getSalesforceDatastoreProperties().httpTraceMessage.getName()).isVisible());
         assertFalse(advForm.getWidget(properties.upsertRelationTable.getName()).isVisible());
     }
 

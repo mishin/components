@@ -10,184 +10,79 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.salesforce;
+package org.talend.components.salesforce.tsalesforceconnection;
 
+import static org.talend.components.salesforce.SalesforceDatastoreProperties2.OAUTH;
+import static org.talend.components.salesforce.SalesforceDatastoreProperties2.USERPASSWORD;
 import static org.talend.components.salesforce.SalesforceDefinition.SOURCE_OR_SINK_CLASS;
 import static org.talend.components.salesforce.SalesforceDefinition.USE_CURRENT_JVM_PROPS;
 import static org.talend.components.salesforce.SalesforceDefinition.getSandboxedInstance;
 import static org.talend.daikon.properties.presentation.Widget.widget;
-import static org.talend.daikon.properties.property.PropertyFactory.newBoolean;
-import static org.talend.daikon.properties.property.PropertyFactory.newEnum;
-import static org.talend.daikon.properties.property.PropertyFactory.newInteger;
-import static org.talend.daikon.properties.property.PropertyFactory.newString;
 
 import org.talend.components.api.exception.ComponentException;
-import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.api.properties.ComponentReferenceProperties;
-import org.talend.components.common.ProxyProperties;
-import org.talend.components.common.oauth.OauthProperties;
+import org.talend.components.common.datastore.DatastoreProperties;
+import org.talend.components.salesforce.SalesforceDatastoreProperties2;
+import org.talend.components.salesforce.SalesforceProvideDatastoreProperties;
 import org.talend.components.salesforce.common.SalesforceRuntimeSourceOrSink;
-import org.talend.components.salesforce.tsalesforceconnection.TSalesforceConnectionDefinition;
-import org.talend.daikon.i18n.GlobalI18N;
-import org.talend.daikon.i18n.I18nMessages;
-import org.talend.daikon.properties.PresentationItem;
 import org.talend.daikon.properties.ValidationResult;
 import org.talend.daikon.properties.ValidationResultMutable;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
-import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.sandbox.SandboxedInstance;
 import org.talend.daikon.serialize.PostDeserializeSetup;
 import org.talend.daikon.serialize.migration.SerializeSetVersion;
 
-public class SalesforceConnectionProperties extends ComponentPropertiesImpl
-        implements SalesforceProvideConnectionProperties, SerializeSetVersion {
+public class SalesforceComponentConnectionProperties extends SalesforceDatastoreProperties2
+        implements SalesforceProvideDatastoreProperties, SerializeSetVersion, DatastoreProperties {
 
-    protected static final I18nMessages MESSAGES = GlobalI18N.getI18nMessageProvider()
-            .getI18nMessages(SalesforceConnectionProperties.class);
-
-    public static final String DEFAULT_API_VERSION = "39.0";
-
-    public static final String URL = "https://www.salesforce.com/services/Soap/u/" + DEFAULT_API_VERSION;
-
-    public static final String OAUTH_URL = "https://login.salesforce.com/services/oauth2";
-
-    public Property<String> endpoint = newString("endpoint").setRequired();
-
-    public static final String FORM_WIZARD = "Wizard";
-
-    //
-    // Properties
-    //
-
-    // Only for the wizard use
-    public Property<String> name = newString("name").setRequired();
-
-    public enum LoginType {
-        Basic,
-        OAuth
-    }
-
-    public Property<LoginType> loginType = newEnum("loginType", LoginType.class).setRequired();
-
-    public Property<Boolean> bulkConnection = newBoolean("bulkConnection"); //$NON-NLS-1$
-
-    public Property<Boolean> reuseSession = newBoolean("reuseSession"); //$NON-NLS-1$
-
-    public Property<String> sessionDirectory = newString("sessionDirectory"); //$NON-NLS-1$
-
-    public Property<Boolean> needCompression = newBoolean("needCompression"); //$NON-NLS-1$
-
-    public Property<Integer> timeout = newInteger("timeout"); //$NON-NLS-1$
-
-    public Property<Boolean> httpTraceMessage = newBoolean("httpTraceMessage"); //$NON-NLS-1$
-
-    public Property<Boolean> httpChunked = newBoolean("httpChunked"); //$NON-NLS-1$
-
-    public Property<String> clientId = newString("clientId"); //$NON-NLS-1$
-
-    //
-    // Presentation items
-    //
-    public PresentationItem testConnection = new PresentationItem("testConnection", "Test connection");
-
-    public PresentationItem advanced = new PresentationItem("advanced", "Advanced...");
-
-    //
-    // Nested property collections
-    //
-    private static final String OAUTH = "oauth";
-
-    public OauthProperties oauth = new OauthProperties(OAUTH);
-
-    public Property<String> apiVersion = newString("apiVersion");
-
-    private static final String USERPASSWORD = "userPassword";
-
-    public SalesforceUserPasswordProperties userPassword = new SalesforceUserPasswordProperties(USERPASSWORD);
-
-    public ProxyProperties proxy = new ProxyProperties("proxy");
-
-    public ComponentReferenceProperties<SalesforceConnectionProperties> referencedComponent = new ComponentReferenceProperties<>(
+    public ComponentReferenceProperties<SalesforceDatastoreProperties2> referencedComponent = new ComponentReferenceProperties<>(
             "referencedComponent", TSalesforceConnectionDefinition.COMPONENT_NAME);
 
-    public SalesforceConnectionProperties(String name) {
+    public SalesforceComponentConnectionProperties(String name) {
         super(name);
-    }
-
-    @Override
-    public void setupProperties() {
-        super.setupProperties();
-
-        loginType.setValue(LoginType.Basic);
-        endpoint.setValue(URL);
-        apiVersion.setValue(DEFAULT_API_VERSION);
-        timeout.setValue(60000);
-        httpChunked.setValue(true);
     }
 
     @Override
     public void setupLayout() {
         super.setupLayout();
 
-        Form wizardForm = Form.create(this, FORM_WIZARD);
-        wizardForm.addRow(name);
-        wizardForm.addRow(widget(loginType).setWidgetType(Widget.ENUMERATION_WIDGET_TYPE).setDeemphasize(true));
-        wizardForm.addRow(oauth.getForm(Form.MAIN));
-        wizardForm.addRow(userPassword.getForm(Form.MAIN));
-        wizardForm.addRow(widget(advanced).setWidgetType(Widget.BUTTON_WIDGET_TYPE));
-        wizardForm.addColumn(widget(testConnection).setLongRunning(true).setWidgetType(Widget.BUTTON_WIDGET_TYPE));
-
-        Form mainForm = Form.create(this, Form.MAIN);
-        mainForm.addRow(widget(loginType).setWidgetType(Widget.ENUMERATION_WIDGET_TYPE));
-        mainForm.addRow(oauth.getForm(Form.MAIN));
-        mainForm.addRow(userPassword.getForm(Form.MAIN));
-
-        Form advancedForm = Form.create(this, Form.ADVANCED);
-        advancedForm.addRow(endpoint);
-        advancedForm.addColumn(apiVersion);
-        advancedForm.addRow(bulkConnection);
-        advancedForm.addRow(reuseSession);
-        advancedForm.addRow(widget(sessionDirectory).setWidgetType(Widget.DIRECTORY_WIDGET_TYPE));
-        advancedForm.addRow(needCompression);
-        advancedForm.addRow(httpTraceMessage);
-        advancedForm.addRow(httpChunked);
-        advancedForm.addRow(clientId);
-        advancedForm.addRow(timeout);
-        advancedForm.addRow(proxy.getForm(Form.MAIN));
-        advanced.setFormtoShow(advancedForm);
-
         // A form for a reference to a connection, used in a tSalesforceInput for example
         Form refForm = Form.create(this, Form.REFERENCE);
         Widget compListWidget = widget(referencedComponent).setWidgetType(Widget.COMPONENT_REFERENCE_WIDGET_TYPE);
         refForm.addRow(compListWidget);
-        refForm.addRow(mainForm);
+        refForm.addRow(getForm(Form.MAIN));
     }
 
+    @Override
     public void afterLoginType() {
         refreshLayout(getForm(Form.MAIN));
         refreshLayout(getForm(FORM_WIZARD));
         refreshLayout(getForm(Form.ADVANCED));
     }
 
+    @Override
     public void afterReferencedComponent() {
         refreshLayout(getForm(Form.MAIN));
         refreshLayout(getForm(Form.REFERENCE));
         refreshLayout(getForm(Form.ADVANCED));
     }
 
+    @Override
     public void afterReuseSession() {
         refreshLayout(getForm(Form.ADVANCED));
     }
 
+    @Override
     public void afterBulkConnection() {
         refreshLayout(getForm(Form.ADVANCED));
     }
 
+    @Override
     public ValidationResult validateTestConnection() throws Exception {
         try (SandboxedInstance sandboxedInstance = getSandboxedInstance(SOURCE_OR_SINK_CLASS, USE_CURRENT_JVM_PROPS)) {
             SalesforceRuntimeSourceOrSink ss = (SalesforceRuntimeSourceOrSink) sandboxedInstance.getInstance();
-            ss.initialize(null, SalesforceConnectionProperties.this);
+            ss.initialize(null, SalesforceComponentConnectionProperties.this);
             ValidationResultMutable vr = new ValidationResultMutable(ss.validate(null));
             if (vr.getStatus() == ValidationResult.Result.OK) {
                 vr.setMessage(MESSAGES.getMessage("connection.success"));
@@ -262,16 +157,18 @@ public class SalesforceConnectionProperties extends ComponentPropertiesImpl
     }
 
     @Override
-    public SalesforceConnectionProperties getConnectionProperties() {
+    public SalesforceDatastoreProperties2 getSalesforceDatastoreProperties() {
         return this;
     }
 
+    @Override
     public String getReferencedComponentId() {
         return referencedComponent.componentInstanceId.getStringValue();
     }
 
-    public SalesforceConnectionProperties getReferencedConnectionProperties() {
-        SalesforceConnectionProperties refProps = referencedComponent.getReference();
+    @Override
+    public SalesforceDatastoreProperties2 getReferencedConnectionProperties() {
+        SalesforceDatastoreProperties2 refProps = referencedComponent.getReference();
         if (refProps != null) {
             return refProps;
         }

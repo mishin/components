@@ -58,8 +58,8 @@ public class TSalesforceBulkExecProperties extends SalesforceOutputProperties {
         super.refreshLayout(form);
 
         if (Form.ADVANCED.equals(form.getName())) {
-            form.getChildForm(connection.getName()).getWidget(connection.bulkConnection.getName()).setHidden(true);
-            form.getChildForm(connection.getName()).getWidget(connection.httpChunked.getName()).setHidden(true);
+            form.getChildForm(datastore.getName()).getWidget(datastore.bulkConnection.getName()).setHidden(true);
+            form.getChildForm(datastore.getName()).getWidget(datastore.httpChunked.getName()).setHidden(true);
             form.getWidget(upsertRelationTable.getName()).setHidden(true);
         }
     }
@@ -68,8 +68,8 @@ public class TSalesforceBulkExecProperties extends SalesforceOutputProperties {
     public void setupProperties() {
         super.setupProperties();
 
-        connection.bulkConnection.setValue(true);
-        connection.httpChunked.setValue(false);
+        datastore.bulkConnection.setValue(true);
+        datastore.httpChunked.setValue(false);
         upsertRelationTable.setUsePolymorphic(true);
 
         module.setSchemaListener(new ISchemaListener() {

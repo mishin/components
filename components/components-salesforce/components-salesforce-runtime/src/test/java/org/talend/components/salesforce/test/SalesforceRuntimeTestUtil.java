@@ -32,7 +32,7 @@ import org.talend.components.api.component.runtime.SourceOrSink;
 import org.talend.components.api.component.runtime.WriteOperation;
 import org.talend.components.api.component.runtime.Writer;
 import org.talend.components.salesforce.SalesforceBulkProperties.Concurrency;
-import org.talend.components.salesforce.SalesforceConnectionProperties;
+import org.talend.components.salesforce.SalesforceDatastoreProperties2;
 import org.talend.components.salesforce.runtime.SalesforceBulkFileSink;
 import org.talend.components.salesforce.runtime.SalesforceSource;
 import org.talend.components.salesforce.tsalesforcebulkexec.TSalesforceBulkExecDefinition;
@@ -135,7 +135,7 @@ public class SalesforceRuntimeTestUtil {
     }
 
     public List<String> createTestData() throws ConnectionException {
-        this.login(SalesforceConnectionProperties.URL);
+        this.login(SalesforceDatastoreProperties2.URL);
 
         List<String> ids = new ArrayList<String>();
         try {
@@ -169,7 +169,7 @@ public class SalesforceRuntimeTestUtil {
     }
 
     public void deleteTestData(List<String> ids) throws ConnectionException {
-        this.login(SalesforceConnectionProperties.URL);
+        this.login(SalesforceDatastoreProperties2.URL);
 
         try {
             DeleteResult[] results = partnerConnection.delete(ids.toArray(new String[0]));
@@ -287,12 +287,12 @@ public class SalesforceRuntimeTestUtil {
 
     public Reader initReader(TSalesforceBulkExecDefinition definition, String data_file,
             TSalesforceBulkExecProperties modelProperties, Schema schema, Schema output) {
-        modelProperties.connection.userPassword.userId.setValue(username);
-        modelProperties.connection.userPassword.password.setValue(password);
-        modelProperties.connection.userPassword.securityKey.setValue(securityKey);
+        modelProperties.datastore.userPassword.userId.setValue(username);
+        modelProperties.datastore.userPassword.password.setValue(password);
+        modelProperties.datastore.userPassword.securityKey.setValue(securityKey);
 
-        modelProperties.connection.timeout.setValue(60000);
-        modelProperties.connection.bulkConnection.setValue(true);
+        modelProperties.datastore.timeout.setValue(60000);
+        modelProperties.datastore.bulkConnection.setValue(true);
         modelProperties.bulkFilePath.setValue(data_file);
         modelProperties.bulkProperties.bytesToCommit.setValue(10 * 1024 * 1024);
         modelProperties.bulkProperties.rowsToCommit.setValue(10000);

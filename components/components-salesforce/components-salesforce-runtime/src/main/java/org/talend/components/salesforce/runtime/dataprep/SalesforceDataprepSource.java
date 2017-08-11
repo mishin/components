@@ -31,7 +31,7 @@ import org.talend.components.api.component.runtime.BoundedSource;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.api.properties.ComponentProperties;
-import org.talend.components.salesforce.SalesforceConnectionProperties;
+import org.talend.components.salesforce.SalesforceDatastoreProperties2;
 import org.talend.components.salesforce.common.SalesforceRuntimeSourceOrSink;
 import org.talend.components.salesforce.dataprep.SalesforceInputProperties;
 import org.talend.components.salesforce.dataset.SalesforceDatasetProperties;
@@ -70,7 +70,7 @@ public class SalesforceDataprepSource
 
     private SalesforceDatastoreProperties datastore;
 
-    private String endpoint = SalesforceConnectionProperties.URL;
+    private String endpoint = SalesforceDatastoreProperties2.URL;
 
     private ConnectionHolder connectionHolder;
 
