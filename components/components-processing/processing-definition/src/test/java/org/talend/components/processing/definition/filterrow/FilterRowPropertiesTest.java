@@ -560,13 +560,12 @@ public class FilterRowPropertiesTest {
         assertThat((List<String>) filterProperties.operator.getPossibleValues(), is(ConditionsRowConstant.DEFAULT_OPERATORS));
     }
 
-    @Test
     public void testGenerateJson() throws URISyntaxException, IOException {
         // String expectedJson = JsonSchemaUtilTest.readJson("PropertiesListProperties.json");
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
         String jsonValue = JsonSchemaUtil.toJson(properties, Form.MAIN, FilterRowDefinition.COMPONENT_NAME);
-        JsonSchemaUtilTest.writeJson(jsonValue, "FilterRowProperties.json");
+        // JsonSchemaUtilTest.writeJson(jsonValue, "/tmp/FilterRowProperties.json");
         // Assert.assertEquals(expectedJson, jsonValue);
         Assert.assertTrue(true);
     }
