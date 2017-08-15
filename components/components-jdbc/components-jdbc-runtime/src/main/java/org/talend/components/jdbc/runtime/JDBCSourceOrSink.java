@@ -126,7 +126,8 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
                 result.add(new SimpleNamedThing(tablename, tablename));
             }
         } catch (Exception e) {
-            throw new ComponentException(new ValidationResult(Result.ERROR, e.getMessage()));
+            throw new ComponentException(CommonErrorCodes.UNEXPECTED_EXCEPTION, e,
+                    ExceptionContext.withBuilder().put("message", e.getMessage()).build());
         }
         return result;
     }
@@ -171,8 +172,7 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
         Connection conn = JdbcRuntimeUtils.createConnection(setting);
         conn.setReadOnly(setting.isReadOnly());
 
-        Boolean autoCommit = setting.getUseAutoCommit();
-        if (autoCommit != null && autoCommit) {
+        if (setting.getUseAutoCommit()) {
             conn.setAutoCommit(setting.getAutocommit());
         }
 
