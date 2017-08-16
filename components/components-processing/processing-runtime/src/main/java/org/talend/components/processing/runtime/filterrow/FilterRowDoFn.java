@@ -27,6 +27,9 @@ import org.talend.daikon.avro.AvroRegistry;
 import org.talend.daikon.avro.converter.IndexedRecordConverter;
 import org.talend.daikon.exception.TalendRuntimeException;
 import org.talend.daikon.exception.error.CommonErrorCodes;
+import scala.collection.JavaConversions;
+import scala.util.Try;
+import wandou.avpath.Evaluator.Ctx;
 
 public class FilterRowDoFn extends DoFn<Object, IndexedRecord> {
 
@@ -105,48 +108,19 @@ public class FilterRowDoFn extends DoFn<Object, IndexedRecord> {
     }
 
     private List<Object> getInputFields(IndexedRecord inputRecord, String columnName) {
-        // TODO current implementation will only extract one element, but
-        // further implementation may
-        ArrayList<Object> inputFields = new ArrayList<Object>();
-        String[] path = columnName.split("\\.");
-        Schema schema = inputRecord.getSchema();
-
-        for (Integer i = 0; i < path.length; i++) {
-            // The column was existing on the input record, we forward it to the
-            // output record.
-            if (schema.getField(path[i]) == null) {
-                throw new TalendRuntimeException(CommonErrorCodes.UNEXPECTED_ARGUMENT, new Throwable(String.format("The field %s is not present on the input record", columnName)));
+        // Adapt non-avpath syntax to avpath.
+        // TODO: This should probably not be automatic, use the actual syntax.
+        if (!columnName.startsWith("."))
+            columnName = "." + columnName;
+        Try<scala.collection.immutable.List<Ctx>> result =  wandou.avpath.package$.MODULE$.select(inputRecord, columnName);
+        List<Object> values = new ArrayList<Object>();
+        if (result.isSuccess()) {
+            for (Ctx ctx : JavaConversions.asJavaCollection(result.get())) {
+                values.add(ctx.value());
             }
-            Object inputValue = inputRecord.get(schema.getField(path[i]).pos());
-
-            // The current column can be a Record (an hierarchical sub-object)
-            // or directly a value.
-            if (inputValue instanceof Record) {
-                // If we are on a record, we need to recursively do the process
-                inputRecord = (IndexedRecord) inputValue;
-
-                // The sub-schema at this level is a union of "empty" and a
-                // record, so we need to get the true
-                // sub-schema
-                for (Schema childSchema : schema.getField(path[i]).schema().getTypes()) {
-                    if (childSchema.getType().equals(Type.RECORD)) {
-                        schema = childSchema;
-                        break;
-                    }
-                }
-            } else {
-                // if we are on a object, then this is or the expected value of
-                // an error.
-                if (i == path.length - 1) {
-                    inputFields.add(inputValue);
-                } else {
-                    // No need to go further, return an empty list
-                    break;
-                }
-            }
-        }
-
-        return inputFields;
+        } else
+            throw TalendRuntimeException.createUnexpectedException(result.failed().get());
+        return values;
     }
 
     public FilterRowDoFn withOutputSchema(boolean hasSchema) {

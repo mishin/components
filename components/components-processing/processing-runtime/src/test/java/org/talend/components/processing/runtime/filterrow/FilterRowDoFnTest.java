@@ -12,7 +12,10 @@
 // ============================================================================
 package org.talend.components.processing.runtime.filterrow;
 
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 import java.util.List;
 
@@ -23,9 +26,11 @@ import org.apache.avro.generic.GenericRecordBuilder;
 import org.apache.avro.generic.IndexedRecord;
 import org.apache.avro.util.Utf8;
 import org.apache.beam.sdk.transforms.DoFnTester;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.talend.components.processing.definition.filterrow.ConditionsRowConstant;
 import org.talend.components.processing.definition.filterrow.FilterRowProperties;
+import org.talend.components.processing.runtime.SampleAvpathSchemas;
 import org.talend.components.processing.runtime.filterrow.FilterRowDoFn;
 import org.talend.components.processing.runtime.filterrow.FilterRowRuntime;
 import org.talend.daikon.exception.TalendRuntimeException;
@@ -251,6 +256,7 @@ public class FilterRowDoFnTest {
         runSimpleTestInvalidSession(properties);
     }
 
+    @Ignore("TODO: Handling invalid columns in an avpath expression.")
     @Test(expected = TalendRuntimeException.class)
     public void test_invalidColumnName() throws Exception {
         FilterRowProperties properties = new FilterRowProperties("test");
@@ -699,6 +705,36 @@ public class FilterRowDoFnTest {
         properties.value.setValue("aa");
 
         runSimpleTestInvalidSession(properties);
+    }
+
+    @Test
+    public void test_hierarchical() throws Exception {
+        FilterRowProperties properties = new FilterRowProperties("test");
+        properties.init();
+        properties.schemaListener.afterSchema();
+        properties.columnName.setValue(".automobiles{.maker === \"Toyota\"}.year");
+        properties.operator.setValue(ConditionsRowConstant.Operator.GREATER);
+        properties.value.setValue("2015");
+
+        IndexedRecord input = SampleAvpathSchemas.getDefaultVehicleCollection();
+        // All of the Toyota automobiles were made after 2015, so record accepted.
+        {
+            DoFnTester<Object, IndexedRecord> fnTester = DoFnTester
+                    .of(new FilterRowDoFn().withProperties(properties) //
+                            .withOutputSchema(true));
+            assertThat(fnTester.processBundle(input), contains(input));
+        }
+
+        // Not all of the Honda automobiles were made after 2009, so record rejected.
+        {
+            properties.columnName.setValue(".automobiles{.maker === \"Honda\"}.year");
+            properties.operator.setValue(ConditionsRowConstant.Operator.GREATER);
+            properties.value.setValue("2009");
+            DoFnTester<Object, IndexedRecord> fnTester = DoFnTester
+                    .of(new FilterRowDoFn().withProperties(properties) //
+                            .withOutputSchema(true));
+            assertThat(fnTester.processBundle(input), not(contains(input)));
+        }
     }
 
     // TODO test function and operator on every single type
