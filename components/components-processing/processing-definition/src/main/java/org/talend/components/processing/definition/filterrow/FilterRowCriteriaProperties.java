@@ -49,7 +49,7 @@ public class FilterRowCriteriaProperties extends PropertiesImpl {
     /**
      * This field is the reference value of the comparison. It will be filled directly by the user.
      */
-    public Property<String> value = PropertyFactory.newString("value");
+    public Property<String> value = PropertyFactory.newString("value", "");
 
     public transient ISchemaListener schemaListener;
 
