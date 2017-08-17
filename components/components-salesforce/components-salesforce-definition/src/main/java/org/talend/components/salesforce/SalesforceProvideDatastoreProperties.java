@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.components.salesforce;
 
+import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
+
 public interface SalesforceProvideDatastoreProperties {
 
     /**

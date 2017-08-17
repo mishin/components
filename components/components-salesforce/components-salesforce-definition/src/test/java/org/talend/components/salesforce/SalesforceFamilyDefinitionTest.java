@@ -66,9 +66,9 @@ public class SalesforceFamilyDefinitionTest {
     public void testDefinitions() {
         List<Matcher> matchers = Arrays.<Matcher>asList(
                 Matchers.isA(TSalesforceConnectionDefinition.class),
-                Matchers.isA(SalesforceConnectionWizardDefinition.class),
+                Matchers.isA(SalesforceDatastoreDatasetWizardDefinition.class),
                 Matchers.isA(SalesforceConnectionEditWizardDefinition.class),
-                Matchers.isA(SalesforceModuleWizardDefinition.class),
+                Matchers.isA(SalesforceModuleDatasetWizardDefinition.class),
                 Matchers.isA(TSalesforceInputDefinition.class),
                 Matchers.isA(TSalesforceOutputDefinition.class),
                 Matchers.isA(TSalesforceOutputBulkDefinition.class),

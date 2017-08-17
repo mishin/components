@@ -42,11 +42,11 @@ import org.talend.components.api.service.ComponentService;
 import org.talend.components.api.service.common.ComponentServiceImpl;
 import org.talend.components.api.service.common.DefinitionRegistry;
 import org.talend.components.api.test.AbstractComponentTest;
-import org.talend.components.salesforce.SalesforceConnectionModuleProperties;
-import org.talend.components.salesforce.SalesforceDatastoreProperties2;
+import org.talend.components.salesforce.SalesforceDatastoreDatasetProperties;
 import org.talend.components.salesforce.SalesforceFamilyDefinition;
-import org.talend.components.salesforce.SalesforceModuleProperties;
 import org.talend.components.salesforce.SalesforceOutputProperties.OutputAction;
+import org.talend.components.salesforce.dataset.SalesforceModuleDatasetProperties;
+import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
 import org.talend.components.salesforce.runtime.SalesforceSink;
 import org.talend.components.salesforce.runtime.SalesforceSource;
 import org.talend.components.salesforce.runtime.SalesforceWriteOperation;
@@ -132,17 +132,17 @@ public class SalesforceTestBase extends AbstractComponentTest {
 
     public static final String TEST_KEY = "Address2 456";
 
-    protected void setupModule(SalesforceModuleProperties moduleProps, String module) throws Throwable {
+    protected void setupModule(SalesforceModuleDatasetProperties moduleProps, String module) throws Throwable {
         Form f = moduleProps.getForm(Form.REFERENCE);
-        moduleProps = (SalesforceModuleProperties) PropertiesTestUtils.checkAndBeforeActivate(getComponentService(), f,
+        moduleProps = (SalesforceModuleDatasetProperties) PropertiesTestUtils.checkAndBeforeActivate(getComponentService(), f,
                 "moduleName", moduleProps);
         moduleProps.moduleName.setValue(module);
-        moduleProps = (SalesforceModuleProperties) checkAndAfter(f, "moduleName", moduleProps);
+        moduleProps = (SalesforceModuleDatasetProperties) checkAndAfter(f, "moduleName", moduleProps);
     }
 
-    protected void setupModuleWithEmptySchema(SalesforceModuleProperties moduleProps, String module) throws Throwable {
+    protected void setupModuleWithEmptySchema(SalesforceModuleDatasetProperties moduleProps, String module) throws Throwable {
         Form f = moduleProps.getForm(Form.REFERENCE);
-        moduleProps = (SalesforceModuleProperties) PropertiesTestUtils.checkAndBeforeActivate(getComponentService(), f,
+        moduleProps = (SalesforceModuleDatasetProperties) PropertiesTestUtils.checkAndBeforeActivate(getComponentService(), f,
                 "moduleName", moduleProps);
         moduleProps.moduleName.setValue(module);
         Schema emptySchema = Schema.createRecord(module, null, null, false);
@@ -316,7 +316,7 @@ public class SalesforceTestBase extends AbstractComponentTest {
         return rows;
     }
 
-    protected List<IndexedRecord> readRows(SalesforceConnectionModuleProperties props) throws IOException {
+    protected List<IndexedRecord> readRows(SalesforceDatastoreDatasetProperties props) throws IOException {
         TSalesforceInputProperties inputProps = (TSalesforceInputProperties) new TSalesforceInputProperties("bar").init();
         inputProps.datastore = props.datastore;
         inputProps.module = props.module;
@@ -326,17 +326,17 @@ public class SalesforceTestBase extends AbstractComponentTest {
         return inputRows;
     }
 
-    List<IndexedRecord> readAndCheckRows(String random, SalesforceConnectionModuleProperties props, int count) throws Exception {
+    List<IndexedRecord> readAndCheckRows(String random, SalesforceDatastoreDatasetProperties props, int count) throws Exception {
         List<IndexedRecord> inputRows = readRows(props);
         return checkRows(random, inputRows, count);
     }
 
-    protected void checkRows(List<IndexedRecord> outputRows, SalesforceConnectionModuleProperties props) throws Exception {
+    protected void checkRows(List<IndexedRecord> outputRows, SalesforceDatastoreDatasetProperties props) throws Exception {
         List<IndexedRecord> inputRows = readRows(props);
         assertThat(inputRows, containsInAnyOrder(outputRows.toArray()));
     }
 
-    protected void checkAndDelete(String random, SalesforceConnectionModuleProperties props, int count) throws Exception {
+    protected void checkAndDelete(String random, SalesforceDatastoreDatasetProperties props, int count) throws Exception {
         List<IndexedRecord> inputRows = readAndCheckRows(random, props, count);
         deleteRows(inputRows, props);
         readAndCheckRows(random, props, 0);
@@ -362,7 +362,7 @@ public class SalesforceTestBase extends AbstractComponentTest {
     }
 
     // Returns the rows written (having been re-read so they have their Ids)
-    protected static void doWriteRows(SalesforceConnectionModuleProperties props, List<IndexedRecord> outputRows) throws Exception {
+    protected static void doWriteRows(SalesforceDatastoreDatasetProperties props, List<IndexedRecord> outputRows) throws Exception {
         SalesforceSink salesforceSink = new SalesforceSink();
         salesforceSink.initialize(adaptor, props);
         salesforceSink.validate(adaptor);
@@ -371,7 +371,7 @@ public class SalesforceTestBase extends AbstractComponentTest {
         writeRows(saleforceWriter, outputRows);
     }
     // Returns the rows written (having been re-read so they have their Ids)
-    protected List<IndexedRecord> writeRows(String random, SalesforceConnectionModuleProperties props,
+    protected List<IndexedRecord> writeRows(String random, SalesforceDatastoreDatasetProperties props,
             List<IndexedRecord> outputRows) throws Exception {
         TSalesforceOutputProperties outputProps = new TSalesforceOutputProperties("output"); //$NON-NLS-1$
         outputProps.copyValuesFrom(props);
@@ -380,7 +380,7 @@ public class SalesforceTestBase extends AbstractComponentTest {
         return readAndCheckRows(random, props, outputRows.size());
     }
 
-    protected void deleteRows(List<IndexedRecord> rows, SalesforceConnectionModuleProperties props) throws Exception {
+    protected void deleteRows(List<IndexedRecord> rows, SalesforceDatastoreDatasetProperties props) throws Exception {
         TSalesforceOutputProperties deleteProperties = new TSalesforceOutputProperties("delete"); //$NON-NLS-1$
         deleteProperties.copyValuesFrom(props);
         deleteProperties.outputAction.setValue(OutputAction.DELETE);

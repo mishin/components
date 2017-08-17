@@ -21,6 +21,7 @@ import org.talend.components.api.component.runtime.ExecutionEngine;
 import org.talend.components.api.component.runtime.JarRuntimeInfo;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.common.CommonTags;
+import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
 import org.talend.daikon.i18n.tag.TagImpl;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.runtime.RuntimeInfo;
@@ -81,10 +82,10 @@ public abstract class SalesforceDefinition extends AbstractComponentDefinition {
 
     public static RuntimeInfo getCommonRuntimeInfo(String clazzFullName) {
         return new JarRuntimeInfo(RUNTIME_MVN_URL,
-                DependenciesReader.computeDependenciesFilePath(RUNTIME_MVN_GROUP_ID, RUNTIME_MVN_ARTIFACT_ID),
-                clazzFullName);
+                DependenciesReader.computeDependenciesFilePath(RUNTIME_MVN_GROUP_ID, RUNTIME_MVN_ARTIFACT_ID), clazzFullName);
     }
 
+    @Override
     public List<TagImpl> doGetTags() {
         return Arrays.asList(SALESFORCE_CLOUD_TAG, SALESFORCE_BUSINESS_TAG);
     }
@@ -92,7 +93,8 @@ public abstract class SalesforceDefinition extends AbstractComponentDefinition {
     /**
      * Set provider of {@link SandboxedInstance}s.
      *
-     * <p>The method is intended for debug/test purposes only and should not be used in production.
+     * <p>
+     * The method is intended for debug/test purposes only and should not be used in production.
      *
      * @param provider provider to be set, can't be {@code null}
      */

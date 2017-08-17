@@ -21,7 +21,7 @@ import org.talend.components.api.component.VirtualComponentDefinition;
 import org.talend.components.api.component.runtime.ExecutionEngine;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.salesforce.SalesforceDefinition;
-import org.talend.components.salesforce.SalesforceModuleProperties;
+import org.talend.components.salesforce.dataset.SalesforceModuleDatasetProperties;
 import org.talend.components.salesforce.tsalesforcebulkexec.TSalesforceBulkExecDefinition;
 import org.talend.components.salesforce.tsalesforceoutputbulk.TSalesforceOutputBulkDefinition;
 import org.talend.daikon.properties.Properties;
@@ -60,7 +60,7 @@ public class TSalesforceOutputBulkExecDefinition extends SalesforceDefinition im
     @Override
     public Class<? extends ComponentProperties>[] getNestedCompatibleComponentPropertiesClass() {
         return concatPropertiesClasses(super.getNestedCompatibleComponentPropertiesClass(),
-                new Class[] { SalesforceModuleProperties.class });
+                new Class[] { SalesforceModuleDatasetProperties.class });
     }
 
     @Override

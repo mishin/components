@@ -19,6 +19,8 @@ import org.talend.components.api.component.Connector;
 import org.talend.components.api.component.PropertyPathConnector;
 import org.talend.components.api.properties.ComponentReferenceProperties;
 import org.talend.components.common.FixedConnectorsComponentProperties;
+import org.talend.components.salesforce.dataset.SalesforceModuleDatasetProperties;
+import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
 import org.talend.components.salesforce.tsalesforceconnection.TSalesforceConnectionDefinition;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
@@ -26,21 +28,21 @@ import org.talend.daikon.properties.presentation.Widget;
 /**
  * Properties common to input and output Salesforce components.
  */
-public abstract class SalesforceConnectionModuleProperties extends FixedConnectorsComponentProperties
+public abstract class SalesforceDatastoreDatasetProperties extends FixedConnectorsComponentProperties
         implements SalesforceProvideDatastoreProperties {
 
     // Collections
     //
     public ComponentReferenceProperties<SalesforceDatastoreProperties2> referencedComponent = new ComponentReferenceProperties<>(
-            "referencedComponent", SalesforceDatastoreDefinition2.NAME);
+            "referencedComponent", TSalesforceConnectionDefinition.COMPONENT_NAME);
 
-    public SalesforceDatastoreProperties2 datastore = new SalesforceDatastoreProperties2("connection"); //$NON-NLS-1$
+    public SalesforceDatastoreProperties2 datastore = new SalesforceDatastoreProperties2("datastore"); //$NON-NLS-1$
 
-    public SalesforceModuleProperties module;
+    public SalesforceModuleDatasetProperties module;
 
     protected transient PropertyPathConnector MAIN_CONNECTOR = new PropertyPathConnector(Connector.MAIN_NAME, "module.main");
 
-    public SalesforceConnectionModuleProperties(String name) {
+    public SalesforceDatastoreDatasetProperties(String name) {
         super(name);
     }
 
@@ -48,7 +50,7 @@ public abstract class SalesforceConnectionModuleProperties extends FixedConnecto
     public void setupProperties() {
         super.setupProperties();
         // Allow for subclassing
-        module = new SalesforceModuleProperties("module");
+        module = new SalesforceModuleDatasetProperties("module");
         module.setDatastoreProperties(datastore);
     }
 
@@ -88,7 +90,7 @@ public abstract class SalesforceConnectionModuleProperties extends FixedConnecto
                 && refComponentIdValue.startsWith(TSalesforceConnectionDefinition.COMPONENT_NAME);
         if (form.getName().equals(Form.MAIN)) {// TODO check about wizard// || form.getName().equals(FORM_WIZARD)) {
             if (useOtherConnection) {
-                form.getChildForm(Form.MAIN).setHidden(true);
+                datastore.getForm(form.getName()).setHidden(true);
                 // form.getWidget(OAUTH).setHidden(true);
                 // form.getWidget(USERPASSWORD).setHidden(true);
             } else {

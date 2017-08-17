@@ -29,8 +29,8 @@ import org.talend.components.common.dataset.DatasetProperties;
 import org.talend.components.salesforce.common.SalesforceErrorCodes;
 import org.talend.components.salesforce.common.SalesforceRuntimeSourceOrSink;
 import org.talend.components.salesforce.dataprep.SalesforceInputProperties;
-import org.talend.components.salesforce.datastore.SalesforceDatastoreDefinition;
-import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties;
+import org.talend.components.salesforce.datastore.SalesforceDatastoreDefinition2;
+import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
 import org.talend.daikon.NamedThing;
 import org.talend.daikon.SimpleNamedThing;
 import org.talend.daikon.exception.TalendRuntimeException;
@@ -44,7 +44,7 @@ import org.talend.daikon.properties.property.PropertyFactory;
 import org.talend.daikon.properties.property.StringProperty;
 import org.talend.daikon.sandbox.SandboxedInstance;
 
-public class SalesforceDatasetProperties extends PropertiesImpl implements DatasetProperties<SalesforceDatastoreProperties> {
+public class SalesforceDatasetProperties extends PropertiesImpl implements DatasetProperties<SalesforceDatastoreProperties2> {
 
     /**
      * 
@@ -53,8 +53,8 @@ public class SalesforceDatasetProperties extends PropertiesImpl implements Datas
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SalesforceDatasetProperties.class);
 
-    public ReferenceProperties<SalesforceDatastoreProperties> datastore = new ReferenceProperties<>("datastore",
-            SalesforceDatastoreDefinition.NAME);
+    public ReferenceProperties<SalesforceDatastoreProperties2> datastore = new ReferenceProperties<>("datastore",
+            SalesforceDatastoreDefinition2.NAME);
 
     public Property<SourceType> sourceType = PropertyFactory.newEnum("sourceType", SourceType.class).setRequired();
 
@@ -106,7 +106,7 @@ public class SalesforceDatasetProperties extends PropertiesImpl implements Datas
             runtimeTask(consumer);
         }
     }
-    
+
     private List<NamedThing> filter(List<NamedThing> moduleNames) {
         if (moduleNames != null) {
             for (int i = 0; i < moduleNames.size(); i++) {
@@ -214,7 +214,7 @@ public class SalesforceDatasetProperties extends PropertiesImpl implements Datas
     }
 
     @Override
-    public SalesforceDatastoreProperties getDatastoreProperties() {
+    public SalesforceDatastoreProperties2 getDatastoreProperties() {
         return datastore.getReference();
     }
 
@@ -237,7 +237,7 @@ public class SalesforceDatasetProperties extends PropertiesImpl implements Datas
     }
 
     @Override
-    public void setDatastoreProperties(SalesforceDatastoreProperties datastoreProperties) {
+    public void setDatastoreProperties(SalesforceDatastoreProperties2 datastoreProperties) {
         datastore.setReference(datastoreProperties);
         afterDatastore();
     }

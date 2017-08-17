@@ -39,7 +39,7 @@ import org.talend.components.api.container.DefaultComponentRuntimeContainerImpl;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.api.test.ComponentTestUtils;
-import org.talend.components.salesforce.SalesforceDatastoreProperties2;
+import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
 import org.talend.components.salesforce.runtime.common.ConnectionHolder;
 import org.talend.components.salesforce.test.SalesforceTestBase;
 import org.talend.components.salesforce.tsalesforceconnection.TSalesforceConnectionDefinition;

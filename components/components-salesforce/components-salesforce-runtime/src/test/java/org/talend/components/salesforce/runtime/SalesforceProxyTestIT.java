@@ -26,7 +26,7 @@ import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 import org.talend.components.api.component.runtime.Reader;
 import org.talend.components.api.component.runtime.Source;
 import org.talend.components.api.component.runtime.SourceOrSink;
-import org.talend.components.salesforce.SalesforceDatastoreProperties2;
+import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
 import org.talend.components.salesforce.test.SalesforceRuntimeTestUtil;
 import org.talend.components.salesforce.test.SalesforceTestBase;
 import org.talend.components.salesforce.tsalesforceconnection.TSalesforceConnectionDefinition;

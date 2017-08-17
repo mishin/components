@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.talend.components.api.wizard.ComponentWizard;
+import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
 import org.talend.daikon.definition.DefinitionImageType;
 
 /**
@@ -54,7 +55,7 @@ public class SalesforceConnectionEditWizardDefinitionTest {
     public void testCreateWizard() {
         ComponentWizard wizard = definition.createWizard(properties, repoLocation);
 
-        assertThat(wizard, instanceOf(SalesforceConnectionWizard.class));
+        assertThat(wizard, instanceOf(SalesforceDatastoreDatasetWizard.class));
         assertEquals(definition, wizard.getDefinition());
         assertEquals(repoLocation, wizard.getRepositoryLocation());
     }

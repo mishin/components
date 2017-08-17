@@ -6,8 +6,8 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 
 import org.junit.Test;
-import org.talend.components.salesforce.SalesforceDatastoreProperties2;
 import org.talend.components.salesforce.TestUtils;
+import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
 import org.talend.components.salesforce.tsalesforceinput.TSalesforceInputProperties;
 import org.talend.daikon.serialize.SerializerDeserializer;
 

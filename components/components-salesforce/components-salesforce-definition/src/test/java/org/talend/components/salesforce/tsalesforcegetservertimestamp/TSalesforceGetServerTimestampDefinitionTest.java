@@ -33,8 +33,8 @@ import org.talend.components.api.component.ConnectorTopology;
 import org.talend.components.api.component.runtime.ExecutionEngine;
 import org.talend.components.api.component.runtime.JarRuntimeInfo;
 import org.talend.components.api.properties.ComponentProperties;
-import org.talend.components.salesforce.SalesforceDatastoreProperties2;
 import org.talend.components.salesforce.SalesforceTestBase;
+import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
 import org.talend.daikon.runtime.RuntimeInfo;
 
 /**

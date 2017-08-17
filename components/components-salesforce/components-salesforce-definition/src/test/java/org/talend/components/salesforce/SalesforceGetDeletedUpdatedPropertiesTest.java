@@ -43,7 +43,7 @@ public class SalesforceGetDeletedUpdatedPropertiesTest extends SalesforceTestBas
         properties.setupProperties();
 
         assertNotNull(properties.module);
-        assertNotNull(properties.module.connection);
+        assertNotNull(properties.module.datastore);
     }
 
     @Test

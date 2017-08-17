@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.salesforce;
+package org.talend.components.salesforce.dataset;
 
 import static org.talend.components.salesforce.SalesforceDefinition.SOURCE_OR_SINK_CLASS;
 import static org.talend.components.salesforce.SalesforceDefinition.USE_CURRENT_JVM_PROPS;
@@ -26,8 +26,10 @@ import org.talend.components.api.exception.ComponentException;
 import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.common.SchemaProperties;
 import org.talend.components.common.dataset.DatasetProperties;
+import org.talend.components.salesforce.SalesforceProvideDatastoreProperties;
 import org.talend.components.salesforce.common.ExceptionUtil;
 import org.talend.components.salesforce.common.SalesforceRuntimeSourceOrSink;
+import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
 import org.talend.daikon.NamedThing;
 import org.talend.daikon.properties.ValidationResult;
 import org.talend.daikon.properties.presentation.Form;
@@ -35,10 +37,10 @@ import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.StringProperty;
 import org.talend.daikon.sandbox.SandboxedInstance;
 
-public class SalesforceModuleProperties extends ComponentPropertiesImpl
+public class SalesforceModuleDatasetProperties extends ComponentPropertiesImpl
         implements SalesforceProvideDatastoreProperties, DatasetProperties<SalesforceDatastoreProperties2> {
 
-    public SalesforceDatastoreProperties2 connection = new SalesforceDatastoreProperties2("connection");
+    public SalesforceDatastoreProperties2 datastore = new SalesforceDatastoreProperties2("datastore");
 
     //
     // Properties
@@ -56,7 +58,7 @@ public class SalesforceModuleProperties extends ComponentPropertiesImpl
         }
     };
 
-    public SalesforceModuleProperties(String name) {
+    public SalesforceModuleDatasetProperties(String name) {
         super(name);
     }
 
@@ -88,7 +90,7 @@ public class SalesforceModuleProperties extends ComponentPropertiesImpl
     public ValidationResult beforeModuleName() throws Exception {
         try (SandboxedInstance sandboxedInstance = getSandboxedInstance(SOURCE_OR_SINK_CLASS, USE_CURRENT_JVM_PROPS)) {
             SalesforceRuntimeSourceOrSink ss = (SalesforceRuntimeSourceOrSink) sandboxedInstance.getInstance();
-            ss.initialize(null, connection);
+            ss.initialize(null, datastore);
             ValidationResult vr = ss.validate(null);
             if (vr.getStatus() == ValidationResult.Result.OK) {
                 try {
@@ -109,7 +111,7 @@ public class SalesforceModuleProperties extends ComponentPropertiesImpl
         try (SandboxedInstance sandboxedInstance = getSandboxedInstance(SOURCE_OR_SINK_CLASS, USE_CURRENT_JVM_PROPS)) {
 
             SalesforceRuntimeSourceOrSink ss = (SalesforceRuntimeSourceOrSink) sandboxedInstance.getInstance();
-            ss.initialize(null, connection);
+            ss.initialize(null, datastore);
             ValidationResult vr = ss.validate(null);
             if (vr.getStatus() == ValidationResult.Result.OK) {
                 try {
@@ -128,17 +130,17 @@ public class SalesforceModuleProperties extends ComponentPropertiesImpl
 
     @Override
     public SalesforceDatastoreProperties2 getDatastoreProperties() {
-        return connection;
+        return datastore;
     }
 
     @Override
     public void setDatastoreProperties(SalesforceDatastoreProperties2 datastoreProperties) {
-        connection = datastoreProperties;
+        datastore = datastoreProperties;
 
     }
 
     @Override
     public SalesforceDatastoreProperties2 getSalesforceDatastoreProperties() {
-        return connection;
+        return datastore;
     }
 }

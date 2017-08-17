@@ -21,11 +21,11 @@ import org.talend.daikon.properties.presentation.Form;
  * A single-page wizard that just handles the selection of modules. This must always be created with the connection
  * properties.
  */
-public class SalesforceModuleWizard extends ComponentWizard {
+public class SalesforceModuleDatasetWizard extends ComponentWizard {
 
     SalesforceModuleListProperties salesforceModuleListProperties;
 
-    SalesforceModuleWizard(ComponentWizardDefinition def, String repositoryLocation) {
+    SalesforceModuleDatasetWizard(ComponentWizardDefinition def, String repositoryLocation) {
         super(def, repositoryLocation);
 
         salesforceModuleListProperties = new SalesforceModuleListProperties("salesforceModuleListProperties")

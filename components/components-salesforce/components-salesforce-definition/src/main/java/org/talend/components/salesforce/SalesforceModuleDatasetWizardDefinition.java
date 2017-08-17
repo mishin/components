@@ -12,19 +12,15 @@
 // ============================================================================
 package org.talend.components.salesforce;
 
-import org.talend.components.api.Constants;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.api.wizard.AbstractComponentWizardDefintion;
 import org.talend.components.api.wizard.ComponentWizard;
-import org.talend.components.api.wizard.ComponentWizardDefinition;
 import org.talend.components.api.wizard.WizardImageType;
-
-import aQute.bnd.annotation.component.Component;
 import org.talend.daikon.definition.DefinitionImageType;
 
-public class SalesforceConnectionWizardDefinition extends AbstractComponentWizardDefintion {
+public class SalesforceModuleDatasetWizardDefinition extends AbstractComponentWizardDefintion {
 
-    public static final String COMPONENT_WIZARD_NAME = "salesforce"; //$NON-NLS-1$
+    public static final String COMPONENT_WIZARD_NAME = "salesforce.module"; //$NON-NLS-1$
 
     @Override
     public String getName() {
@@ -33,18 +29,18 @@ public class SalesforceConnectionWizardDefinition extends AbstractComponentWizar
 
     @Override
     public ComponentWizard createWizard(String location) {
-        return new SalesforceConnectionWizard(this, location);
+        return new SalesforceModuleDatasetWizard(this, location);
     }
 
     @Override
     public boolean supportsProperties(Class<? extends ComponentProperties> propertiesClass) {
-        return propertiesClass.isAssignableFrom(SalesforceDatastoreProperties2.class);
+        return propertiesClass.isAssignableFrom(SalesforceModuleListProperties.class);
     }
 
     @Override
     public ComponentWizard createWizard(ComponentProperties properties, String location) {
-        SalesforceConnectionWizard wizard = (SalesforceConnectionWizard) createWizard(location);
-        wizard.setupProperties((SalesforceDatastoreProperties2) properties);
+        SalesforceModuleDatasetWizard wizard = (SalesforceModuleDatasetWizard) createWizard(location);
+        wizard.setupProperties((SalesforceModuleListProperties) properties);
         return wizard;
     }
 
@@ -78,11 +74,6 @@ public class SalesforceConnectionWizardDefinition extends AbstractComponentWizar
     @Override
     public String getIconKey() {
         return null;
-    }
-
-    @Override
-    public boolean isTopLevel() {
-        return true;
     }
 
 }

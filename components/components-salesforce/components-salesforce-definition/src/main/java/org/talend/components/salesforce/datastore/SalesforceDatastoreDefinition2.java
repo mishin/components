@@ -11,11 +11,13 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.salesforce;
+package org.talend.components.salesforce.datastore;
 
 import org.talend.components.common.dataset.DatasetProperties;
 import org.talend.components.common.datastore.DatastoreDefinition;
+import org.talend.components.salesforce.SalesforceDefinition;
 import org.talend.components.salesforce.dataprep.SalesforceInputDefinition;
+import org.talend.components.salesforce.dataset.SalesforceModuleDatasetProperties;
 import org.talend.daikon.definition.DefinitionImageType;
 import org.talend.daikon.definition.I18nDefinition;
 import org.talend.daikon.runtime.RuntimeInfo;
@@ -41,7 +43,7 @@ public class SalesforceDatastoreDefinition2 extends I18nDefinition
     @SuppressWarnings("rawtypes")
     @Override
     public DatasetProperties createDatasetProperties(SalesforceDatastoreProperties2 storeProp) {
-        SalesforceModuleProperties datasetProperties = new SalesforceModuleProperties("dataset");
+        SalesforceModuleDatasetProperties datasetProperties = new SalesforceModuleDatasetProperties("dataset");
         datasetProperties.init();
         datasetProperties.setDatastoreProperties(storeProp);
         return datasetProperties;

@@ -16,6 +16,7 @@ import org.apache.avro.Schema;
 import org.talend.components.api.component.Connector;
 import org.talend.components.api.component.PropertyPathConnector;
 import org.talend.components.common.SchemaProperties;
+import org.talend.components.salesforce.dataset.SalesforceModuleDatasetProperties;
 import org.talend.daikon.properties.ValidationResult;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
@@ -30,7 +31,7 @@ import static org.talend.daikon.properties.presentation.Widget.widget;
 import static org.talend.daikon.properties.property.PropertyFactory.newEnum;
 import static org.talend.daikon.properties.property.PropertyFactory.newString;
 
-public class SalesforceOutputProperties extends SalesforceConnectionModuleProperties {
+public class SalesforceOutputProperties extends SalesforceDatastoreDatasetProperties {
 
     public enum OutputAction {
         INSERT,
@@ -65,7 +66,7 @@ public class SalesforceOutputProperties extends SalesforceConnectionModuleProper
 
     // Have to use an explicit class to get the override of afterModuleName(), an anonymous
     // class cannot be public and thus cannot be called.
-    public class ModuleSubclass extends SalesforceModuleProperties {
+    public class ModuleSubclass extends SalesforceModuleDatasetProperties {
 
         public ModuleSubclass(String name) {
             super(name);
@@ -110,7 +111,7 @@ public class SalesforceOutputProperties extends SalesforceConnectionModuleProper
         setupRejectSchema();
 
         module = new ModuleSubclass("module");
-        module.connection = datastore;
+        module.datastore = datastore;
         module.setupProperties();
         upsertRelationTable.setUsePolymorphic(false);
     }

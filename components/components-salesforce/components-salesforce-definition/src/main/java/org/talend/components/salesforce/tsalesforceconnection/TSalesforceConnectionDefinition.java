@@ -18,8 +18,8 @@ import java.util.Set;
 import org.talend.components.api.component.ConnectorTopology;
 import org.talend.components.api.component.runtime.ExecutionEngine;
 import org.talend.components.api.properties.ComponentProperties;
-import org.talend.components.salesforce.SalesforceDatastoreProperties2;
 import org.talend.components.salesforce.SalesforceDefinition;
+import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.runtime.RuntimeInfo;
 

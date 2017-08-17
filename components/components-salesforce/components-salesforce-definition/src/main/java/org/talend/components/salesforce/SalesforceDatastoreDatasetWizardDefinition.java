@@ -12,15 +12,20 @@
 // ============================================================================
 package org.talend.components.salesforce;
 
+import org.talend.components.api.Constants;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.api.wizard.AbstractComponentWizardDefintion;
 import org.talend.components.api.wizard.ComponentWizard;
+import org.talend.components.api.wizard.ComponentWizardDefinition;
 import org.talend.components.api.wizard.WizardImageType;
+import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
+
+import aQute.bnd.annotation.component.Component;
 import org.talend.daikon.definition.DefinitionImageType;
 
-public class SalesforceModuleWizardDefinition extends AbstractComponentWizardDefintion {
+public class SalesforceDatastoreDatasetWizardDefinition extends AbstractComponentWizardDefintion {
 
-    public static final String COMPONENT_WIZARD_NAME = "salesforce.module"; //$NON-NLS-1$
+    public static final String COMPONENT_WIZARD_NAME = "salesforce"; //$NON-NLS-1$
 
     @Override
     public String getName() {
@@ -29,18 +34,18 @@ public class SalesforceModuleWizardDefinition extends AbstractComponentWizardDef
 
     @Override
     public ComponentWizard createWizard(String location) {
-        return new SalesforceModuleWizard(this, location);
+        return new SalesforceDatastoreDatasetWizard(this, location);
     }
 
     @Override
     public boolean supportsProperties(Class<? extends ComponentProperties> propertiesClass) {
-        return propertiesClass.isAssignableFrom(SalesforceModuleListProperties.class);
+        return propertiesClass.isAssignableFrom(SalesforceDatastoreProperties2.class);
     }
 
     @Override
     public ComponentWizard createWizard(ComponentProperties properties, String location) {
-        SalesforceModuleWizard wizard = (SalesforceModuleWizard) createWizard(location);
-        wizard.setupProperties((SalesforceModuleListProperties) properties);
+        SalesforceDatastoreDatasetWizard wizard = (SalesforceDatastoreDatasetWizard) createWizard(location);
+        wizard.setupProperties((SalesforceDatastoreProperties2) properties);
         return wizard;
     }
 
@@ -74,6 +79,11 @@ public class SalesforceModuleWizardDefinition extends AbstractComponentWizardDef
     @Override
     public String getIconKey() {
         return null;
+    }
+
+    @Override
+    public boolean isTopLevel() {
+        return true;
     }
 
 }

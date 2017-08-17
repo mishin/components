@@ -15,21 +15,22 @@ package org.talend.components.salesforce;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.api.wizard.ComponentWizard;
 import org.talend.components.api.wizard.ComponentWizardDefinition;
+import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
 import org.talend.daikon.properties.presentation.Form;
 
 /**
  * Handles the creating a connection and creating the modules associated with the connection.
  */
-public class SalesforceConnectionWizard extends ComponentWizard {
+public class SalesforceDatastoreDatasetWizard extends ComponentWizard {
 
     SalesforceDatastoreProperties2 cProps;
 
     SalesforceModuleListProperties mProps;
 
-    SalesforceConnectionWizard(ComponentWizardDefinition def, String repositoryLocation) {
+    SalesforceDatastoreDatasetWizard(ComponentWizardDefinition def, String repositoryLocation) {
         super(def, repositoryLocation);
 
-        cProps = new SalesforceDatastoreProperties2("connection");
+        cProps = new SalesforceDatastoreProperties2("datastore");
         cProps.init();
         addForm(cProps.getForm(SalesforceDatastoreProperties2.FORM_WIZARD));
 

@@ -18,15 +18,17 @@ import static org.talend.components.salesforce.SalesforceDefinition.getSandboxed
 import static org.talend.daikon.properties.presentation.Widget.widget;
 import static org.talend.daikon.properties.property.PropertyFactory.newProperty;
 
+import java.util.Arrays;
 import java.util.List;
 
-import org.apache.avro.Schema;
 import org.apache.commons.lang3.reflect.TypeLiteral;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.salesforce.common.ExceptionUtil;
-import org.talend.components.salesforce.common.SalesforceRuntimeSourceOrSink;
+import org.talend.components.salesforce.dataset.SalesforceModuleDatasetProperties;
+import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
 import org.talend.daikon.NamedThing;
+import org.talend.daikon.SimpleNamedThing;
 import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.ValidationResult;
 import org.talend.daikon.properties.presentation.Form;
@@ -37,7 +39,7 @@ import org.talend.daikon.sandbox.SandboxedInstance;
 
 public class SalesforceModuleListProperties extends ComponentPropertiesImpl implements SalesforceProvideDatastoreProperties {
 
-    public SalesforceDatastoreProperties2 connection = new SalesforceDatastoreProperties2("connection");
+    public SalesforceDatastoreProperties2 datastore = new SalesforceDatastoreProperties2("datastore");
 
     private String repositoryLocation;
 
@@ -54,7 +56,7 @@ public class SalesforceModuleListProperties extends ComponentPropertiesImpl impl
     }
 
     public SalesforceModuleListProperties setConnection(SalesforceDatastoreProperties2 connection) {
-        this.connection = connection;
+        this.datastore = connection;
         return this;
     }
 
@@ -78,12 +80,18 @@ public class SalesforceModuleListProperties extends ComponentPropertiesImpl impl
 
     public void beforeFormPresentMain() throws Exception {
         try (SandboxedInstance sandboxedInstance = getSandboxedInstance(SOURCE_OR_SINK_CLASS, USE_CURRENT_JVM_PROPS)) {
-            SalesforceRuntimeSourceOrSink ss = (SalesforceRuntimeSourceOrSink) sandboxedInstance.getInstance();
-            ss.initialize(null, this);
-            ValidationResult vr = ss.validate(null);
+            // TODO put this back, commented for the POC
+            // SalesforceRuntimeSourceOrSink ss = (SalesforceRuntimeSourceOrSink) sandboxedInstance.getInstance();
+            // ss.initialize(null, this);
+            // ValidationResult vr = ss.validate(null);
+            ValidationResult vr = ValidationResult.OK;// added for the POC
             if (vr.getStatus() == ValidationResult.Result.OK) {
                 try {
-                    moduleNames = ss.getSchemaNames(null);
+                    moduleNames = Arrays.asList(new NamedThing[] { new SimpleNamedThing("aa"), new SimpleNamedThing("bb") });// remove
+                                                                                                                             // for
+                                                                                                                             // the
+                                                                                                                             // POC//
+                                                                                                                             // ss.getSchemaNames(null);
                 } catch (Exception ex) {
                     throw new ComponentException(ExceptionUtil.exceptionToValidationResult(ex));
                 }
@@ -98,24 +106,24 @@ public class SalesforceModuleListProperties extends ComponentPropertiesImpl impl
 
     public ValidationResult afterFormFinishMain(Repository<Properties> repo) throws Exception {
         try (SandboxedInstance sandboxedInstance = getSandboxedInstance(SOURCE_OR_SINK_CLASS, USE_CURRENT_JVM_PROPS)) {
+            // TODO uncomment below cause commented for POC
+            // SalesforceRuntimeSourceOrSink ss = (SalesforceRuntimeSourceOrSink) sandboxedInstance.getInstance();
+            // ss.initialize(null, this);
+            // ValidationResult vr = ss.validate(null);
+            // if (vr.getStatus() != ValidationResult.Result.OK) {
+            // return vr;
+            // }
 
-            SalesforceRuntimeSourceOrSink ss = (SalesforceRuntimeSourceOrSink) sandboxedInstance.getInstance();
-            ss.initialize(null, this);
-            ValidationResult vr = ss.validate(null);
-            if (vr.getStatus() != ValidationResult.Result.OK) {
-                return vr;
-            }
-
-            String connRepLocation = repo.storeProperties(connection, connection.name.getValue(), repositoryLocation, null);
+            String connRepLocation = repo.storeProperties(datastore, datastore.name.getValue(), repositoryLocation, null);
 
             for (NamedThing nl : selectedModuleNames.getValue()) {
                 String moduleId = nl.getName();
-                SalesforceModuleProperties modProps = new SalesforceModuleProperties(moduleId);
-                modProps.connection = connection;
+                SalesforceModuleDatasetProperties modProps = new SalesforceModuleDatasetProperties(moduleId);
+                modProps.datastore = datastore;
                 modProps.init();
-                Schema schema = ss.getEndpointSchema(null, moduleId);
+                // TODO uncomment it back //Schema schema = ss.getEndpointSchema(null, moduleId);
                 modProps.moduleName.setValue(moduleId);
-                modProps.main.schema.setValue(schema);
+                // TODO uncomment it back //modProps.main.schema.setValue(schema);
                 repo.storeProperties(modProps, nl.getName(), connRepLocation, "main.schema");
             }
             return ValidationResult.OK;
@@ -124,6 +132,6 @@ public class SalesforceModuleListProperties extends ComponentPropertiesImpl impl
 
     @Override
     public SalesforceDatastoreProperties2 getSalesforceDatastoreProperties() {
-        return connection;
+        return datastore;
     }
 }

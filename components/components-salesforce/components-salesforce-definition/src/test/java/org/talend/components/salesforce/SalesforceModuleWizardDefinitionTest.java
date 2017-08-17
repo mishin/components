@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.talend.components.api.wizard.ComponentWizard;
+import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
 import org.talend.daikon.definition.DefinitionImageType;
 
 /**
@@ -33,12 +34,12 @@ public class SalesforceModuleWizardDefinitionTest {
 
     private final String repoLocation = "___DRI";
 
-    private SalesforceModuleWizardDefinition definition;
+    private SalesforceModuleDatasetWizardDefinition definition;
     private SalesforceModuleListProperties properties;
 
     @Before
     public void setUp() {
-        definition = new SalesforceModuleWizardDefinition();
+        definition = new SalesforceModuleDatasetWizardDefinition();
 
         properties = new SalesforceModuleListProperties("module");
         properties.init();
@@ -54,7 +55,7 @@ public class SalesforceModuleWizardDefinitionTest {
     public void testCreateWizard() {
         ComponentWizard wizard = definition.createWizard(properties, repoLocation);
 
-        assertThat(wizard, instanceOf(SalesforceModuleWizard.class));
+        assertThat(wizard, instanceOf(SalesforceModuleDatasetWizard.class));
         assertEquals(definition, wizard.getDefinition());
         assertEquals(repoLocation, wizard.getRepositoryLocation());
     }

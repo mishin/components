@@ -18,7 +18,6 @@ import java.util.Set;
 import org.talend.components.api.component.PropertyPathConnector;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.api.properties.VirtualComponentProperties;
-import org.talend.components.salesforce.UpsertRelationTable;
 import org.talend.components.salesforce.tsalesforcebulkexec.TSalesforceBulkExecProperties;
 import org.talend.components.salesforce.tsalesforceoutputbulk.TSalesforceOutputBulkProperties;
 import org.talend.daikon.properties.presentation.Form;
@@ -100,11 +99,11 @@ public class TSalesforceOutputBulkExecProperties extends TSalesforceBulkExecProp
         // we need to pass also the possible values, only way from the studio to know it comes from a combo box (need to
         // add quotes for generation)
         bulkExecProperties.upsertRelationTable.columnName.setPossibleValues(upsertRelationTable.columnName.getPossibleValues());
-
-        bulkExecProperties.datastore.referencedComponent.componentInstanceId.setTaggedValue(UpsertRelationTable.ADD_QUOTES,
-                true);
-        bulkExecProperties.module.connection.referencedComponent.componentInstanceId
-                .setTaggedValue(UpsertRelationTable.ADD_QUOTES, true);
+        // deactivated for poc TODO uncomment this back
+        // bulkExecProperties.datastore.referencedComponent.componentInstanceId.setTaggedValue(UpsertRelationTable.ADD_QUOTES,
+        // true);
+        // bulkExecProperties.module.connection.referencedComponent.componentInstanceId
+        // .setTaggedValue(UpsertRelationTable.ADD_QUOTES, true);
 
         for (Form form : bulkExecProperties.getForms()) {
             bulkExecProperties.refreshLayout(form);

@@ -27,6 +27,8 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.talend.components.salesforce.dataset.SalesforceModuleDatasetProperties;
+import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
 import org.talend.daikon.NamedThing;
 import org.talend.daikon.SimpleNamedThing;
 import org.talend.daikon.properties.presentation.Form;
@@ -138,9 +140,9 @@ public class SalesforceModuleListPropertiesTest extends SalesforceTestBase {
             assertEquals("Account", repoEntry1.getName());
             assertEquals("main.schema", repoEntry1.getSchemaPropertyName());
             assertEquals(testFixture.getTestDataset().getSchema("Account"), repoEntry1.getSchema());
-            assertThat(repoEntry1.getProperties(), instanceOf(SalesforceModuleProperties.class));
+            assertThat(repoEntry1.getProperties(), instanceOf(SalesforceModuleDatasetProperties.class));
 
-            SalesforceModuleProperties modProps1 = (SalesforceModuleProperties) repoEntry1.getProperties();
+            SalesforceModuleDatasetProperties modProps1 = (SalesforceModuleDatasetProperties) repoEntry1.getProperties();
             assertEquals(connectionProperties, modProps1.getSalesforceDatastoreProperties());
             assertEquals("Account", modProps1.moduleName.getValue());
             assertEquals(testFixture.getTestDataset().getSchema("Account"), modProps1.main.schema.getValue());
@@ -153,9 +155,9 @@ public class SalesforceModuleListPropertiesTest extends SalesforceTestBase {
             assertEquals("Customer", repoEntry2.getName());
             assertEquals("main.schema", repoEntry2.getSchemaPropertyName());
             assertEquals(testFixture.getTestDataset().getSchema("Customer"), repoEntry2.getSchema());
-            assertThat(repoEntry2.getProperties(), instanceOf(SalesforceModuleProperties.class));
+            assertThat(repoEntry2.getProperties(), instanceOf(SalesforceModuleDatasetProperties.class));
 
-            SalesforceModuleProperties modProps2 = (SalesforceModuleProperties) repoEntry2.getProperties();
+            SalesforceModuleDatasetProperties modProps2 = (SalesforceModuleDatasetProperties) repoEntry2.getProperties();
             assertEquals(connectionProperties, modProps2.getSalesforceDatastoreProperties());
             assertEquals("Customer", modProps2.moduleName.getValue());
             assertEquals(testFixture.getTestDataset().getSchema("Customer"), modProps2.main.schema.getValue());

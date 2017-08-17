@@ -26,7 +26,7 @@ import java.util.Set;
 import org.apache.avro.Schema;
 import org.talend.components.api.component.PropertyPathConnector;
 import org.talend.components.common.ComponentConstants;
-import org.talend.components.salesforce.SalesforceConnectionModuleProperties;
+import org.talend.components.salesforce.SalesforceDatastoreDatasetProperties;
 import org.talend.components.salesforce.common.SalesforceRuntimeSourceOrSink;
 import org.talend.components.salesforce.schema.SalesforceSchemaHelper;
 import org.talend.daikon.exception.TalendRuntimeException;
@@ -40,7 +40,7 @@ import org.talend.daikon.sandbox.SandboxedInstance;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class TSalesforceInputProperties extends SalesforceConnectionModuleProperties {
+public class TSalesforceInputProperties extends SalesforceDatastoreDatasetProperties {
 
     public enum QueryMode {
         Query,
