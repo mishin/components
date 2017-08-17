@@ -78,7 +78,8 @@ public class FilterRowProperties extends FixedConnectorsComponentProperties {
     public void setupLayout() {
         super.setupLayout();
         Form mainForm = new Form(this, Form.MAIN);
-        mainForm.addRow(Widget.widget(filters).setWidgetType(Widget.NESTED_PROPERTIES).setConfigurationValue("type", "filter"));
+        mainForm.addRow(Widget.widget(filters).setWidgetType(Widget.NESTED_PROPERTIES)
+                .setConfigurationValue(Widget.NESTED_PROPERTIES_TYPE_OPTION, "filter"));
     }
 
     @Override
