@@ -23,8 +23,11 @@ import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field;
 import org.talend.components.api.component.Connector;
 import org.talend.components.api.properties.ComponentProperties;
+import org.talend.components.api.properties.ComponentReferenceProperties;
 import org.talend.components.jdbc.module.JDBCConnectionModule;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
+import org.talend.components.jdbc.tjdbcconnection.TJDBCConnectionDefinition;
+import org.talend.components.jdbc.tjdbcconnection.TJDBCConnectionProperties;
 import org.talend.daikon.avro.SchemaConstants;
 import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.presentation.Form;
@@ -176,7 +179,7 @@ public class CommonUtils {
                 dynamicFields.add(runtimeField);
             }
         }
-        
+
         dynamicFields = cloneFieldsAndResetPosition(dynamicFields);
 
         int dynPosition = Integer.valueOf(designSchema.getProp(ComponentConstants.TALEND6_DYNAMIC_COLUMN_POSITION));
@@ -199,6 +202,22 @@ public class CommonUtils {
         setting.setJdbcUrl(connection.jdbcUrl.getValue());
         setting.setUsername(connection.userPassword.userId.getValue());
         setting.setPassword(connection.userPassword.password.getValue());
+    }
+
+    public static void setReferenceInfo(AllSetting setting,
+            ComponentReferenceProperties<TJDBCConnectionProperties> referencedComponent) {
+        if (referencedComponent == null) {
+            return;
+        }
+
+        String refComponentIdValue = referencedComponent.componentInstanceId.getStringValue();
+        boolean useOtherConnection = refComponentIdValue != null
+                && refComponentIdValue.startsWith(TJDBCConnectionDefinition.COMPONENT_NAME);
+
+        if (useOtherConnection) {
+            setting.setReferencedComponentId(referencedComponent.componentInstanceId.getValue());
+            setting.setReferencedComponentProperties(referencedComponent.getReference());
+        }
     }
 
     public static List<String> getAllSchemaFieldNames(Schema schema) {
