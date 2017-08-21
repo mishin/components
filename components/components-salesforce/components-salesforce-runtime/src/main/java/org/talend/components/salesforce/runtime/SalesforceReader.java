@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.AbstractBoundedReader;
 import org.talend.components.api.component.runtime.Result;
 import org.talend.components.api.container.RuntimeContainer;
-import org.talend.components.salesforce.SalesforceDatastoreDatasetProperties;
+import org.talend.components.salesforce.SalesforceConnectionModuleProperties;
 import org.talend.components.salesforce.runtime.common.ConnectionHolder;
 import org.talend.components.salesforce.tsalesforcebulkexec.TSalesforceBulkExecProperties;
 import org.talend.components.salesforce.tsalesforceinput.TSalesforceInputProperties;
@@ -46,7 +46,7 @@ public abstract class SalesforceReader<T> extends AbstractBoundedReader<T> {
 
     protected transient Schema querySchema;
 
-    protected SalesforceDatastoreDatasetProperties properties;
+    protected SalesforceConnectionModuleProperties properties;
 
     protected int dataCount;
 
@@ -94,7 +94,7 @@ public abstract class SalesforceReader<T> extends AbstractBoundedReader<T> {
             querySchema = properties.module.main.schema.getValue();
             if (AvroUtils.isIncludeAllFields(querySchema)) {
                 String moduleName = null;
-                if (properties instanceof SalesforceDatastoreDatasetProperties) {
+                if (properties instanceof SalesforceConnectionModuleProperties) {
                     moduleName = properties.module.moduleName.getStringValue();
                 }
                 querySchema = getCurrentSource().getEndpointSchema(container, moduleName);
@@ -103,7 +103,7 @@ public abstract class SalesforceReader<T> extends AbstractBoundedReader<T> {
         return querySchema;
     }
 
-    protected String getQueryString(SalesforceDatastoreDatasetProperties properties) throws IOException {
+    protected String getQueryString(SalesforceConnectionModuleProperties properties) throws IOException {
         String condition = null;
         if (properties instanceof TSalesforceInputProperties) {
             TSalesforceInputProperties inProperties = (TSalesforceInputProperties) properties;

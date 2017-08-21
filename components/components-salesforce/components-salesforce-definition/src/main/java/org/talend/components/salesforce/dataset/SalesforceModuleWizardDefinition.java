@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.salesforce;
+package org.talend.components.salesforce.dataset;
 
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.api.wizard.AbstractComponentWizardDefintion;
@@ -18,7 +18,7 @@ import org.talend.components.api.wizard.ComponentWizard;
 import org.talend.components.api.wizard.WizardImageType;
 import org.talend.daikon.definition.DefinitionImageType;
 
-public class SalesforceModuleDatasetWizardDefinition extends AbstractComponentWizardDefintion {
+public class SalesforceModuleWizardDefinition extends AbstractComponentWizardDefintion {
 
     public static final String COMPONENT_WIZARD_NAME = "salesforce.module"; //$NON-NLS-1$
 
@@ -29,7 +29,7 @@ public class SalesforceModuleDatasetWizardDefinition extends AbstractComponentWi
 
     @Override
     public ComponentWizard createWizard(String location) {
-        return new SalesforceModuleDatasetWizard(this, location);
+        return new SalesforceModuleWizard(this, location);
     }
 
     @Override
@@ -39,7 +39,7 @@ public class SalesforceModuleDatasetWizardDefinition extends AbstractComponentWi
 
     @Override
     public ComponentWizard createWizard(ComponentProperties properties, String location) {
-        SalesforceModuleDatasetWizard wizard = (SalesforceModuleDatasetWizard) createWizard(location);
+        SalesforceModuleWizard wizard = (SalesforceModuleWizard) createWizard(location);
         wizard.setupProperties((SalesforceModuleListProperties) properties);
         return wizard;
     }

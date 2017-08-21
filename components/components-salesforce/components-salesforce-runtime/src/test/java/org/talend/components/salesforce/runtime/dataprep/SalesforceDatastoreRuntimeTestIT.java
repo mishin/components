@@ -2,14 +2,14 @@ package org.talend.components.salesforce.runtime.dataprep;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties;
+import org.talend.components.salesforce.datastore.SalesforceConnectionProperties;
 import org.talend.daikon.properties.ValidationResult;
 
 public class SalesforceDatastoreRuntimeTestIT {
 
     @Test
     public void testDoHealthChecksWithSuccess() {
-        SalesforceDatastoreProperties datastore = new SalesforceDatastoreProperties("datastore");
+        SalesforceConnectionProperties datastore = new SalesforceConnectionProperties("datastore");
         CommonTestUtils.setValueForDatastoreProperties(datastore);
 
         SalesforceDatastoreRuntime runtime = new SalesforceDatastoreRuntime();
@@ -28,7 +28,7 @@ public class SalesforceDatastoreRuntimeTestIT {
     */
     @Test(timeout = 30_000)
     public void testDoHealthChecksWithFail() {
-        SalesforceDatastoreProperties datastore = new SalesforceDatastoreProperties("datastore");
+        SalesforceConnectionProperties datastore = new SalesforceConnectionProperties("datastore");
         CommonTestUtils.setValueForDatastoreProperties(datastore);
         datastore.password.setValue("wrongone");
 

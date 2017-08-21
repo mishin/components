@@ -21,7 +21,7 @@ import org.talend.components.api.component.runtime.ExecutionEngine;
 import org.talend.components.api.component.runtime.JarRuntimeInfo;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.common.CommonTags;
-import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
+import org.talend.components.salesforce.datastore.SalesforceConnectionProperties;
 import org.talend.daikon.i18n.tag.TagImpl;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.runtime.RuntimeInfo;
@@ -71,7 +71,7 @@ public abstract class SalesforceDefinition extends AbstractComponentDefinition {
     @SuppressWarnings("unchecked")
     @Override
     public Class<? extends ComponentProperties>[] getNestedCompatibleComponentPropertiesClass() {
-        return new Class[] { SalesforceDatastoreProperties2.class };
+        return new Class[] { SalesforceConnectionProperties.class };
     }
 
     @Override

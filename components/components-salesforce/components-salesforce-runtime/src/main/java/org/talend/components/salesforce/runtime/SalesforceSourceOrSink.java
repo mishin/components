@@ -36,10 +36,11 @@ import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.common.runtime.ProxyPropertiesRuntimeHelper;
-import org.talend.components.salesforce.SalesforceProvideDatastoreProperties;
+import org.talend.components.salesforce.SalesforceConnectionModuleProperties;
+import org.talend.components.salesforce.SalesforceProvideConnectionProperties;
 import org.talend.components.salesforce.common.SalesforceRuntimeSourceOrSink;
 import org.talend.components.salesforce.connection.oauth.SalesforceOAuthConnection;
-import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
+import org.talend.components.salesforce.datastore.SalesforceConnectionProperties;
 import org.talend.components.salesforce.runtime.common.ConnectionHolder;
 import org.talend.components.salesforce.runtime.common.SalesforceConstant;
 import org.talend.components.salesforce.runtime.common.SalesforceRuntimeCommon;
@@ -76,7 +77,7 @@ public class SalesforceSourceOrSink implements SalesforceRuntimeSourceOrSink, Sa
     private static final I18nMessages MESSAGES = GlobalI18N.getI18nMessageProvider()
             .getI18nMessages(SalesforceSourceOrSink.class);
 
-    protected SalesforceProvideDatastoreProperties properties;
+    protected SalesforceProvideConnectionProperties properties;
 
     private transient static final Schema DEFAULT_GUESS_SCHEMA_TYPE = AvroUtils._string();
 
@@ -90,7 +91,7 @@ public class SalesforceSourceOrSink implements SalesforceRuntimeSourceOrSink, Sa
 
     @Override
     public ValidationResult initialize(RuntimeContainer container, ComponentProperties properties) {
-        this.properties = (SalesforceProvideDatastoreProperties) properties;
+        this.properties = (SalesforceProvideConnectionProperties) properties;
         return ValidationResult.OK;
     }
 
@@ -107,19 +108,22 @@ public class SalesforceSourceOrSink implements SalesforceRuntimeSourceOrSink, Sa
     /**
      * If referenceComponentId is not null, it should return the reference connection properties
      */
-    public SalesforceDatastoreProperties2 getConnectionProperties() {
-        SalesforceDatastoreProperties2 connectionProperties = properties.getSalesforceDatastoreProperties();
-        if (connectionProperties.getReferencedComponentId() != null) {
-            connectionProperties = connectionProperties.getReferencedConnectionProperties();
-        }
+    public SalesforceConnectionProperties getConnectionProperties() {
+        SalesforceConnectionProperties connectionProperties = properties.getSalesforceDatastoreProperties();
+        if (properties instanceof SalesforceConnectionModuleProperties) {
+            SalesforceConnectionModuleProperties sddProps = (SalesforceConnectionModuleProperties) properties;
+            if (sddProps.getReferencedComponentId() != null) {
+                connectionProperties = sddProps.referencedComponent.getReference();
+            } // else no ref is used
+        } // else not a possible ref.
         return connectionProperties;
     }
 
     protected BulkConnection connectBulk(ConnectorConfig config) throws ComponentException {
-        final SalesforceDatastoreProperties2 connProps = getConnectionProperties();
+        final SalesforceConnectionProperties connProps = getConnectionProperties();
         /*
-         * When PartnerConnection is instantiated, a login is implicitly executed and, if successful, a valid session id is
-         * stored in the ConnectorConfig instance. Use this key to initialize a BulkConnection:
+         * When PartnerConnection is instantiated, a login is implicitly executed and, if successful, a valid session id
+         * is stored in the ConnectorConfig instance. Use this key to initialize a BulkConnection:
          */
         ConnectorConfig bulkConfig = new ConnectorConfig();
         setProxy(bulkConfig);
@@ -163,10 +167,10 @@ public class SalesforceSourceOrSink implements SalesforceRuntimeSourceOrSink, Sa
             config.setSessionId(this.sessionId);
             config.setServiceEndpoint(this.serviceEndPoint);
         } else {
-            SalesforceDatastoreProperties2 connProps = getConnectionProperties();
+            SalesforceConnectionProperties connProps = getConnectionProperties();
             String endpoint = connProps.endpoint.getStringValue();
             endpoint = StringUtils.strip(endpoint, "\"");
-            if (SalesforceDatastoreProperties2.LoginType.OAuth.equals(connProps.loginType.getValue())) {
+            if (SalesforceConnectionProperties.LoginType.OAuth.equals(connProps.loginType.getValue())) {
                 SalesforceOAuthConnection oauthConnection = new SalesforceOAuthConnection(connProps.oauth, endpoint,
                         connProps.apiVersion.getValue());
                 oauthConnection.login(config);
@@ -196,7 +200,8 @@ public class SalesforceSourceOrSink implements SalesforceRuntimeSourceOrSink, Sa
     }
 
     /**
-     * Provides manual login as in {@link PartnerConnection} constructor, checks login result for valid connection/credentials.
+     * Provides manual login as in {@link PartnerConnection} constructor, checks login result for valid
+     * connection/credentials.
      *
      * @param config connector configuration with endpoint/userId/password
      * @param connection to be used for login in Salesforce.
@@ -219,28 +224,32 @@ public class SalesforceSourceOrSink implements SalesforceRuntimeSourceOrSink, Sa
         SalesforceRuntimeCommon.enableTLSv11AndTLSv12ForJava7();
 
         final ConnectionHolder ch = new ConnectionHolder();
-        SalesforceDatastoreProperties2 connProps = properties.getSalesforceDatastoreProperties();
-        String refComponentId = connProps.getReferencedComponentId();
-        Object sharedConn = null;
-        // Using another component's connection
-        if (refComponentId != null) {
-            // In a runtime container
-            if (container != null) {
-                sharedConn = container.getComponentData(refComponentId, KEY_CONNECTION);
-                if (sharedConn != null) {
-                    if (sharedConn instanceof PartnerConnection) {
-                        ch.connection = (PartnerConnection) sharedConn;
-                    } else if (sharedConn instanceof BulkConnection) {
-                        ch.bulkConnection = (BulkConnection) sharedConn;
-                    } else if (sharedConn instanceof ConnectionHolder){
-                        return (ConnectionHolder) sharedConn;
+        SalesforceConnectionProperties connProps = properties.getSalesforceDatastoreProperties();
+        String refComponentId = null;
+        if (properties instanceof SalesforceConnectionModuleProperties) {
+            SalesforceConnectionModuleProperties sddProps = (SalesforceConnectionModuleProperties) properties;
+            refComponentId = sddProps.getReferencedComponentId();
+            Object sharedConn = null;
+            // Using another component's connection
+            if (refComponentId != null) {
+                // In a runtime container
+                if (container != null) {
+                    sharedConn = container.getComponentData(refComponentId, KEY_CONNECTION);
+                    if (sharedConn != null) {
+                        if (sharedConn instanceof PartnerConnection) {
+                            ch.connection = (PartnerConnection) sharedConn;
+                        } else if (sharedConn instanceof BulkConnection) {
+                            ch.bulkConnection = (BulkConnection) sharedConn;
+                        } else if (sharedConn instanceof ConnectionHolder) {
+                            return (ConnectionHolder) sharedConn;
+                        }
+                        return ch;
                     }
-                    return ch;
+                    throw new IOException("Referenced component: " + refComponentId + " not connected");
                 }
-                throw new IOException("Referenced component: " + refComponentId + " not connected");
+                // Design time
+                connProps = sddProps.referencedComponent.getReference();
             }
-            // Design time
-            connProps = connProps.getReferencedConnectionProperties();
         }
 
         ConnectorConfig config = new ConnectorConfig();
@@ -334,7 +343,7 @@ public class SalesforceSourceOrSink implements SalesforceRuntimeSourceOrSink, Sa
         };
     }
 
-    public static List<NamedThing> getSchemaNames(RuntimeContainer container, SalesforceProvideDatastoreProperties properties)
+    public static List<NamedThing> getSchemaNames(RuntimeContainer container, SalesforceProvideConnectionProperties properties)
             throws IOException {
         ClassLoader classLoader = SalesforceSourceOrSink.class.getClassLoader();
         // we use Sandbox to isolated some system properties set by
@@ -352,7 +361,7 @@ public class SalesforceSourceOrSink implements SalesforceRuntimeSourceOrSink, Sa
         }
     }
 
-    public static ValidationResult validateConnection(SalesforceProvideDatastoreProperties properties) {
+    public static ValidationResult validateConnection(SalesforceProvideConnectionProperties properties) {
         ClassLoader classLoader = SalesforceSourceOrSink.class.getClassLoader();
         // we use Sandbox to isolated some system properties set by
         // org.talend.components.salesforce.runtime.common.SalesforceRuntimeCommon.enableTLSv11AndTLSv12ForJava7()
@@ -364,7 +373,7 @@ public class SalesforceSourceOrSink implements SalesforceRuntimeSourceOrSink, Sa
         }
     }
 
-    public static Schema getSchema(RuntimeContainer container, SalesforceProvideDatastoreProperties properties, String module)
+    public static Schema getSchema(RuntimeContainer container, SalesforceProvideConnectionProperties properties, String module)
             throws IOException {
         ClassLoader classLoader = SalesforceSourceOrSink.class.getClassLoader();
         // we use Sandbox to isolated some system properties set by
@@ -526,10 +535,10 @@ public class SalesforceSourceOrSink implements SalesforceRuntimeSourceOrSink, Sa
      * Whether reuse session available
      */
     protected boolean isReuseSession() {
-        SalesforceDatastoreProperties2 connectionProperties = getConnectionProperties();
+        SalesforceConnectionProperties connectionProperties = getConnectionProperties();
         sessionFilePath = connectionProperties.sessionDirectory.getValue() + "/" + SalesforceConstant.SESSION_FILE_PREFX
                 + connectionProperties.userPassword.userId.getValue();
-        return (SalesforceDatastoreProperties2.LoginType.Basic == connectionProperties.loginType.getValue())
+        return (SalesforceConnectionProperties.LoginType.Basic == connectionProperties.loginType.getValue())
                 && connectionProperties.reuseSession.getValue() && !StringUtils.isEmpty(sessionFilePath);
     }
 

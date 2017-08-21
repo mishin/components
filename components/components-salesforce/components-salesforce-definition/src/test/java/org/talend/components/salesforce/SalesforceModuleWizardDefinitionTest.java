@@ -24,7 +24,10 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.talend.components.api.wizard.ComponentWizard;
-import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
+import org.talend.components.salesforce.dataset.SalesforceModuleWizard;
+import org.talend.components.salesforce.dataset.SalesforceModuleWizardDefinition;
+import org.talend.components.salesforce.dataset.SalesforceModuleListProperties;
+import org.talend.components.salesforce.datastore.SalesforceConnectionProperties;
 import org.talend.daikon.definition.DefinitionImageType;
 
 /**
@@ -34,12 +37,12 @@ public class SalesforceModuleWizardDefinitionTest {
 
     private final String repoLocation = "___DRI";
 
-    private SalesforceModuleDatasetWizardDefinition definition;
+    private SalesforceModuleWizardDefinition definition;
     private SalesforceModuleListProperties properties;
 
     @Before
     public void setUp() {
-        definition = new SalesforceModuleDatasetWizardDefinition();
+        definition = new SalesforceModuleWizardDefinition();
 
         properties = new SalesforceModuleListProperties("module");
         properties.init();
@@ -48,14 +51,14 @@ public class SalesforceModuleWizardDefinitionTest {
     @Test
     public void testSupportsProperties() {
         assertTrue(definition.supportsProperties(SalesforceModuleListProperties.class));
-        assertFalse(definition.supportsProperties(SalesforceDatastoreProperties2.class));
+        assertFalse(definition.supportsProperties(SalesforceConnectionProperties.class));
     }
 
     @Test
     public void testCreateWizard() {
         ComponentWizard wizard = definition.createWizard(properties, repoLocation);
 
-        assertThat(wizard, instanceOf(SalesforceModuleDatasetWizard.class));
+        assertThat(wizard, instanceOf(SalesforceModuleWizard.class));
         assertEquals(definition, wizard.getDefinition());
         assertEquals(repoLocation, wizard.getRepositoryLocation());
     }

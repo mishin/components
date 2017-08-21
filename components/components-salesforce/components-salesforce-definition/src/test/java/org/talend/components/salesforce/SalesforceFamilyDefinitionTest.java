@@ -31,8 +31,9 @@ import org.mockito.Mockito;
 import org.talend.components.api.ComponentInstaller;
 import org.talend.components.common.CommonTags;
 import org.talend.components.salesforce.dataprep.SalesforceInputDefinition;
-import org.talend.components.salesforce.dataset.SalesforceDatasetDefinition;
-import org.talend.components.salesforce.datastore.SalesforceDatastoreDefinition;
+import org.talend.components.salesforce.dataset.SalesforceModuleDefinition;
+import org.talend.components.salesforce.dataset.SalesforceModuleWizardDefinition;
+import org.talend.components.salesforce.datastore.SalesforceConnectionDefinition;
 import org.talend.components.salesforce.tsalesforcebulkexec.TSalesforceBulkExecDefinition;
 import org.talend.components.salesforce.tsalesforceconnection.TSalesforceConnectionDefinition;
 import org.talend.components.salesforce.tsalesforcegetdeleted.TSalesforceGetDeletedDefinition;
@@ -66,9 +67,9 @@ public class SalesforceFamilyDefinitionTest {
     public void testDefinitions() {
         List<Matcher> matchers = Arrays.<Matcher>asList(
                 Matchers.isA(TSalesforceConnectionDefinition.class),
-                Matchers.isA(SalesforceDatastoreDatasetWizardDefinition.class),
+                Matchers.isA(SalesforceConnectionModuleWizardDefinition.class),
                 Matchers.isA(SalesforceConnectionEditWizardDefinition.class),
-                Matchers.isA(SalesforceModuleDatasetWizardDefinition.class),
+                Matchers.isA(SalesforceModuleWizardDefinition.class),
                 Matchers.isA(TSalesforceInputDefinition.class),
                 Matchers.isA(TSalesforceOutputDefinition.class),
                 Matchers.isA(TSalesforceOutputBulkDefinition.class),
@@ -77,8 +78,8 @@ public class SalesforceFamilyDefinitionTest {
                 Matchers.isA(TSalesforceGetServerTimestampDefinition.class),
                 Matchers.isA(TSalesforceGetUpdatedDefinition.class),
                 Matchers.isA(TSalesforceGetDeletedDefinition.class),
-                Matchers.isA(SalesforceDatastoreDefinition.class),
-                Matchers.isA(SalesforceDatasetDefinition.class),
+                Matchers.isA(SalesforceConnectionDefinition.class),
+                Matchers.isA(SalesforceModuleDefinition.class),
                 Matchers.isA(SalesforceInputDefinition.class)
         );
         List<? extends Definition> definitions = Lists.newArrayList(familyDefinition.getDefinitions());

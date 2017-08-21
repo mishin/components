@@ -26,7 +26,7 @@ import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 import org.talend.components.api.component.runtime.Reader;
 import org.talend.components.api.component.runtime.Source;
 import org.talend.components.api.component.runtime.SourceOrSink;
-import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
+import org.talend.components.salesforce.datastore.SalesforceConnectionProperties;
 import org.talend.components.salesforce.test.SalesforceRuntimeTestUtil;
 import org.talend.components.salesforce.test.SalesforceTestBase;
 import org.talend.components.salesforce.tsalesforceconnection.TSalesforceConnectionDefinition;
@@ -80,7 +80,7 @@ public class SalesforceProxyTestIT extends SalesforceTestBase {
     public void testProxy() {
         TSalesforceConnectionDefinition definition = (TSalesforceConnectionDefinition) getComponentService()
                 .getComponentDefinition(TSalesforceConnectionDefinition.COMPONENT_NAME);
-        SalesforceDatastoreProperties2 properties = (SalesforceDatastoreProperties2) definition.createRuntimeProperties();
+        SalesforceConnectionProperties properties = (SalesforceConnectionProperties) definition.createRuntimeProperties();
 
         properties.bulkConnection.setValue(true);
         properties.userPassword.userId.setValue(userId);

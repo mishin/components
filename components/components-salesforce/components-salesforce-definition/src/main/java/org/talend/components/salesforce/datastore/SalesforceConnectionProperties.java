@@ -26,7 +26,7 @@ import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.common.ProxyProperties;
 import org.talend.components.common.datastore.DatastoreProperties;
 import org.talend.components.common.oauth.OauthProperties;
-import org.talend.components.salesforce.SalesforceProvideDatastoreProperties;
+import org.talend.components.salesforce.SalesforceProvideConnectionProperties;
 import org.talend.components.salesforce.SalesforceUserPasswordProperties;
 import org.talend.components.salesforce.common.SalesforceRuntimeSourceOrSink;
 import org.talend.daikon.i18n.GlobalI18N;
@@ -41,11 +41,11 @@ import org.talend.daikon.sandbox.SandboxedInstance;
 import org.talend.daikon.serialize.PostDeserializeSetup;
 import org.talend.daikon.serialize.migration.SerializeSetVersion;
 
-public class SalesforceDatastoreProperties2 extends ComponentPropertiesImpl
-        implements SalesforceProvideDatastoreProperties, SerializeSetVersion, DatastoreProperties {
+public class SalesforceConnectionProperties extends ComponentPropertiesImpl
+        implements SalesforceProvideConnectionProperties, SerializeSetVersion, DatastoreProperties {
 
     protected static final I18nMessages MESSAGES = GlobalI18N.getI18nMessageProvider()
-            .getI18nMessages(SalesforceDatastoreProperties2.class);
+            .getI18nMessages(SalesforceConnectionProperties.class);
 
     public static final String DEFAULT_API_VERSION = "39.0";
 
@@ -110,7 +110,7 @@ public class SalesforceDatastoreProperties2 extends ComponentPropertiesImpl
 
     public ProxyProperties proxy = new ProxyProperties("proxy");
 
-    public SalesforceDatastoreProperties2(String name) {
+    public SalesforceConnectionProperties(String name) {
         super(name);
     }
 
@@ -248,7 +248,7 @@ public class SalesforceDatastoreProperties2 extends ComponentPropertiesImpl
     }
 
     @Override
-    public SalesforceDatastoreProperties2 getSalesforceDatastoreProperties() {
+    public SalesforceConnectionProperties getSalesforceDatastoreProperties() {
         return this;
     }
 

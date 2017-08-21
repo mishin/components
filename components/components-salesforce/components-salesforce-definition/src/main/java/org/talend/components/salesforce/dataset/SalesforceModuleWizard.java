@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.salesforce;
+package org.talend.components.salesforce.dataset;
 
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.api.wizard.ComponentWizard;
@@ -21,11 +21,11 @@ import org.talend.daikon.properties.presentation.Form;
  * A single-page wizard that just handles the selection of modules. This must always be created with the connection
  * properties.
  */
-public class SalesforceModuleDatasetWizard extends ComponentWizard {
+public class SalesforceModuleWizard extends ComponentWizard {
 
     SalesforceModuleListProperties salesforceModuleListProperties;
 
-    SalesforceModuleDatasetWizard(ComponentWizardDefinition def, String repositoryLocation) {
+    SalesforceModuleWizard(ComponentWizardDefinition def, String repositoryLocation) {
         super(def, repositoryLocation);
 
         salesforceModuleListProperties = new SalesforceModuleListProperties("salesforceModuleListProperties")

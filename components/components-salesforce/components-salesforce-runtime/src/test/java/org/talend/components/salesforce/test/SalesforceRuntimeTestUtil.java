@@ -32,7 +32,7 @@ import org.talend.components.api.component.runtime.SourceOrSink;
 import org.talend.components.api.component.runtime.WriteOperation;
 import org.talend.components.api.component.runtime.Writer;
 import org.talend.components.salesforce.SalesforceBulkProperties.Concurrency;
-import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
+import org.talend.components.salesforce.datastore.SalesforceConnectionProperties;
 import org.talend.components.salesforce.runtime.SalesforceBulkFileSink;
 import org.talend.components.salesforce.runtime.SalesforceSource;
 import org.talend.components.salesforce.tsalesforcebulkexec.TSalesforceBulkExecDefinition;
@@ -135,7 +135,7 @@ public class SalesforceRuntimeTestUtil {
     }
 
     public List<String> createTestData() throws ConnectionException {
-        this.login(SalesforceDatastoreProperties2.URL);
+        this.login(SalesforceConnectionProperties.URL);
 
         List<String> ids = new ArrayList<String>();
         try {
@@ -169,7 +169,7 @@ public class SalesforceRuntimeTestUtil {
     }
 
     public void deleteTestData(List<String> ids) throws ConnectionException {
-        this.login(SalesforceDatastoreProperties2.URL);
+        this.login(SalesforceConnectionProperties.URL);
 
         try {
             DeleteResult[] results = partnerConnection.delete(ids.toArray(new String[0]));

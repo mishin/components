@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.salesforce;
+package org.talend.components.salesforce.dataset;
 
 import static org.talend.components.salesforce.SalesforceDefinition.SOURCE_OR_SINK_CLASS;
 import static org.talend.components.salesforce.SalesforceDefinition.USE_CURRENT_JVM_PROPS;
@@ -18,17 +18,17 @@ import static org.talend.components.salesforce.SalesforceDefinition.getSandboxed
 import static org.talend.daikon.properties.presentation.Widget.widget;
 import static org.talend.daikon.properties.property.PropertyFactory.newProperty;
 
-import java.util.Arrays;
 import java.util.List;
 
+import org.apache.avro.Schema;
 import org.apache.commons.lang3.reflect.TypeLiteral;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.api.properties.ComponentPropertiesImpl;
+import org.talend.components.salesforce.SalesforceProvideConnectionProperties;
 import org.talend.components.salesforce.common.ExceptionUtil;
-import org.talend.components.salesforce.dataset.SalesforceModuleDatasetProperties;
-import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
+import org.talend.components.salesforce.common.SalesforceRuntimeSourceOrSink;
+import org.talend.components.salesforce.datastore.SalesforceConnectionProperties;
 import org.talend.daikon.NamedThing;
-import org.talend.daikon.SimpleNamedThing;
 import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.ValidationResult;
 import org.talend.daikon.properties.presentation.Form;
@@ -37,9 +37,9 @@ import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.service.Repository;
 import org.talend.daikon.sandbox.SandboxedInstance;
 
-public class SalesforceModuleListProperties extends ComponentPropertiesImpl implements SalesforceProvideDatastoreProperties {
+public class SalesforceModuleListProperties extends ComponentPropertiesImpl implements SalesforceProvideConnectionProperties {
 
-    public SalesforceDatastoreProperties2 datastore = new SalesforceDatastoreProperties2("datastore");
+    public SalesforceConnectionProperties datastore = new SalesforceConnectionProperties("datastore");
 
     private String repositoryLocation;
 
@@ -55,7 +55,7 @@ public class SalesforceModuleListProperties extends ComponentPropertiesImpl impl
         super(name);
     }
 
-    public SalesforceModuleListProperties setConnection(SalesforceDatastoreProperties2 connection) {
+    public SalesforceModuleListProperties setConnection(SalesforceConnectionProperties connection) {
         this.datastore = connection;
         return this;
     }
@@ -80,18 +80,12 @@ public class SalesforceModuleListProperties extends ComponentPropertiesImpl impl
 
     public void beforeFormPresentMain() throws Exception {
         try (SandboxedInstance sandboxedInstance = getSandboxedInstance(SOURCE_OR_SINK_CLASS, USE_CURRENT_JVM_PROPS)) {
-            // TODO put this back, commented for the POC
-            // SalesforceRuntimeSourceOrSink ss = (SalesforceRuntimeSourceOrSink) sandboxedInstance.getInstance();
-            // ss.initialize(null, this);
-            // ValidationResult vr = ss.validate(null);
-            ValidationResult vr = ValidationResult.OK;// added for the POC
+            SalesforceRuntimeSourceOrSink ss = (SalesforceRuntimeSourceOrSink) sandboxedInstance.getInstance();
+            ss.initialize(null, this);
+            ValidationResult vr = ss.validate(null);
             if (vr.getStatus() == ValidationResult.Result.OK) {
                 try {
-                    moduleNames = Arrays.asList(new NamedThing[] { new SimpleNamedThing("aa"), new SimpleNamedThing("bb") });// remove
-                                                                                                                             // for
-                                                                                                                             // the
-                                                                                                                             // POC//
-                                                                                                                             // ss.getSchemaNames(null);
+                    moduleNames = ss.getSchemaNames(null);
                 } catch (Exception ex) {
                     throw new ComponentException(ExceptionUtil.exceptionToValidationResult(ex));
                 }
@@ -106,24 +100,23 @@ public class SalesforceModuleListProperties extends ComponentPropertiesImpl impl
 
     public ValidationResult afterFormFinishMain(Repository<Properties> repo) throws Exception {
         try (SandboxedInstance sandboxedInstance = getSandboxedInstance(SOURCE_OR_SINK_CLASS, USE_CURRENT_JVM_PROPS)) {
-            // TODO uncomment below cause commented for POC
-            // SalesforceRuntimeSourceOrSink ss = (SalesforceRuntimeSourceOrSink) sandboxedInstance.getInstance();
-            // ss.initialize(null, this);
-            // ValidationResult vr = ss.validate(null);
-            // if (vr.getStatus() != ValidationResult.Result.OK) {
-            // return vr;
-            // }
+            SalesforceRuntimeSourceOrSink ss = (SalesforceRuntimeSourceOrSink) sandboxedInstance.getInstance();
+            ss.initialize(null, this);
+            ValidationResult vr = ss.validate(null);
+            if (vr.getStatus() != ValidationResult.Result.OK) {
+                return vr;
+            }
 
             String connRepLocation = repo.storeProperties(datastore, datastore.name.getValue(), repositoryLocation, null);
 
             for (NamedThing nl : selectedModuleNames.getValue()) {
                 String moduleId = nl.getName();
-                SalesforceModuleDatasetProperties modProps = new SalesforceModuleDatasetProperties(moduleId);
-                modProps.datastore = datastore;
+                SalesforceModuleProperties modProps = new SalesforceModuleProperties(moduleId);
+                modProps.setDatastoreProperties(datastore);
                 modProps.init();
-                // TODO uncomment it back //Schema schema = ss.getEndpointSchema(null, moduleId);
+                Schema schema = ss.getEndpointSchema(null, moduleId);
                 modProps.moduleName.setValue(moduleId);
-                // TODO uncomment it back //modProps.main.schema.setValue(schema);
+                modProps.main.schema.setValue(schema);
                 repo.storeProperties(modProps, nl.getName(), connRepLocation, "main.schema");
             }
             return ValidationResult.OK;
@@ -131,7 +124,7 @@ public class SalesforceModuleListProperties extends ComponentPropertiesImpl impl
     }
 
     @Override
-    public SalesforceDatastoreProperties2 getSalesforceDatastoreProperties() {
+    public SalesforceConnectionProperties getSalesforceDatastoreProperties() {
         return datastore;
     }
 }

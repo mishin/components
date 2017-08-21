@@ -12,26 +12,26 @@
 // ============================================================================
 package org.talend.components.salesforce;
 
-import org.apache.avro.Schema;
-import org.talend.components.api.component.Connector;
-import org.talend.components.api.component.PropertyPathConnector;
-import org.talend.components.common.SchemaProperties;
-import org.talend.components.salesforce.dataset.SalesforceModuleDatasetProperties;
-import org.talend.daikon.properties.ValidationResult;
-import org.talend.daikon.properties.presentation.Form;
-import org.talend.daikon.properties.presentation.Widget;
-import org.talend.daikon.properties.property.Property;
+import static org.talend.daikon.properties.presentation.Widget.widget;
+import static org.talend.daikon.properties.property.PropertyFactory.newEnum;
+import static org.talend.daikon.properties.property.PropertyFactory.newString;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.talend.daikon.properties.presentation.Widget.widget;
-import static org.talend.daikon.properties.property.PropertyFactory.newEnum;
-import static org.talend.daikon.properties.property.PropertyFactory.newString;
+import org.apache.avro.Schema;
+import org.talend.components.api.component.Connector;
+import org.talend.components.api.component.PropertyPathConnector;
+import org.talend.components.common.SchemaProperties;
+import org.talend.components.salesforce.dataset.SalesforceModuleProperties;
+import org.talend.daikon.properties.presentation.Form;
+import org.talend.daikon.properties.presentation.Widget;
+import org.talend.daikon.properties.property.Property;
 
-public class SalesforceOutputProperties extends SalesforceDatastoreDatasetProperties {
+public class SalesforceOutputProperties extends SalesforceConnectionModuleProperties {
 
     public enum OutputAction {
         INSERT,
@@ -66,15 +66,15 @@ public class SalesforceOutputProperties extends SalesforceDatastoreDatasetProper
 
     // Have to use an explicit class to get the override of afterModuleName(), an anonymous
     // class cannot be public and thus cannot be called.
-    public class ModuleSubclass extends SalesforceModuleDatasetProperties {
+    public class ModuleSubclass extends SalesforceModuleProperties {
 
         public ModuleSubclass(String name) {
             super(name);
         }
 
         @Override
-        public ValidationResult afterModuleName() throws Exception {
-            ValidationResult validationResult = super.afterModuleName();
+        public void afterModuleName() throws IOException {
+            super.afterModuleName();
             List<String> fieldNames = getFieldNames(main.schema);
 
             if (isUpsertKeyColumnClosedList()) {
@@ -82,7 +82,6 @@ public class SalesforceOutputProperties extends SalesforceDatastoreDatasetProper
             }
 
             upsertRelationTable.columnName.setPossibleValues(fieldNames);
-            return validationResult;
         }
     }
 
@@ -111,7 +110,7 @@ public class SalesforceOutputProperties extends SalesforceDatastoreDatasetProper
         setupRejectSchema();
 
         module = new ModuleSubclass("module");
-        module.datastore = datastore;
+        module.setDatastoreProperties(datastore);
         module.setupProperties();
         upsertRelationTable.setUsePolymorphic(false);
     }

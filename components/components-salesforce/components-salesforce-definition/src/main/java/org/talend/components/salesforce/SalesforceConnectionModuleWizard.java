@@ -15,24 +15,25 @@ package org.talend.components.salesforce;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.api.wizard.ComponentWizard;
 import org.talend.components.api.wizard.ComponentWizardDefinition;
-import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
+import org.talend.components.salesforce.dataset.SalesforceModuleListProperties;
+import org.talend.components.salesforce.datastore.SalesforceConnectionProperties;
 import org.talend.daikon.properties.presentation.Form;
 
 /**
  * Handles the creating a connection and creating the modules associated with the connection.
  */
-public class SalesforceDatastoreDatasetWizard extends ComponentWizard {
+public class SalesforceConnectionModuleWizard extends ComponentWizard {
 
-    SalesforceDatastoreProperties2 cProps;
+    SalesforceConnectionProperties cProps;
 
     SalesforceModuleListProperties mProps;
 
-    SalesforceDatastoreDatasetWizard(ComponentWizardDefinition def, String repositoryLocation) {
+    SalesforceConnectionModuleWizard(ComponentWizardDefinition def, String repositoryLocation) {
         super(def, repositoryLocation);
 
-        cProps = new SalesforceDatastoreProperties2("datastore");
+        cProps = new SalesforceConnectionProperties("datastore");
         cProps.init();
-        addForm(cProps.getForm(SalesforceDatastoreProperties2.FORM_WIZARD));
+        addForm(cProps.getForm(SalesforceConnectionProperties.FORM_WIZARD));
 
         mProps = new SalesforceModuleListProperties("mProps").setConnection(cProps)
                 .setRepositoryLocation(getRepositoryLocation());
@@ -41,10 +42,10 @@ public class SalesforceDatastoreDatasetWizard extends ComponentWizard {
     }
 
     public boolean supportsProperties(ComponentProperties properties) {
-        return properties instanceof SalesforceDatastoreProperties2;
+        return properties instanceof SalesforceConnectionProperties;
     }
 
-    public void setupProperties(SalesforceDatastoreProperties2 cPropsOther) {
+    public void setupProperties(SalesforceConnectionProperties cPropsOther) {
         cProps.copyValuesFrom(cPropsOther);
         mProps.setConnection(cProps);
     }

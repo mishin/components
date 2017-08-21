@@ -28,7 +28,7 @@ import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.junit.Before;
 import org.junit.Test;
-import org.talend.components.salesforce.dataset.SalesforceDatasetProperties;
+import org.talend.components.salesforce.dataset.SalesforceModuleProperties;
 
 public class SalesforceSchemaUtilsTest {
 
@@ -39,13 +39,13 @@ public class SalesforceSchemaUtilsTest {
             .name("BillingCity").type().stringType().noDefault()
             .endRecord();
 
-    private SalesforceDatasetProperties datasetProperties;
+    private SalesforceModuleProperties datasetProperties;
 
     private SalesforceDataprepSource dataprepSource;
 
     @Before
     public void setUp() {
-        datasetProperties = new SalesforceDatasetProperties("dataset");
+        datasetProperties = new SalesforceModuleProperties("dataset");
         datasetProperties.init();
 
         dataprepSource = spy(new SalesforceDataprepSource());
@@ -53,7 +53,7 @@ public class SalesforceSchemaUtilsTest {
 
     @Test
     public void testGetSchemaModuleSelection() throws IOException {
-        datasetProperties.sourceType.setValue(SalesforceDatasetProperties.SourceType.MODULE_SELECTION);
+        datasetProperties.sourceType.setValue(SalesforceModuleProperties.SourceType.MODULE_SELECTION);
         datasetProperties.moduleName.setValue("Account");
         datasetProperties.selectColumnIds.setValue(Arrays.asList(
                 "Id", "Name", "AccountNumber", "BillingCity"));
@@ -67,7 +67,7 @@ public class SalesforceSchemaUtilsTest {
 
     @Test(expected = RuntimeException.class)
     public void testGetSchemaModuleSelectionNoFields() throws IOException {
-        datasetProperties.sourceType.setValue(SalesforceDatasetProperties.SourceType.MODULE_SELECTION);
+        datasetProperties.sourceType.setValue(SalesforceModuleProperties.SourceType.MODULE_SELECTION);
         datasetProperties.moduleName.setValue("Account");
 
         SalesforceSchemaUtils.getSchema(datasetProperties, dataprepSource, null);
@@ -75,7 +75,7 @@ public class SalesforceSchemaUtilsTest {
 
     @Test(expected = RuntimeException.class)
     public void testGetSchemaModuleSelectionError() throws IOException {
-        datasetProperties.sourceType.setValue(SalesforceDatasetProperties.SourceType.MODULE_SELECTION);
+        datasetProperties.sourceType.setValue(SalesforceModuleProperties.SourceType.MODULE_SELECTION);
         datasetProperties.moduleName.setValue("Account");
         datasetProperties.selectColumnIds.setValue(Arrays.asList(
                 "Id", "Name", "AccountNumber", "BillingCity"));
@@ -87,7 +87,7 @@ public class SalesforceSchemaUtilsTest {
 
     @Test
     public void testGetSchemaQuery() throws IOException {
-        datasetProperties.sourceType.setValue(SalesforceDatasetProperties.SourceType.SOQL_QUERY);
+        datasetProperties.sourceType.setValue(SalesforceModuleProperties.SourceType.SOQL_QUERY);
         String query = "select Id, Name, AccountNumber, BillingCity from Account";
         datasetProperties.query.setValue(query);
 

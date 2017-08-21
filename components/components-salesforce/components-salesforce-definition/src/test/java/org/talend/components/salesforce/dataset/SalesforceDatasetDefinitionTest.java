@@ -32,14 +32,14 @@ import org.talend.daikon.runtime.RuntimeInfo;
  */
 public class SalesforceDatasetDefinitionTest extends SalesforceTestBase {
 
-    private SalesforceDatasetDefinition definition;
-    private SalesforceDatasetProperties properties;
+    private SalesforceModuleDefinition definition;
+    private SalesforceModuleProperties properties;
 
     @Before
     public void setUp() {
-        definition = new SalesforceDatasetDefinition();
+        definition = new SalesforceModuleDefinition();
 
-        properties = new SalesforceDatasetProperties("root");
+        properties = new SalesforceModuleProperties("root");
         properties.init();
     }
 

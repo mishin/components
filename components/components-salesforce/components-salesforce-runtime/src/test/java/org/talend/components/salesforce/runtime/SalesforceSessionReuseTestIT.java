@@ -39,7 +39,7 @@ import org.talend.components.api.container.DefaultComponentRuntimeContainerImpl;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.api.test.ComponentTestUtils;
-import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
+import org.talend.components.salesforce.datastore.SalesforceConnectionProperties;
 import org.talend.components.salesforce.runtime.common.ConnectionHolder;
 import org.talend.components.salesforce.test.SalesforceTestBase;
 import org.talend.components.salesforce.tsalesforceconnection.TSalesforceConnectionDefinition;
@@ -104,7 +104,7 @@ public class SalesforceSessionReuseTestIT extends SalesforceTestBase {
         File sessionFolder = new File(tempFolder.getRoot().getPath() + "/tsalesforceconnection/");
         assertEquals(0, sessionFolder.getTotalSpace());
         LOGGER.debug("session folder: " + sessionFolder.getAbsolutePath());
-        SalesforceDatastoreProperties2 props = setupProps(null, !ADD_QUOTES);
+        SalesforceConnectionProperties props = setupProps(null, !ADD_QUOTES);
         // setup session function
         props.reuseSession.setValue(true);
         props.sessionDirectory.setValue(sessionFolder.getAbsolutePath());
@@ -125,7 +125,7 @@ public class SalesforceSessionReuseTestIT extends SalesforceTestBase {
         File sessionFolder = new File(tempFolder.getRoot().getPath() + "/tsalesforceconnection_1/");
         assertEquals(0, sessionFolder.getTotalSpace());
         LOGGER.debug("session folder: " + sessionFolder.getAbsolutePath());
-        SalesforceDatastoreProperties2 connProps = (SalesforceDatastoreProperties2) getComponentService()
+        SalesforceConnectionProperties connProps = (SalesforceConnectionProperties) getComponentService()
                 .getComponentProperties(TSalesforceConnectionDefinition.COMPONENT_NAME);
         setupProps(connProps, !ADD_QUOTES);
         // setup session function
@@ -423,7 +423,7 @@ public class SalesforceSessionReuseTestIT extends SalesforceTestBase {
         return result;
     }
 
-    protected void invalidSession(SalesforceDatastoreProperties2 props, String sessionId) throws Exception {
+    protected void invalidSession(SalesforceConnectionProperties props, String sessionId) throws Exception {
         SalesforceSourceOrSink sourceOrSink = new SalesforceSourceOrSink();
         sourceOrSink.initialize(null, props);
         ConnectionHolder connectionHolder = sourceOrSink.connect(null);

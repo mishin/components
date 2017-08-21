@@ -17,26 +17,26 @@ import java.util.Arrays;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.common.datastore.runtime.DatastoreRuntime;
 import org.talend.components.salesforce.dataprep.SalesforceInputProperties;
-import org.talend.components.salesforce.dataset.SalesforceDatasetProperties;
-import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties;
+import org.talend.components.salesforce.dataset.SalesforceModuleProperties;
+import org.talend.components.salesforce.datastore.SalesforceConnectionProperties;
 import org.talend.daikon.properties.ValidationResult;
 
 /**
  * the data store runtime for salesforce
  *
  */
-public class SalesforceDatastoreRuntime implements DatastoreRuntime<SalesforceDatastoreProperties> {
+public class SalesforceDatastoreRuntime implements DatastoreRuntime<SalesforceConnectionProperties> {
 
-    protected SalesforceDatastoreProperties datastore;
+    protected SalesforceConnectionProperties datastore;
 
     @Override
     public Iterable<ValidationResult> doHealthChecks(RuntimeContainer container) {
         SalesforceDataprepSource sds = new SalesforceDataprepSource();
 
         SalesforceInputProperties properties = new SalesforceInputProperties("model");
-        SalesforceDatasetProperties dataset = new SalesforceDatasetProperties("dataset");
+        SalesforceModuleProperties dataset = new SalesforceModuleProperties("dataset");
         //set the sourcetype to soql to prevent loading of all modules during health check
-        dataset.sourceType.setValue(SalesforceDatasetProperties.SourceType.SOQL_QUERY);
+        dataset.sourceType.setValue(SalesforceModuleProperties.SourceType.SOQL_QUERY);
         properties.setDatasetProperties(dataset);
         dataset.setDatastoreProperties(datastore);
 
@@ -46,7 +46,7 @@ public class SalesforceDatastoreRuntime implements DatastoreRuntime<SalesforceDa
     }
 
     @Override
-    public ValidationResult initialize(RuntimeContainer container, SalesforceDatastoreProperties properties) {
+    public ValidationResult initialize(RuntimeContainer container, SalesforceConnectionProperties properties) {
         this.datastore = properties;
         return ValidationResult.OK;
     }

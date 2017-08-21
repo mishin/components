@@ -17,7 +17,7 @@ import org.talend.components.common.dataset.DatasetProperties;
 import org.talend.components.common.datastore.DatastoreDefinition;
 import org.talend.components.salesforce.SalesforceDefinition;
 import org.talend.components.salesforce.dataprep.SalesforceInputDefinition;
-import org.talend.components.salesforce.dataset.SalesforceDatasetProperties;
+import org.talend.components.salesforce.dataset.SalesforceModuleProperties;
 import org.talend.daikon.definition.DefinitionImageType;
 import org.talend.daikon.definition.I18nDefinition;
 import org.talend.daikon.runtime.RuntimeInfo;
@@ -26,23 +26,24 @@ import org.talend.daikon.runtime.RuntimeInfo;
  * the salesforce data store work for dataprep
  *
  */
-public class SalesforceDatastoreDefinition extends I18nDefinition implements DatastoreDefinition<SalesforceDatastoreProperties> {
+public class SalesforceConnectionDefinition extends I18nDefinition
+        implements DatastoreDefinition<SalesforceConnectionProperties> {
 
     public static final String NAME = "SalesforceDatastore";
 
-    public SalesforceDatastoreDefinition() {
+    public SalesforceConnectionDefinition() {
         super(NAME);
     }
 
     @Override
-    public RuntimeInfo getRuntimeInfo(SalesforceDatastoreProperties properties) {
+    public RuntimeInfo getRuntimeInfo(SalesforceConnectionProperties properties) {
         return SalesforceDefinition.getCommonRuntimeInfo(SalesforceDefinition.DATASTORE_RUNTIME_CLASS);
     }
 
     @SuppressWarnings("rawtypes")
     @Override
-    public DatasetProperties createDatasetProperties(SalesforceDatastoreProperties storeProp) {
-        SalesforceDatasetProperties datasetProperties = new SalesforceDatasetProperties("dataset");
+    public DatasetProperties createDatasetProperties(SalesforceConnectionProperties storeProp) {
+        SalesforceModuleProperties datasetProperties = new SalesforceModuleProperties("dataset");
         datasetProperties.init();
         datasetProperties.setDatastoreProperties(storeProp);
         return datasetProperties;
@@ -82,8 +83,8 @@ public class SalesforceDatastoreDefinition extends I18nDefinition implements Dat
     }
 
     @Override
-    public Class<SalesforceDatastoreProperties> getPropertiesClass() {
-        return SalesforceDatastoreProperties.class;
+    public Class<SalesforceConnectionProperties> getPropertiesClass() {
+        return SalesforceConnectionProperties.class;
     }
 
 }

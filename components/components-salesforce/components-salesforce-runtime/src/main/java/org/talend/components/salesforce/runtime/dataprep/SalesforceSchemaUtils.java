@@ -5,13 +5,13 @@ import java.util.List;
 
 import org.apache.avro.Schema;
 import org.talend.components.api.container.RuntimeContainer;
-import org.talend.components.salesforce.dataset.SalesforceDatasetProperties;
+import org.talend.components.salesforce.dataset.SalesforceModuleProperties;
 
 public abstract class SalesforceSchemaUtils {
 
-    public static Schema getSchema(SalesforceDatasetProperties dataset, SalesforceDataprepSource sds, RuntimeContainer container)
+    public static Schema getSchema(SalesforceModuleProperties dataset, SalesforceDataprepSource sds, RuntimeContainer container)
             throws IOException {
-        if (dataset.sourceType.getValue() == SalesforceDatasetProperties.SourceType.MODULE_SELECTION) {
+        if (dataset.sourceType.getValue() == SalesforceModuleProperties.SourceType.MODULE_SELECTION) {
             List<String> fields = dataset.selectColumnIds.getValue();
             if (!fields.isEmpty()) {
                 try {
@@ -26,9 +26,9 @@ public abstract class SalesforceSchemaUtils {
         }
     }
 
-    private static String query(SalesforceDataprepSource sds, SalesforceDatasetProperties dataset, List<String> fields)
+    private static String query(SalesforceDataprepSource sds, SalesforceModuleProperties dataset, List<String> fields)
             throws IOException {
-        if (dataset.sourceType.getValue() != SalesforceDatasetProperties.SourceType.MODULE_SELECTION || fields.isEmpty()) {
+        if (dataset.sourceType.getValue() != SalesforceModuleProperties.SourceType.MODULE_SELECTION || fields.isEmpty()) {
             throw new IllegalArgumentException("The module selection should be chosen and the specified fields not empty.");
         }
         StringBuilder sb = new StringBuilder();

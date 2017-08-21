@@ -37,15 +37,15 @@ import org.talend.daikon.runtime.RuntimeInfo;
  */
 public class SalesforceDatastoreDefinitionTest extends SalesforceTestBase {
 
-    private SalesforceDatastoreDefinition definition;
+    private SalesforceConnectionDefinition definition;
 
-    private SalesforceDatastoreProperties properties;
+    private SalesforceConnectionProperties properties;
 
     @Before
     public void setUp() {
-        definition = new SalesforceDatastoreDefinition();
+        definition = new SalesforceConnectionDefinition();
 
-        properties = new SalesforceDatastoreProperties("root");
+        properties = new SalesforceConnectionProperties("root");
         properties.init();
     }
 

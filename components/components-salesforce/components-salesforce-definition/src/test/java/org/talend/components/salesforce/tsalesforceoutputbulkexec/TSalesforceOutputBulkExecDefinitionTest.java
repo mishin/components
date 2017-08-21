@@ -34,8 +34,8 @@ import org.talend.components.api.component.ConnectorTopology;
 import org.talend.components.api.component.runtime.ExecutionEngine;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.salesforce.SalesforceTestBase;
-import org.talend.components.salesforce.dataset.SalesforceModuleDatasetProperties;
-import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
+import org.talend.components.salesforce.dataset.SalesforceModuleProperties;
+import org.talend.components.salesforce.datastore.SalesforceConnectionProperties;
 import org.talend.daikon.runtime.RuntimeInfo;
 
 /**
@@ -84,8 +84,8 @@ public class TSalesforceOutputBulkExecDefinitionTest extends SalesforceTestBase 
         assertThat(definition.getNestedCompatibleComponentPropertiesClass().length, is(2));
         Collection<Class<? extends ComponentProperties>> properties = Arrays.asList(
                 definition.getNestedCompatibleComponentPropertiesClass());
-        assertTrue(properties.contains(SalesforceDatastoreProperties2.class));
-        assertTrue(properties.contains(SalesforceModuleDatasetProperties.class));
+        assertTrue(properties.contains(SalesforceConnectionProperties.class));
+        assertTrue(properties.contains(SalesforceModuleProperties.class));
     }
 
     @Test

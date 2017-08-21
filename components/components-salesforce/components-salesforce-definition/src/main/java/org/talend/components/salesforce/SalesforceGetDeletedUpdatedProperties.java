@@ -23,7 +23,7 @@ import org.talend.components.api.component.PropertyPathConnector;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.property.Property;
 
-public class SalesforceGetDeletedUpdatedProperties extends SalesforceDatastoreDatasetProperties {
+public class SalesforceGetDeletedUpdatedProperties extends SalesforceConnectionModuleProperties {
 
     /**
      * 

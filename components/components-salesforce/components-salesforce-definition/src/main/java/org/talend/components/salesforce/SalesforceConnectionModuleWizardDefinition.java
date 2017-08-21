@@ -18,12 +18,12 @@ import org.talend.components.api.wizard.AbstractComponentWizardDefintion;
 import org.talend.components.api.wizard.ComponentWizard;
 import org.talend.components.api.wizard.ComponentWizardDefinition;
 import org.talend.components.api.wizard.WizardImageType;
-import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
+import org.talend.components.salesforce.datastore.SalesforceConnectionProperties;
 
 import aQute.bnd.annotation.component.Component;
 import org.talend.daikon.definition.DefinitionImageType;
 
-public class SalesforceDatastoreDatasetWizardDefinition extends AbstractComponentWizardDefintion {
+public class SalesforceConnectionModuleWizardDefinition extends AbstractComponentWizardDefintion {
 
     public static final String COMPONENT_WIZARD_NAME = "salesforce"; //$NON-NLS-1$
 
@@ -34,18 +34,18 @@ public class SalesforceDatastoreDatasetWizardDefinition extends AbstractComponen
 
     @Override
     public ComponentWizard createWizard(String location) {
-        return new SalesforceDatastoreDatasetWizard(this, location);
+        return new SalesforceConnectionModuleWizard(this, location);
     }
 
     @Override
     public boolean supportsProperties(Class<? extends ComponentProperties> propertiesClass) {
-        return propertiesClass.isAssignableFrom(SalesforceDatastoreProperties2.class);
+        return propertiesClass.isAssignableFrom(SalesforceConnectionProperties.class);
     }
 
     @Override
     public ComponentWizard createWizard(ComponentProperties properties, String location) {
-        SalesforceDatastoreDatasetWizard wizard = (SalesforceDatastoreDatasetWizard) createWizard(location);
-        wizard.setupProperties((SalesforceDatastoreProperties2) properties);
+        SalesforceConnectionModuleWizard wizard = (SalesforceConnectionModuleWizard) createWizard(location);
+        wizard.setupProperties((SalesforceConnectionProperties) properties);
         return wizard;
     }
 

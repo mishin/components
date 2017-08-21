@@ -23,8 +23,8 @@ import org.talend.components.api.component.runtime.Result;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.salesforce.dataprep.SalesforceInputProperties;
-import org.talend.components.salesforce.dataset.SalesforceDatasetProperties;
-import org.talend.components.salesforce.dataset.SalesforceDatasetProperties.SourceType;
+import org.talend.components.salesforce.dataset.SalesforceModuleProperties;
+import org.talend.components.salesforce.dataset.SalesforceModuleProperties.SourceType;
 import org.talend.components.salesforce.runtime.BulkResult;
 import org.talend.components.salesforce.runtime.BulkResultSet;
 import org.talend.components.salesforce.runtime.SalesforceBulkRuntime;
@@ -47,7 +47,7 @@ public final class SalesforceBulkQueryReader extends AbstractBoundedReader<Index
 
     private SalesforceInputProperties properties;
 
-    private SalesforceDatasetProperties dataset;
+    private SalesforceModuleProperties dataset;
 
     private transient IndexedRecordConverter<?, IndexedRecord> factory;
 

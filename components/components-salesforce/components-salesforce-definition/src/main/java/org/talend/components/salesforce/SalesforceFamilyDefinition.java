@@ -16,8 +16,9 @@ import org.talend.components.api.AbstractComponentFamilyDefinition;
 import org.talend.components.api.ComponentInstaller;
 import org.talend.components.api.Constants;
 import org.talend.components.salesforce.dataprep.SalesforceInputDefinition;
-import org.talend.components.salesforce.dataset.SalesforceDatasetDefinition;
-import org.talend.components.salesforce.datastore.SalesforceDatastoreDefinition2;
+import org.talend.components.salesforce.dataset.SalesforceModuleDefinition;
+import org.talend.components.salesforce.dataset.SalesforceModuleWizardDefinition;
+import org.talend.components.salesforce.datastore.SalesforceConnectionDefinition;
 import org.talend.components.salesforce.tsalesforcebulkexec.TSalesforceBulkExecDefinition;
 import org.talend.components.salesforce.tsalesforceconnection.TSalesforceConnectionDefinition;
 import org.talend.components.salesforce.tsalesforcegetdeleted.TSalesforceGetDeletedDefinition;
@@ -49,9 +50,9 @@ public class SalesforceFamilyDefinition extends AbstractComponentFamilyDefinitio
                 new TSalesforceInputDefinition(), new TSalesforceOutputDefinition(), new TSalesforceOutputBulkDefinition(),
                 new TSalesforceOutputBulkExecDefinition(),
                 // Component wizards
-                new SalesforceDatastoreDatasetWizardDefinition(), new SalesforceModuleDatasetWizardDefinition(),
+                new SalesforceConnectionModuleWizardDefinition(), new SalesforceModuleWizardDefinition(),
                 // Datastore, Dataset and the component
-                new SalesforceDatasetDefinition(), new SalesforceInputDefinition(), new SalesforceDatastoreDefinition2());
+                new SalesforceModuleDefinition(), new SalesforceInputDefinition(), new SalesforceConnectionDefinition());
     }
 
     @Override

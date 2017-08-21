@@ -14,6 +14,7 @@ package org.talend.components.salesforce.dataset;
 
 import static org.talend.components.salesforce.SalesforceDefinition.DATAPREP_SOURCE_CLASS;
 import static org.talend.components.salesforce.SalesforceDefinition.getSandboxedInstance;
+import static org.talend.daikon.properties.presentation.Widget.widget;
 import static org.talend.daikon.properties.property.PropertyFactory.newStringList;
 
 import java.io.IOException;
@@ -24,17 +25,18 @@ import org.apache.avro.Schema;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.talend.components.api.component.ISchemaListener;
+import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.common.SchemaProperties;
 import org.talend.components.common.dataset.DatasetProperties;
 import org.talend.components.salesforce.common.SalesforceErrorCodes;
 import org.talend.components.salesforce.common.SalesforceRuntimeSourceOrSink;
 import org.talend.components.salesforce.dataprep.SalesforceInputProperties;
-import org.talend.components.salesforce.datastore.SalesforceDatastoreDefinition2;
-import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
+import org.talend.components.salesforce.datastore.SalesforceConnectionDefinition;
+import org.talend.components.salesforce.datastore.SalesforceConnectionProperties;
 import org.talend.daikon.NamedThing;
 import org.talend.daikon.SimpleNamedThing;
 import org.talend.daikon.exception.TalendRuntimeException;
-import org.talend.daikon.properties.PropertiesImpl;
 import org.talend.daikon.properties.ReferenceProperties;
 import org.talend.daikon.properties.ValidationResult;
 import org.talend.daikon.properties.presentation.Form;
@@ -44,17 +46,18 @@ import org.talend.daikon.properties.property.PropertyFactory;
 import org.talend.daikon.properties.property.StringProperty;
 import org.talend.daikon.sandbox.SandboxedInstance;
 
-public class SalesforceDatasetProperties extends PropertiesImpl implements DatasetProperties<SalesforceDatastoreProperties2> {
+public class SalesforceModuleProperties extends ComponentPropertiesImpl
+        implements DatasetProperties<SalesforceConnectionProperties> {
 
     /**
      * 
      */
     private static final long serialVersionUID = -8035880860245867110L;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SalesforceDatasetProperties.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SalesforceModuleProperties.class);
 
-    public ReferenceProperties<SalesforceDatastoreProperties2> datastore = new ReferenceProperties<>("datastore",
-            SalesforceDatastoreDefinition2.NAME);
+    public ReferenceProperties<SalesforceConnectionProperties> datastore = new ReferenceProperties<>("datastore",
+            SalesforceConnectionDefinition.NAME);
 
     public Property<SourceType> sourceType = PropertyFactory.newEnum("sourceType", SourceType.class).setRequired();
 
@@ -64,19 +67,33 @@ public class SalesforceDatasetProperties extends PropertiesImpl implements Datas
 
     public Property<String> query = PropertyFactory.newString("query");
 
-    public SchemaProperties main = new SchemaProperties("main");
+    public ISchemaListener schemaListener;
 
-    public SalesforceDatasetProperties(String name) {
+    public SchemaProperties main = new SchemaProperties("main") {
+
+        public void afterSchema() {
+            if (schemaListener != null) {
+                schemaListener.afterSchema();
+            }
+        }
+    };
+
+    public SalesforceModuleProperties(String name) {
         super(name);
     }
 
     private void retrieveModules() throws IOException {
         // refresh the module list
         if (sourceType.getValue() == SourceType.MODULE_SELECTION) {
-            Consumer consumer = new Consumer() {
+            IOConsumer<SalesforceRuntimeSourceOrSink> consumer = new IOConsumer<SalesforceRuntimeSourceOrSink>() {
 
                 @Override
                 public void accept(SalesforceRuntimeSourceOrSink runtime) throws IOException {
+                    SalesforceInputProperties properties = new SalesforceInputProperties("model");
+                    properties.setDatasetProperties(SalesforceModuleProperties.this);
+                    runtime.initialize(null, properties);
+                    throwExceptionIfValidationResultIsError(runtime.validate(null));
+
                     List<NamedThing> moduleNames = runtime.getSchemaNames(null);
                     moduleName.setPossibleNamedThingValues(filter(moduleNames));
                 }
@@ -88,19 +105,24 @@ public class SalesforceDatasetProperties extends PropertiesImpl implements Datas
     private void retrieveModuleFields() throws IOException {
         // refresh the module list
         if (sourceType.getValue() == SourceType.MODULE_SELECTION && StringUtils.isNotEmpty(moduleName.getValue())) {
-            Consumer consumer = new Consumer() {
+            IOConsumer<SalesforceRuntimeSourceOrSink> consumer = new IOConsumer<SalesforceRuntimeSourceOrSink>() {
 
                 @Override
                 public void accept(SalesforceRuntimeSourceOrSink runtime) throws IOException {
-                    List<NamedThing> moduleNames = runtime.getSchemaNames(null);
-                    moduleName.setPossibleNamedThingValues(filter(moduleNames));
+                    SalesforceInputProperties properties = new SalesforceInputProperties("model");
+                    properties.setDatasetProperties(SalesforceModuleProperties.this);
+
+                    throwExceptionIfValidationResultIsError(runtime.initialize(null, properties));
+                    throwExceptionIfValidationResultIsError(runtime.validate(null));
 
                     Schema schema = runtime.getEndpointSchema(null, moduleName.getValue());
+                    main.schema.setValue(schema);
                     List<NamedThing> columns = new ArrayList<>();
                     for (Schema.Field field : schema.getFields()) {
                         columns.add(new SimpleNamedThing(field.name(), field.name()));
                     }
                     selectColumnIds.setPossibleValues(columns);
+
                 }
             };
             runtimeTask(consumer);
@@ -118,21 +140,14 @@ public class SalesforceDatasetProperties extends PropertiesImpl implements Datas
         return moduleNames;
     }
 
-    private interface Consumer {
+    private interface IOConsumer<T> {
 
-        void accept(SalesforceRuntimeSourceOrSink runtime) throws IOException;
+        void accept(T runtime) throws IOException;
     }
 
-    private void runtimeTask(Consumer task) throws IOException {
+    private <T> void runtimeTask(IOConsumer<T> task) throws IOException {
         try (SandboxedInstance sandboxedInstance = getSandboxedInstance(DATAPREP_SOURCE_CLASS)) {
-            SalesforceRuntimeSourceOrSink runtime = (SalesforceRuntimeSourceOrSink) sandboxedInstance.getInstance();
-
-            SalesforceInputProperties properties = new SalesforceInputProperties("model");
-            properties.setDatasetProperties(this);
-
-            throwExceptionIfValidationResultIsError(runtime.initialize(null, properties));
-            throwExceptionIfValidationResultIsError(runtime.validate(null));
-
+            T runtime = (T) sandboxedInstance.getInstance();
             task.accept(runtime);
         }
     }
@@ -149,11 +164,14 @@ public class SalesforceDatasetProperties extends PropertiesImpl implements Datas
 
     public void afterSourceType() throws IOException {
         // refresh the module list
-        retrieveModules();
         moduleName.setValue(null);
         selectColumnIds.setValue(null);
         query.setValue(null);
-        refreshLayout(getForm(Form.MAIN));
+        refreshLayout(getForm(Form.CITIZEN_USER));
+    }
+
+    public void beforeModuleName() throws Exception {
+        retrieveModules();
     }
 
     public void afterModuleName() throws IOException {
@@ -161,7 +179,7 @@ public class SalesforceDatasetProperties extends PropertiesImpl implements Datas
         retrieveModuleFields();
         selectColumnIds.setValue(null);
         query.setValue(null);
-        refreshLayout(getForm(Form.MAIN));
+        refreshLayout(getForm(Form.CITIZEN_USER));
     }
 
     @Override
@@ -171,13 +189,24 @@ public class SalesforceDatasetProperties extends PropertiesImpl implements Datas
 
     @Override
     public void setupLayout() {
-        Form mainForm = Form.create(this, Form.MAIN);
 
-        mainForm.addRow(Widget.widget(sourceType).setWidgetType(Widget.RADIO_WIDGET_TYPE));
-        mainForm.addRow(Widget.widget(moduleName).setWidgetType(Widget.DATALIST_WIDGET_TYPE));
-        mainForm.addRow(Widget.widget(query).setWidgetType(Widget.TEXT_AREA_WIDGET_TYPE));
-        mainForm.addRow(Widget.widget(selectColumnIds).setWidgetType(Widget.MULTIPLE_VALUE_SELECTOR_WIDGET_TYPE));
-        mainForm.getWidget(selectColumnIds).setVisible(false);
+        Form moduleForm = Form.create(this, Form.MAIN);
+        moduleForm.addRow(widget(moduleName).setWidgetType(Widget.NAME_SELECTION_AREA_WIDGET_TYPE));
+        refreshLayout(moduleForm);
+
+        Form moduleRefForm = Form.create(this, Form.REFERENCE);
+        moduleRefForm.addRow(widget(moduleName).setWidgetType(Widget.NAME_SELECTION_REFERENCE_WIDGET_TYPE).setLongRunning(true));
+
+        moduleRefForm.addRow(main.getForm(Form.REFERENCE));
+        refreshLayout(moduleRefForm);
+
+        Form citizenForm = Form.create(this, Form.CITIZEN_USER);
+
+        citizenForm.addRow(Widget.widget(sourceType).setWidgetType(Widget.RADIO_WIDGET_TYPE));
+        citizenForm.addRow(Widget.widget(moduleName).setWidgetType(Widget.DATALIST_WIDGET_TYPE));
+        citizenForm.addRow(Widget.widget(query).setWidgetType(Widget.TEXT_AREA_WIDGET_TYPE));
+        citizenForm.addRow(Widget.widget(selectColumnIds).setWidgetType(Widget.MULTIPLE_VALUE_SELECTOR_WIDGET_TYPE));
+        citizenForm.getWidget(selectColumnIds).setVisible(false);
         selectColumnIds.setRequired(false);
     }
 
@@ -187,34 +216,41 @@ public class SalesforceDatasetProperties extends PropertiesImpl implements Datas
      */
     @Override
     public void refreshLayout(Form form) {
-        if (sourceType.getValue() == SourceType.MODULE_SELECTION) {
-            form.getWidget(moduleName).setVisible(true);
-            moduleName.setRequired(true);
-            // We can not have a hidden field which is required
-            form.getWidget(query).setVisible(false);
-            query.setRequired(false);
-            if (StringUtils.isNotEmpty(moduleName.getValue())) {
-                form.getWidget(selectColumnIds).setVisible();
-                selectColumnIds.setRequired(true);
-            } else {
+        super.refreshLayout(form);
+        switch (form.getName()) {
+        case Form.CITIZEN_USER:
+            if (sourceType.getValue() == SourceType.MODULE_SELECTION) {
+                form.getWidget(moduleName).setVisible(true);
+                moduleName.setRequired(true);
+                // We can not have a hidden field which is required
+                form.getWidget(query).setVisible(false);
+                query.setRequired(false);
+                if (StringUtils.isNotEmpty(moduleName.getValue())) {
+                    form.getWidget(selectColumnIds).setVisible();
+                    selectColumnIds.setRequired(true);
+                } else {
+                    form.getWidget(selectColumnIds).setVisible(false);
+                    selectColumnIds.setRequired(false);
+                }
+
+            } else if (sourceType.getValue() == SourceType.SOQL_QUERY) {
+                form.getWidget(query).setVisible(true);
+                query.setRequired();
+                // We can not have a hidden field which is required
+                form.getWidget(moduleName).setVisible(false);
+                moduleName.setRequired(false);
                 form.getWidget(selectColumnIds).setVisible(false);
                 selectColumnIds.setRequired(false);
             }
-
-        } else if (sourceType.getValue() == SourceType.SOQL_QUERY) {
-            form.getWidget(query).setVisible(true);
-            query.setRequired();
-            // We can not have a hidden field which is required
-            form.getWidget(moduleName).setVisible(false);
-            moduleName.setRequired(false);
-            form.getWidget(selectColumnIds).setVisible(false);
-            selectColumnIds.setRequired(false);
+            break;
+        default:
+            // ignor other forms
         }
-        super.refreshLayout(form);
+
     }
 
     @Override
-    public SalesforceDatastoreProperties2 getDatastoreProperties() {
+    public SalesforceConnectionProperties getDatastoreProperties() {
         return datastore.getReference();
     }
 
@@ -237,7 +273,7 @@ public class SalesforceDatasetProperties extends PropertiesImpl implements Datas
     }
 
     @Override
-    public void setDatastoreProperties(SalesforceDatastoreProperties2 datastoreProperties) {
+    public void setDatastoreProperties(SalesforceConnectionProperties datastoreProperties) {
         datastore.setReference(datastoreProperties);
         afterDatastore();
     }
@@ -245,6 +281,10 @@ public class SalesforceDatasetProperties extends PropertiesImpl implements Datas
     public enum SourceType {
         MODULE_SELECTION,
         SOQL_QUERY
+    }
+
+    public void setSchemaListener(ISchemaListener schemaListener) {
+        this.schemaListener = schemaListener;
     }
 
 }

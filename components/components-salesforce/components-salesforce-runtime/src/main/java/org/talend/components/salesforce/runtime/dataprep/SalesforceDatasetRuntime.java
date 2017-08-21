@@ -21,7 +21,7 @@ import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.common.dataset.runtime.DatasetRuntime;
 import org.talend.components.salesforce.dataprep.SalesforceInputProperties;
-import org.talend.components.salesforce.dataset.SalesforceDatasetProperties;
+import org.talend.components.salesforce.dataset.SalesforceModuleProperties;
 import org.talend.daikon.exception.TalendRuntimeException;
 import org.talend.daikon.java8.Consumer;
 import org.talend.daikon.properties.ValidationResult;
@@ -30,19 +30,19 @@ import org.talend.daikon.properties.ValidationResult;
  * the data set runtime for salesforce
  *
  */
-public class SalesforceDatasetRuntime implements DatasetRuntime<SalesforceDatasetProperties> {
+public class SalesforceDatasetRuntime implements DatasetRuntime<SalesforceModuleProperties> {
 
     /**
      * 
      */
     private static final long serialVersionUID = 5829335010543623248L;
 
-    private SalesforceDatasetProperties dataset;
+    private SalesforceModuleProperties dataset;
 
     private RuntimeContainer container;
 
     @Override
-    public ValidationResult initialize(RuntimeContainer container, SalesforceDatasetProperties properties) {
+    public ValidationResult initialize(RuntimeContainer container, SalesforceModuleProperties properties) {
         this.dataset = properties;
         this.container = container;
         return ValidationResult.OK;

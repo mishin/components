@@ -19,7 +19,7 @@ import org.talend.components.api.component.ConnectorTopology;
 import org.talend.components.api.component.runtime.ExecutionEngine;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.salesforce.SalesforceDefinition;
-import org.talend.components.salesforce.dataset.SalesforceModuleDatasetProperties;
+import org.talend.components.salesforce.dataset.SalesforceModuleProperties;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.runtime.RuntimeInfo;
 
@@ -58,7 +58,7 @@ public class TSalesforceOutputDefinition extends SalesforceDefinition {
     @Override
     public Class<? extends ComponentProperties>[] getNestedCompatibleComponentPropertiesClass() {
         return concatPropertiesClasses(super.getNestedCompatibleComponentPropertiesClass(),
-                new Class[] { SalesforceModuleDatasetProperties.class });
+                new Class[] { SalesforceModuleProperties.class });
     }
 
     @Override

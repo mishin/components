@@ -33,9 +33,9 @@ import org.talend.components.api.exception.ComponentException;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.salesforce.common.SalesforceRuntimeSourceOrSink;
 import org.talend.components.salesforce.dataprep.SalesforceInputProperties;
-import org.talend.components.salesforce.dataset.SalesforceDatasetProperties;
-import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties;
-import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
+import org.talend.components.salesforce.dataset.SalesforceModuleProperties;
+import org.talend.components.salesforce.datastore.SalesforceConnectionProperties;
+import org.talend.components.salesforce.datastore.SalesforceConnectionProperties;
 import org.talend.components.salesforce.runtime.common.ConnectionHolder;
 import org.talend.components.salesforce.runtime.common.SalesforceRuntimeCommon;
 import org.talend.components.salesforce.schema.SalesforceSchemaHelper;
@@ -53,8 +53,7 @@ import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig;
 import com.sforce.ws.SessionRenewer;
 
-public class SalesforceDataprepSource
-        implements BoundedSource, SalesforceRuntimeSourceOrSink, SalesforceSchemaHelper<Schema> {
+public class SalesforceDataprepSource implements BoundedSource, SalesforceRuntimeSourceOrSink, SalesforceSchemaHelper<Schema> {
 
     private static final long serialVersionUID = 1930140572051028338L;
 
@@ -66,11 +65,11 @@ public class SalesforceDataprepSource
 
     private SalesforceInputProperties properties;
 
-    private SalesforceDatasetProperties dataset;
+    private SalesforceModuleProperties dataset;
 
-    private SalesforceDatastoreProperties datastore;
+    private SalesforceConnectionProperties datastore;
 
-    private String endpoint = SalesforceDatastoreProperties2.URL;
+    private String endpoint = SalesforceConnectionProperties.URL;
 
     private ConnectionHolder connectionHolder;
 
@@ -167,9 +166,9 @@ public class SalesforceDataprepSource
         final ConnectionHolder ch = new ConnectionHolder();
 
         ConnectorConfig config = new ConnectorConfig();
-        config.setUsername(datastore.userId.getValue());
-        String password = datastore.password.getValue();
-        String securityKey = datastore.securityKey.getValue();
+        config.setUsername(datastore.userPassword.userId.getValue());
+        String password = datastore.userPassword.password.getValue();
+        String securityKey = datastore.userPassword.securityKey.getValue();
         if (!StringUtils.isEmpty(securityKey)) {
             password = password + securityKey;
         }
@@ -273,7 +272,8 @@ public class SalesforceDataprepSource
                 }
                 newFieldList.add(newField);
             } else {
-                Schema.Field newField = new Schema.Field(fieldDescription.getSimpleName(), AvroUtils._string(), null, (String)null);
+                Schema.Field newField = new Schema.Field(fieldDescription.getSimpleName(), AvroUtils._string(), null,
+                        (String) null);
                 newFieldList.add(newField);
             }
         }
@@ -292,6 +292,7 @@ public class SalesforceDataprepSource
         return connection;
     }
 
+    @Override
     public String guessQuery(Schema schema, String entityName) {
         // not necessary for dataprep
         return null;

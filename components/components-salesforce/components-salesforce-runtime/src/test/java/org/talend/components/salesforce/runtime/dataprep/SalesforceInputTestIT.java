@@ -28,9 +28,9 @@ import org.talend.components.api.component.runtime.Reader;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.salesforce.dataprep.SalesforceInputDefinition;
 import org.talend.components.salesforce.dataprep.SalesforceInputProperties;
-import org.talend.components.salesforce.dataset.SalesforceDatasetProperties;
-import org.talend.components.salesforce.datastore.SalesforceDatastoreDefinition;
-import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties;
+import org.talend.components.salesforce.dataset.SalesforceModuleProperties;
+import org.talend.components.salesforce.datastore.SalesforceConnectionDefinition;
+import org.talend.components.salesforce.datastore.SalesforceConnectionProperties;
 
 public class SalesforceInputTestIT {
 
@@ -265,12 +265,12 @@ public class SalesforceInputTestIT {
     }
 
     private SalesforceInputProperties createCommonSalesforceInputPropertiesForModule() {
-        SalesforceDatastoreDefinition datastore_def = new SalesforceDatastoreDefinition();
-        SalesforceDatastoreProperties datastore_props = new SalesforceDatastoreProperties("datastore");
+        SalesforceConnectionDefinition datastore_def = new SalesforceConnectionDefinition();
+        SalesforceConnectionProperties datastore_props = new SalesforceConnectionProperties("datastore");
 
         CommonTestUtils.setValueForDatastoreProperties(datastore_props);
 
-        SalesforceDatasetProperties dataset = (SalesforceDatasetProperties) datastore_def
+        SalesforceModuleProperties dataset = (SalesforceModuleProperties) datastore_def
                 .createDatasetProperties(datastore_props);
         dataset.moduleName.setValue("Account");
 
@@ -286,14 +286,14 @@ public class SalesforceInputTestIT {
     }
 
     private SalesforceInputProperties createCommonSalesforceInputPropertiesForQuery() {
-        SalesforceDatastoreDefinition datastore_def = new SalesforceDatastoreDefinition();
-        SalesforceDatastoreProperties datastore_props = new SalesforceDatastoreProperties("datastore");
+        SalesforceConnectionDefinition datastore_def = new SalesforceConnectionDefinition();
+        SalesforceConnectionProperties datastore_props = new SalesforceConnectionProperties("datastore");
 
         CommonTestUtils.setValueForDatastoreProperties(datastore_props);
 
-        SalesforceDatasetProperties dataset = (SalesforceDatasetProperties) datastore_def
+        SalesforceModuleProperties dataset = (SalesforceModuleProperties) datastore_def
                 .createDatasetProperties(datastore_props);
-        dataset.sourceType.setValue(SalesforceDatasetProperties.SourceType.SOQL_QUERY);
+        dataset.sourceType.setValue(SalesforceModuleProperties.SourceType.SOQL_QUERY);
         dataset.query.setValue("SELECT Id, Name FROM Account");
 
         SalesforceInputDefinition input_def = new SalesforceInputDefinition();

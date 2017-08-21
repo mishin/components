@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.talend.components.api.component.Connector;
 import org.talend.components.api.component.PropertyPathConnector;
 import org.talend.components.salesforce.SalesforceTestBase;
-import org.talend.components.salesforce.dataset.SalesforceDatasetProperties;
+import org.talend.components.salesforce.dataset.SalesforceModuleProperties;
 import org.talend.daikon.properties.presentation.Form;
 
 /**
@@ -34,11 +34,11 @@ public class SalesforceInputPropertiesTest extends SalesforceTestBase {
 
     private SalesforceInputProperties properties;
 
-    private SalesforceDatasetProperties datasetProperties;
+    private SalesforceModuleProperties datasetProperties;
 
     @Before
     public void setUp() {
-        datasetProperties = new SalesforceDatasetProperties("dataset");
+        datasetProperties = new SalesforceModuleProperties("dataset");
 
         properties = new SalesforceInputProperties("root");
     }

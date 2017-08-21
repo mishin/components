@@ -23,19 +23,19 @@ import org.talend.components.api.component.Connector;
 import org.talend.components.api.component.PropertyPathConnector;
 import org.talend.components.common.FixedConnectorsComponentProperties;
 import org.talend.components.common.SchemaProperties;
-import org.talend.components.salesforce.SalesforceProvideDatastoreProperties;
-import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
+import org.talend.components.salesforce.SalesforceProvideConnectionProperties;
+import org.talend.components.salesforce.datastore.SalesforceConnectionProperties;
 import org.talend.daikon.avro.AvroUtils;
 import org.talend.daikon.avro.SchemaConstants;
 import org.talend.daikon.properties.presentation.Form;
 
 public class TSalesforceGetServerTimestampProperties extends FixedConnectorsComponentProperties
-        implements SalesforceProvideDatastoreProperties {
+        implements SalesforceProvideConnectionProperties {
 
     //
     // Collections
     //
-    public SalesforceDatastoreProperties2 connection = new SalesforceDatastoreProperties2("connection");
+    public SalesforceConnectionProperties connection = new SalesforceConnectionProperties("connection");
 
     // Just holds the server timestamp
     public SchemaProperties schema = new SchemaProperties("schema");
@@ -76,7 +76,7 @@ public class TSalesforceGetServerTimestampProperties extends FixedConnectorsComp
     }
 
     @Override
-    public SalesforceDatastoreProperties2 getSalesforceDatastoreProperties() {
+    public SalesforceConnectionProperties getSalesforceDatastoreProperties() {
         return connection;
     }
 

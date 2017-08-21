@@ -13,7 +13,7 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.talend.components.api.container.RuntimeContainer;
-import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
+import org.talend.components.salesforce.datastore.SalesforceConnectionProperties;
 import org.talend.components.salesforce.runtime.common.ConnectionHolder;
 import org.talend.daikon.avro.AvroUtils;
 import org.talend.daikon.avro.SchemaConstants;
@@ -29,11 +29,11 @@ public class SalesforceSourceOrSinkTest {
     @Mock
     private RuntimeContainer runtimeContainerMock = Mockito.mock(RuntimeContainer.class);
 
-    private SalesforceDatastoreProperties2 properties;
+    private SalesforceConnectionProperties properties;
 
     @Before
     public void setUp() throws Exception {
-        properties = new SalesforceDatastoreProperties2("test");
+        properties = new SalesforceConnectionProperties("test");
     }
 
     /**

@@ -22,16 +22,16 @@ import org.talend.daikon.runtime.RuntimeInfo;
  * the salesforce data set work for dataprep
  *
  */
-public class SalesforceDatasetDefinition extends I18nDefinition implements DatasetDefinition<SalesforceDatasetProperties> {
+public class SalesforceModuleDefinition extends I18nDefinition implements DatasetDefinition<SalesforceModuleProperties> {
 
     public static final String NAME = "SalesforceDataset";
 
-    public SalesforceDatasetDefinition() {
+    public SalesforceModuleDefinition() {
         super(NAME);
     }
 
     @Override
-    public RuntimeInfo getRuntimeInfo(SalesforceDatasetProperties properties) {
+    public RuntimeInfo getRuntimeInfo(SalesforceModuleProperties properties) {
         return SalesforceDefinition.getCommonRuntimeInfo(SalesforceDefinition.DATASET_RUNTIME_CLASS);
     }
 
@@ -58,7 +58,7 @@ public class SalesforceDatasetDefinition extends I18nDefinition implements Datas
     }
 
     @Override
-    public Class<SalesforceDatasetProperties> getPropertiesClass() {
-        return SalesforceDatasetProperties.class;
+    public Class<SalesforceModuleProperties> getPropertiesClass() {
+        return SalesforceModuleProperties.class;
     }
 }

@@ -19,20 +19,20 @@ import org.talend.components.api.component.Connector;
 import org.talend.components.api.component.PropertyPathConnector;
 import org.talend.components.common.FixedConnectorsComponentProperties;
 import org.talend.components.common.io.IOProperties;
-import org.talend.components.salesforce.dataset.SalesforceDatasetDefinition;
-import org.talend.components.salesforce.dataset.SalesforceDatasetProperties;
+import org.talend.components.salesforce.dataset.SalesforceModuleDefinition;
+import org.talend.components.salesforce.dataset.SalesforceModuleProperties;
 import org.talend.daikon.properties.ReferenceProperties;
 import org.talend.daikon.properties.presentation.Form;
 
 public class SalesforceInputProperties extends FixedConnectorsComponentProperties
-        implements IOProperties<SalesforceDatasetProperties> {
+        implements IOProperties<SalesforceModuleProperties> {
 
     /**
      * 
      */
     private static final long serialVersionUID = 8370922451458863132L;
 
-    public ReferenceProperties<SalesforceDatasetProperties> dataset = new ReferenceProperties<>("dataset", SalesforceDatasetDefinition.NAME);
+    public ReferenceProperties<SalesforceModuleProperties> dataset = new ReferenceProperties<>("dataset", SalesforceModuleDefinition.NAME);
 
     protected transient PropertyPathConnector MAIN_CONNECTOR = new PropertyPathConnector(Connector.MAIN_NAME, "dataset.main");
 
@@ -63,12 +63,12 @@ public class SalesforceInputProperties extends FixedConnectorsComponentPropertie
     }
 
     @Override
-    public SalesforceDatasetProperties getDatasetProperties() {
+    public SalesforceModuleProperties getDatasetProperties() {
         return dataset.getReference();
     }
 
     @Override
-    public void setDatasetProperties(SalesforceDatasetProperties datasetProperties) {
+    public void setDatasetProperties(SalesforceModuleProperties datasetProperties) {
         dataset.setReference(datasetProperties);
     }
 

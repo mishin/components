@@ -38,7 +38,7 @@ import org.junit.Test;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.salesforce.SalesforceTestBase;
 import org.talend.components.salesforce.dataprep.SalesforceInputProperties;
-import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties;
+import org.talend.components.salesforce.datastore.SalesforceConnectionProperties;
 import org.talend.daikon.NamedThing;
 import org.talend.daikon.SimpleNamedThing;
 import org.talend.daikon.exception.TalendRuntimeException;
@@ -54,24 +54,24 @@ public class SalesforceDatasetPropertiesTest extends SalesforceTestBase {
 
     private PropertiesService propertiesService;
 
-    private SalesforceDatastoreProperties datastoreProperties;
+    private SalesforceConnectionProperties datastoreProperties;
 
-    private SalesforceDatasetProperties properties;
+    private SalesforceModuleProperties properties;
 
     @Before
     public void setUp() {
         propertiesService = new PropertiesServiceImpl();
 
-        datastoreProperties = new SalesforceDatastoreProperties("datastore");
+        datastoreProperties = new SalesforceConnectionProperties("datastore");
 
-        properties = spy(new SalesforceDatasetProperties("dataset"));
+        properties = spy(new SalesforceModuleProperties("dataset"));
     }
 
     @Test
     public void testSetupProperties() {
         properties.setupProperties();
 
-        assertEquals(SalesforceDatasetProperties.SourceType.MODULE_SELECTION, properties.sourceType.getValue());
+        assertEquals(SalesforceModuleProperties.SourceType.MODULE_SELECTION, properties.sourceType.getValue());
     }
 
     @Test
@@ -210,7 +210,7 @@ public class SalesforceDatasetPropertiesTest extends SalesforceTestBase {
 
             Form mainForm = properties.getForm(Form.MAIN);
 
-            properties.sourceType.setValue(SalesforceDatasetProperties.SourceType.SOQL_QUERY);
+            properties.sourceType.setValue(SalesforceModuleProperties.SourceType.SOQL_QUERY);
 
             properties.refreshLayout(mainForm);
 
@@ -236,7 +236,7 @@ public class SalesforceDatasetPropertiesTest extends SalesforceTestBase {
 
             properties.setDatastoreProperties(datastoreProperties);
 
-            properties.sourceType.setValue(SalesforceDatasetProperties.SourceType.MODULE_SELECTION);
+            properties.sourceType.setValue(SalesforceModuleProperties.SourceType.MODULE_SELECTION);
 
             propertiesService.afterProperty("sourceType", properties);
 

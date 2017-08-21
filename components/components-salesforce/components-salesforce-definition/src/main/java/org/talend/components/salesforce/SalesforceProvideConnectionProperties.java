@@ -12,14 +12,14 @@
 // ============================================================================
 package org.talend.components.salesforce;
 
-import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
+import org.talend.components.salesforce.datastore.SalesforceConnectionProperties;
 
-public interface SalesforceProvideDatastoreProperties {
+public interface SalesforceProvideConnectionProperties {
 
     /**
      *
-     * @return the {@link SalesforceDatastoreProperties2} associated with this
+     * @return the {@link SalesforceConnectionProperties} associated with this
      * {@link org.talend.components.api.properties.ComponentProperties} object.
      */
-    SalesforceDatastoreProperties2 getSalesforceDatastoreProperties();
+    SalesforceConnectionProperties getSalesforceDatastoreProperties();
 }

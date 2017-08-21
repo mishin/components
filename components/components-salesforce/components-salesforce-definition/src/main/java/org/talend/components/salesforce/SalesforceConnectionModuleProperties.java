@@ -19,8 +19,8 @@ import org.talend.components.api.component.Connector;
 import org.talend.components.api.component.PropertyPathConnector;
 import org.talend.components.api.properties.ComponentReferenceProperties;
 import org.talend.components.common.FixedConnectorsComponentProperties;
-import org.talend.components.salesforce.dataset.SalesforceModuleDatasetProperties;
-import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties2;
+import org.talend.components.salesforce.dataset.SalesforceModuleProperties;
+import org.talend.components.salesforce.datastore.SalesforceConnectionProperties;
 import org.talend.components.salesforce.tsalesforceconnection.TSalesforceConnectionDefinition;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
@@ -28,21 +28,21 @@ import org.talend.daikon.properties.presentation.Widget;
 /**
  * Properties common to input and output Salesforce components.
  */
-public abstract class SalesforceDatastoreDatasetProperties extends FixedConnectorsComponentProperties
-        implements SalesforceProvideDatastoreProperties {
+public abstract class SalesforceConnectionModuleProperties extends FixedConnectorsComponentProperties
+        implements SalesforceProvideConnectionProperties {
 
     // Collections
     //
-    public ComponentReferenceProperties<SalesforceDatastoreProperties2> referencedComponent = new ComponentReferenceProperties<>(
+    public ComponentReferenceProperties<SalesforceConnectionProperties> referencedComponent = new ComponentReferenceProperties<>(
             "referencedComponent", TSalesforceConnectionDefinition.COMPONENT_NAME);
 
-    public SalesforceDatastoreProperties2 datastore = new SalesforceDatastoreProperties2("datastore"); //$NON-NLS-1$
+    public SalesforceConnectionProperties datastore = new SalesforceConnectionProperties("datastore"); //$NON-NLS-1$
 
-    public SalesforceModuleDatasetProperties module;
+    public SalesforceModuleProperties module;
 
     protected transient PropertyPathConnector MAIN_CONNECTOR = new PropertyPathConnector(Connector.MAIN_NAME, "module.main");
 
-    public SalesforceDatastoreDatasetProperties(String name) {
+    public SalesforceConnectionModuleProperties(String name) {
         super(name);
     }
 
@@ -50,7 +50,7 @@ public abstract class SalesforceDatastoreDatasetProperties extends FixedConnecto
     public void setupProperties() {
         super.setupProperties();
         // Allow for subclassing
-        module = new SalesforceModuleDatasetProperties("module");
+        module = new SalesforceModuleProperties("module");
         module.setDatastoreProperties(datastore);
     }
 
@@ -74,7 +74,7 @@ public abstract class SalesforceDatastoreDatasetProperties extends FixedConnecto
     }
 
     @Override
-    public SalesforceDatastoreProperties2 getSalesforceDatastoreProperties() {
+    public SalesforceConnectionProperties getSalesforceDatastoreProperties() {
         return datastore;
     }
 

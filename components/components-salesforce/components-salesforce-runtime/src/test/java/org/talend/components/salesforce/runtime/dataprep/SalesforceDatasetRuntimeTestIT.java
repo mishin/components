@@ -6,16 +6,16 @@ import org.apache.avro.Schema;
 import org.apache.avro.generic.IndexedRecord;
 import org.junit.Assert;
 import org.junit.Test;
-import org.talend.components.salesforce.dataset.SalesforceDatasetProperties;
-import org.talend.components.salesforce.datastore.SalesforceDatastoreDefinition;
-import org.talend.components.salesforce.datastore.SalesforceDatastoreProperties;
+import org.talend.components.salesforce.dataset.SalesforceModuleProperties;
+import org.talend.components.salesforce.datastore.SalesforceConnectionDefinition;
+import org.talend.components.salesforce.datastore.SalesforceConnectionProperties;
 import org.talend.daikon.java8.Consumer;
 
 public class SalesforceDatasetRuntimeTestIT {
 
     @Test
     public void testGetSchemaForModule() {
-        SalesforceDatasetProperties dataset = createDatasetPropertiesForModule();
+        SalesforceModuleProperties dataset = createDatasetPropertiesForModule();
         dataset.selectColumnIds.setValue(Arrays.asList("IsDeleted", "Id"));
 
         SalesforceDatasetRuntime runtime = new SalesforceDatasetRuntime();
@@ -28,7 +28,7 @@ public class SalesforceDatasetRuntimeTestIT {
 
     @Test
     public void testGetSchemaForQuery() {
-        SalesforceDatasetProperties dataset = createDatasetPropertiesForQuery();
+        SalesforceModuleProperties dataset = createDatasetPropertiesForQuery();
 
         SalesforceDatasetRuntime runtime = new SalesforceDatasetRuntime();
         runtime.initialize(null, dataset);
@@ -40,18 +40,18 @@ public class SalesforceDatasetRuntimeTestIT {
 
     @Test
     public void testGetSampleForModule() {
-        SalesforceDatasetProperties dataset = createDatasetPropertiesForModule();
+        SalesforceModuleProperties dataset = createDatasetPropertiesForModule();
         dataset.selectColumnIds.setValue(Arrays.asList("IsDeleted", "Id"));
         getSampleAction(dataset);
     }
 
     @Test
     public void testGetSampleForQuery() {
-        SalesforceDatasetProperties dataset = createDatasetPropertiesForQuery();
+        SalesforceModuleProperties dataset = createDatasetPropertiesForQuery();
         getSampleAction(dataset);
     }
 
-    private void getSampleAction(SalesforceDatasetProperties dataset) {
+    private void getSampleAction(SalesforceModuleProperties dataset) {
         SalesforceDatasetRuntime runtime = new SalesforceDatasetRuntime();
         runtime.initialize(null, dataset);
         final IndexedRecord[] record = new IndexedRecord[1];
@@ -67,26 +67,26 @@ public class SalesforceDatasetRuntimeTestIT {
         Assert.assertTrue("empty result", record.length > 0);
     }
 
-    private SalesforceDatasetProperties createDatasetPropertiesForModule() {
-        SalesforceDatastoreDefinition def = new SalesforceDatastoreDefinition();
-        SalesforceDatastoreProperties datastore = new SalesforceDatastoreProperties("datastore");
+    private SalesforceModuleProperties createDatasetPropertiesForModule() {
+        SalesforceConnectionDefinition def = new SalesforceConnectionDefinition();
+        SalesforceConnectionProperties datastore = new SalesforceConnectionProperties("datastore");
 
         CommonTestUtils.setValueForDatastoreProperties(datastore);
 
-        SalesforceDatasetProperties dataset = (SalesforceDatasetProperties) def.createDatasetProperties(datastore);
+        SalesforceModuleProperties dataset = (SalesforceModuleProperties) def.createDatasetProperties(datastore);
         dataset.moduleName.setValue("Account");
 
         return dataset;
     }
 
-    private SalesforceDatasetProperties createDatasetPropertiesForQuery() {
-        SalesforceDatastoreDefinition def = new SalesforceDatastoreDefinition();
-        SalesforceDatastoreProperties datastore = new SalesforceDatastoreProperties("datastore");
+    private SalesforceModuleProperties createDatasetPropertiesForQuery() {
+        SalesforceConnectionDefinition def = new SalesforceConnectionDefinition();
+        SalesforceConnectionProperties datastore = new SalesforceConnectionProperties("datastore");
 
         CommonTestUtils.setValueForDatastoreProperties(datastore);
 
-        SalesforceDatasetProperties dataset = (SalesforceDatasetProperties) def.createDatasetProperties(datastore);
-        dataset.sourceType.setValue(SalesforceDatasetProperties.SourceType.SOQL_QUERY);
+        SalesforceModuleProperties dataset = (SalesforceModuleProperties) def.createDatasetProperties(datastore);
+        dataset.sourceType.setValue(SalesforceModuleProperties.SourceType.SOQL_QUERY);
         dataset.query.setValue("SELECT Id, Name FROM Account");
 
         return dataset;
