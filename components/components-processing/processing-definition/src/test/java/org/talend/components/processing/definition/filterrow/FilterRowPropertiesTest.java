@@ -30,7 +30,6 @@ import java.util.Set;
 
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field.Order;
-import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.talend.components.api.component.PropertyPathConnector;
@@ -38,7 +37,6 @@ import org.talend.daikon.avro.AvroRegistry;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.serialize.jsonschema.JsonSchemaUtil;
-import org.talend.daikon.serialize.jsonschema.JsonSchemaUtilTest;
 
 public class FilterRowPropertiesTest {
 
@@ -56,13 +54,13 @@ public class FilterRowPropertiesTest {
         assertEquals("EmptyRecord", properties.main.schema.getValue().getName());
         assertEquals("EmptyRecord", properties.schemaFlow.schema.getValue().getName());
         assertEquals("EmptyRecord", properties.schemaReject.schema.getValue().getName());
-        assertEquals(0, properties.filters.subProperties.size());
-        properties.filters.createAndAddRow();
         assertEquals(1, properties.filters.subProperties.size());
+        properties.filters.createAndAddRow();
+        assertEquals(2, properties.filters.subProperties.size());
         FilterRowCriteriaProperties row2 = new FilterRowCriteriaProperties("row2");
         row2.init();
         properties.filters.addRow(row2);
-        assertEquals(2, properties.filters.subProperties.size());
+        assertEquals(3, properties.filters.subProperties.size());
     }
 
     /**
@@ -567,7 +565,6 @@ public class FilterRowPropertiesTest {
         String jsonValue = JsonSchemaUtil.toJson(properties, Form.MAIN, FilterRowDefinition.COMPONENT_NAME);
         // JsonSchemaUtilTest.writeJson(jsonValue, "/tmp/FilterRowProperties.json");
         // Assert.assertEquals(expectedJson, jsonValue);
-        Assert.assertTrue(true);
     }
 
 }
