@@ -16,7 +16,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 import java.util.Collection;
 
@@ -35,7 +34,7 @@ public class FilterRowCriteriaPropertiesTest {
         assertEquals("", properties.columnName.getValue());
         assertEquals("EMPTY", properties.function.getValue());
         assertEquals("==", properties.operator.getValue());
-        assertNull(properties.value.getValue());
+        assertEquals("", properties.value.getValue());
     }
 
     @Test
