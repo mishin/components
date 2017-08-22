@@ -30,6 +30,7 @@ import java.util.Set;
 
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field.Order;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.talend.components.api.component.PropertyPathConnector;
@@ -554,17 +555,25 @@ public class FilterRowPropertiesTest {
 
         assertThat((List<String>) filterProperties.columnName.getPossibleValues(),
                 is(Arrays.asList("inputValue1", "inputValue2")));
-        assertThat((List<String>) filterProperties.function.getPossibleValues(), is(ConditionsRowConstant.DEFAULT_FUNCTIONS));
+        assertThat((List<String>) filterProperties.function.getPossibleValues(),
+                is(ConditionsRowConstant.DEFAULT_FUNCTIONS));
         assertThat((List<String>) filterProperties.operator.getPossibleValues(), is(ConditionsRowConstant.DEFAULT_OPERATORS));
     }
 
-    public void testGenerateJson() throws URISyntaxException, IOException {
-        // String expectedJson = JsonSchemaUtilTest.readJson("PropertiesListProperties.json");
+    public static String readJson(String path) throws URISyntaxException, IOException {
+        java.net.URL url = FilterRowPropertiesTest.class.getResource(path);
+        java.nio.file.Path resPath = java.nio.file.Paths.get(url.toURI());
+        return new String(java.nio.file.Files.readAllBytes(resPath), "UTF8").trim();
+    }
+
+    @Test
+    public void testGeneratedJson() throws URISyntaxException, IOException {
+        String expectedJson = FilterRowPropertiesTest.readJson("FilterRowProperties.json");
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
         String jsonValue = JsonSchemaUtil.toJson(properties, Form.MAIN, FilterRowDefinition.COMPONENT_NAME);
-        // JsonSchemaUtilTest.writeJson(jsonValue, "/tmp/FilterRowProperties.json");
-        // Assert.assertEquals(expectedJson, jsonValue);
+        // JsonSchemaUtilTest.writeJson(jsonValue, "/home/lbourgeois/generated/FilterRowProperties.json");
+        Assert.assertEquals(expectedJson, jsonValue);
     }
 
 }
