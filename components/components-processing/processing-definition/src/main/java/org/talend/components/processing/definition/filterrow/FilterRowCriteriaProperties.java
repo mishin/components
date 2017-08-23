@@ -29,7 +29,7 @@ public class FilterRowCriteriaProperties extends PropertiesImpl {
      * 
      * For any other case, Function will contain "EMPTY".
      */
-    public Property<String> function = PropertyFactory.newString("function", "EMPTY")
+    public Property<String> function = PropertyFactory.newString("function", "EMPTY", "EMPTY")
             .setPossibleValues(ConditionsRowConstant.ALL_FUNCTIONS);
 
     /**
