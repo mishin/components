@@ -572,7 +572,6 @@ public class FilterRowPropertiesTest {
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
         String jsonValue = JsonSchemaUtil.toJson(properties, Form.MAIN, FilterRowDefinition.COMPONENT_NAME);
-        // JsonSchemaUtilTest.writeJson(jsonValue, "/home/lbourgeois/generated/FilterRowProperties.json");
         Assert.assertEquals(expectedJson, jsonValue);
     }
 
