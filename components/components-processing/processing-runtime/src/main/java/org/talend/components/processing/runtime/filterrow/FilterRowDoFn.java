@@ -22,6 +22,7 @@ import org.apache.avro.generic.GenericData.Record;
 import org.apache.avro.generic.IndexedRecord;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.commons.lang3.StringUtils;
+import org.talend.components.processing.definition.ProcessingErrorCode;
 import org.talend.components.processing.definition.filterrow.ConditionsRowConstant;
 import org.talend.components.processing.definition.filterrow.FilterRowCriteriaProperties;
 import org.talend.components.processing.definition.filterrow.FilterRowProperties;
@@ -126,7 +127,7 @@ public class FilterRowDoFn extends DoFn<Object, IndexedRecord> {
             // The column was existing on the input record, we forward it to the
             // output record.
             if (schema.getField(path[i]) == null) {
-                throw new TalendRuntimeException(CommonErrorCodes.UNEXPECTED_ARGUMENT, new Throwable(String.format("The field %s is not present on the input record", columnName)));
+                throw ProcessingErrorCode.createFieldNotFoundException(null, columnName);
             }
             Object inputValue = inputRecord.get(schema.getField(path[i]).pos());
 
