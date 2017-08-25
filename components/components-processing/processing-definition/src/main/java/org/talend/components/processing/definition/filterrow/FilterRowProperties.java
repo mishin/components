@@ -26,6 +26,8 @@ import org.talend.components.common.SchemaProperties;
 import org.talend.daikon.properties.PropertiesList;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
+import org.talend.daikon.properties.property.Property;
+import org.talend.daikon.properties.property.PropertyFactory;
 
 /**
  * Contains a nested list of {@link FilterRowCriteriaProperties} so that we can combine several filtering criterias
@@ -55,6 +57,10 @@ public class FilterRowProperties extends FixedConnectorsComponentProperties {
     public transient PropertyPathConnector REJECT_CONNECTOR = new PropertyPathConnector(Connector.REJECT_NAME, "schemaReject");
 
     public SchemaProperties schemaReject = new SchemaProperties("schemaReject");
+
+    // rows matcher
+    public Property<RowsMatcherType> rowsMatcher = PropertyFactory.newEnum("rowsMatcher",
+            RowsMatcherType.class);
 
     // list of filters
     public PropertiesList<FilterRowCriteriaProperties> filters = new PropertiesList<>("filters",
@@ -86,6 +92,8 @@ public class FilterRowProperties extends FixedConnectorsComponentProperties {
     public void setupProperties() {
         super.setupProperties();
         setupLayout();
+        // all conditions required
+        rowsMatcher.setValue(RowsMatcherType.ALL);
         // Add a default filter criteria
         filters.createAndAddRow();
 

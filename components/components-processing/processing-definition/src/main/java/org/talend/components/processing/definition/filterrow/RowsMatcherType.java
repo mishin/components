@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.components.processing.definition.filterrow;
 
-public enum LogicalOpType {
-	OR, AND;
+public enum RowsMatcherType {
+    ALL,
+    ANY,
+    NONE;
 }
