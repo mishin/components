@@ -241,7 +241,6 @@ public class FilterRowPropertiesTest {
         assertThat(filtersWidget, notNullValue());
         Widget logicalOpWidget = main.getWidget("logicalOp");
         assertThat(logicalOpWidget, notNullValue());
-
     }
 
     /**

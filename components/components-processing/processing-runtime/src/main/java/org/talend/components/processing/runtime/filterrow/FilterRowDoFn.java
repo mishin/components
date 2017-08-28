@@ -54,7 +54,7 @@ public class FilterRowDoFn extends DoFn<Object, IndexedRecord> {
 
         // init to false with ANY logical operator
         // Init to true otherwise
-        boolean conditionsSatisfied = !LogicalOpType.ANY.equals(properties.logicalOp.getStoredValue());
+        boolean conditionsSatisfied = !LogicalOpType.ANY.equals(properties.logicalOp.getValue());
         // Used to avoid useless conditions evaluation
         boolean stopEvaluation = false;
         // Extract filters to be applied
