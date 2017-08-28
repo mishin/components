@@ -848,18 +848,25 @@ public class FilterRowDoFnTest {
     public void test_FilterLogicalOpNone() throws Exception {
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
-        FilterRowCriteriaProperties filterGreater = new FilterRowCriteriaProperties("filter1");
-        filterGreater.init();
-        filterGreater.columnName.setValue("a");
-        filterGreater.operator.setValue(ConditionsRowConstant.Operator.GREATER);
-        filterGreater.value.setValue("10");
-        properties.filters.addRow(filterGreater);
-        FilterRowCriteriaProperties filterLess = new FilterRowCriteriaProperties("filter2");
-        filterLess.init();
-        filterLess.columnName.setValue("a");
-        filterLess.operator.setValue(ConditionsRowConstant.Operator.LOWER);
-        filterLess.value.setValue("30");
-        properties.filters.addRow(filterLess);
+        properties.logicalOp.setValue(LogicalOpType.NONE);
+        FilterRowCriteriaProperties condition1 = new FilterRowCriteriaProperties("filter1");
+        condition1.init();
+        condition1.columnName.setValue("a");
+        condition1.operator.setValue(ConditionsRowConstant.Operator.EQUAL);
+        condition1.value.setValue("10");
+        properties.filters.addRow(condition1);
+        FilterRowCriteriaProperties condition2 = new FilterRowCriteriaProperties("filter2");
+        condition2.init();
+        condition2.columnName.setValue("b");
+        condition2.operator.setValue(ConditionsRowConstant.Operator.EQUAL);
+        condition2.value.setValue("100");
+        properties.filters.addRow(condition2);
+        FilterRowCriteriaProperties condition3 = new FilterRowCriteriaProperties("filter3");
+        condition3.init();
+        condition3.columnName.setValue("a");
+        condition3.operator.setValue(ConditionsRowConstant.Operator.EQUAL);
+        condition3.value.setValue("20");
+        properties.filters.addRow(condition3);
 
         FilterRowDoFn function = new FilterRowDoFn().withProperties(properties) //
                 .withOutputSchema(true).withRejectSchema(true);
