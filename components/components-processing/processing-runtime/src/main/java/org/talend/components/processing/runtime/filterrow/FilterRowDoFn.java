@@ -26,7 +26,7 @@ import org.talend.components.processing.definition.ProcessingErrorCode;
 import org.talend.components.processing.definition.filterrow.ConditionsRowConstant;
 import org.talend.components.processing.definition.filterrow.FilterRowCriteriaProperties;
 import org.talend.components.processing.definition.filterrow.FilterRowProperties;
-import org.talend.components.processing.definition.filterrow.LogicalOp;
+import org.talend.components.processing.definition.filterrow.LogicalOpType;
 import org.talend.daikon.avro.AvroRegistry;
 import org.talend.daikon.avro.converter.IndexedRecordConverter;
 
@@ -54,7 +54,7 @@ public class FilterRowDoFn extends DoFn<Object, IndexedRecord> {
 
         // init to false with ANY logical operator
         // Init to true otherwise
-        boolean conditionsSatisfied = !LogicalOp.ANY.equals(properties.logicalOp.getStoredValue());
+        boolean conditionsSatisfied = !LogicalOpType.ANY.equals(properties.logicalOp.getStoredValue());
         // Used to avoid useless conditions evaluation
         boolean stopEvaluation = false;
         // Extract filters to be applied

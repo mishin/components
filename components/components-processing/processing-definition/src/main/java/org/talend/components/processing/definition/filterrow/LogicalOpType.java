@@ -12,7 +12,7 @@
 // ============================================================================
 package org.talend.components.processing.definition.filterrow;
 
-public enum LogicalOp {
+public enum LogicalOpType {
     ALL,
     ANY,
     NONE;

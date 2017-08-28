@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.talend.components.processing.definition.filterrow.ConditionsRowConstant;
 import org.talend.components.processing.definition.filterrow.FilterRowCriteriaProperties;
 import org.talend.components.processing.definition.filterrow.FilterRowProperties;
-import org.talend.components.processing.definition.filterrow.LogicalOp;
+import org.talend.components.processing.definition.filterrow.LogicalOpType;
 import org.talend.daikon.exception.TalendRuntimeException;
 
 
@@ -817,7 +817,7 @@ public class FilterRowDoFnTest {
     public void test_FilterLogicalOpAny() throws Exception {
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
-        properties.logicalOp.setValue(LogicalOp.ANY);
+        properties.logicalOp.setValue(LogicalOpType.ANY);
         FilterRowCriteriaProperties condition1 = new FilterRowCriteriaProperties("filter1");
         condition1.init();
         condition1.columnName.setValue("a");
