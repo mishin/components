@@ -58,9 +58,9 @@ public class FilterRowProperties extends FixedConnectorsComponentProperties {
 
     public SchemaProperties schemaReject = new SchemaProperties("schemaReject");
 
-    // rows matcher
-    public Property<RowsMatcherType> rowsMatcher = PropertyFactory.newEnum("rowsMatcher",
-            RowsMatcherType.class);
+    // how to combine filters
+    public Property<LogicalOp> logicalOp = PropertyFactory.newEnum("logicalOp",
+            LogicalOp.class);
 
     // list of filters
     public PropertiesList<FilterRowCriteriaProperties> filters = new PropertiesList<>("filters",
@@ -93,7 +93,7 @@ public class FilterRowProperties extends FixedConnectorsComponentProperties {
         super.setupProperties();
         setupLayout();
         // all conditions required
-        rowsMatcher.setValue(RowsMatcherType.ALL);
+        logicalOp.setValue(LogicalOp.ALL);
         // Add a default filter criteria
         filters.createAndAddRow();
 

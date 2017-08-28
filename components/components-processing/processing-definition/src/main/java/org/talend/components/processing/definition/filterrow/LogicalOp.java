@@ -12,7 +12,7 @@
 // ============================================================================
 package org.talend.components.processing.definition.filterrow;
 
-public enum RowsMatcherType {
+public enum LogicalOp {
     ALL,
     ANY,
     NONE;
