@@ -18,6 +18,7 @@ import org.talend.components.api.Constants;
 import org.talend.components.api.component.runtime.DependenciesReader;
 import org.talend.components.processing.definition.filterrow.FilterRowDefinition;
 import org.talend.components.processing.definition.normalize.NormalizeDefinition;
+import org.talend.components.processing.definition.pocaggregate.PocAggregateDefinition;
 import org.talend.components.processing.definition.pythonrow.PythonRowDefinition;
 import org.talend.components.processing.definition.replicate.ReplicateDefinition;
 import org.talend.components.processing.definition.window.WindowDefinition;
@@ -27,8 +28,7 @@ import com.google.auto.service.AutoService;
 import aQute.bnd.annotation.component.Component;
 
 /**
- * Install all of the definitions provided for the processing family of
- * components.
+ * Install all of the definitions provided for the processing family of components.
  */
 @AutoService(ComponentInstaller.class)
 @Component(name = Constants.COMPONENT_INSTALLER_PREFIX + ProcessingFamilyDefinition.NAME, provide = ComponentInstaller.class)
@@ -43,7 +43,8 @@ public class ProcessingFamilyDefinition extends AbstractComponentFamilyDefinitio
     public ProcessingFamilyDefinition() {
         super(NAME,
                 // Components
-                new WindowDefinition(), new ReplicateDefinition(),new FilterRowDefinition(), new PythonRowDefinition(), new NormalizeDefinition()
+                new WindowDefinition(), new ReplicateDefinition(), new FilterRowDefinition(), new PythonRowDefinition(),
+                new NormalizeDefinition(), new PocAggregateDefinition()
         // Component wizards
         );
     }
