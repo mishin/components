@@ -42,9 +42,9 @@ public class AzureStorageContainerListReader extends AzureStorageReader<IndexedR
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AzureStorageContainerListReader.class);
 
-    private Boolean startable = null; // this is initialized in the start method
+    private boolean startable; // this is initialized in the start method
 
-    Boolean advanceable = null; // this is initialized in the advance method
+    private Boolean advanceable = null; // this is initialized in the advance method
 
     /** let this attribute public for test purpose */
     public AzureStorageBlobService blobService;
@@ -80,6 +80,10 @@ public class AzureStorageContainerListReader extends AzureStorageReader<IndexedR
 
     @Override
     public boolean advance() throws IOException {
+        if (!startable) {
+            return false;
+        }
+
         advanceable = containers.hasNext();
         if (advanceable) {
             dataCount++;
@@ -91,7 +95,7 @@ public class AzureStorageContainerListReader extends AzureStorageReader<IndexedR
 
     @Override
     public IndexedRecord getCurrent() throws NoSuchElementException {
-        if (startable == null || (advanceable != null && !advanceable)) {
+        if (!startable || (advanceable != null && !advanceable)) {
             throw new NoSuchElementException();
         }
 

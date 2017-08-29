@@ -13,20 +13,21 @@
 package org.talend.components.azurestorage.blob.runtime;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
+import static org.talend.components.api.test.runtime.reader.ReaderMatchers.canAdvance;
+import static org.talend.components.api.test.runtime.reader.ReaderMatchers.canStart;
+import static org.talend.components.api.test.runtime.reader.ReaderMatchers.cannotAdvance;
+import static org.talend.components.api.test.runtime.reader.ReaderMatchers.cannotStart;
+import static org.talend.components.api.test.runtime.reader.ReaderMatchers.startAndDieOnError;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -34,24 +35,27 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.talend.components.api.component.ComponentDefinition;
 import org.talend.components.api.container.RuntimeContainer;
+import org.talend.components.api.test.runtime.reader.SourceReaderTest;
 import org.talend.components.azurestorage.RuntimeContainerMock;
 import org.talend.components.azurestorage.blob.AzureStorageBlobService;
 import org.talend.components.azurestorage.blob.tazurestoragecontainerlist.TAzureStorageContainerListProperties;
 import org.talend.components.azurestorage.tazurestorageconnection.TAzureStorageConnectionProperties;
 import org.talend.components.azurestorage.tazurestorageconnection.TAzureStorageConnectionProperties.Protocol;
+import org.talend.daikon.properties.ValidationResult;
 
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 
-public class AzureStorageContainerListReaderTest {
+public class AzureStorageContainerListReaderTest implements SourceReaderTest {
 
     public static final String PROP_ = "PROP_";
 
     private RuntimeContainer runtimeContainer;
 
-    private AzureStorageContainerListReader reader;
+    private TAzureStorageContainerListProperties properties;
+
+    private AzureStorageSource source;
 
     @Mock
     private AzureStorageBlobService blobService;
@@ -62,23 +66,24 @@ public class AzureStorageContainerListReaderTest {
     @Before
     public void setUp() throws Exception {
 
-        runtimeContainer = new RuntimeContainerMock();
-
-        AzureStorageSource source = new AzureStorageSource();
-        TAzureStorageContainerListProperties properties = new TAzureStorageContainerListProperties(PROP_ + "ContainerList");
+        properties = new TAzureStorageContainerListProperties(PROP_ + "ContainerList");
         properties.connection = new TAzureStorageConnectionProperties(PROP_ + "Connection");
         properties.connection.protocol.setValue(Protocol.HTTP);
         properties.connection.accountName.setValue("fakeAccountName");
         properties.connection.accountKey.setValue("fakeAccountKey=ANBHFYRJJFHRIKKJFU");
         properties.setupProperties();
 
-        source.initialize(runtimeContainer, properties);
-        reader = (AzureStorageContainerListReader) source.createReader(runtimeContainer);
-        reader.blobService = blobService;
+        runtimeContainer = new RuntimeContainerMock();
+        source = new AzureStorageSource();
     }
 
     @Test
-    public void testStartAsNonStartable() {
+    @Override
+    public void testReadSourceEmpty() {
+        assertEquals(ValidationResult.Result.OK, source.initialize(runtimeContainer, properties).getStatus());
+        assertEquals(ValidationResult.Result.OK, source.validate(runtimeContainer).getStatus());
+        AzureStorageContainerListReader reader = (AzureStorageContainerListReader) source.createReader(runtimeContainer);
+
         // init mock
         try {
             when(blobService.listContainers()).thenReturn(new Iterable<CloudBlobContainer>() {
@@ -88,18 +93,54 @@ public class AzureStorageContainerListReaderTest {
                     return new DummyCloudBlobContainerIterator(new ArrayList<CloudBlobContainer>());
                 }
             });
+            reader.blobService = blobService;
 
-            boolean startable = reader.start();
-            assertFalse(startable);
-            assertFalse(reader.advance());
+            assertThat(reader, cannotStart());
+            assertThat(reader, cannotAdvance());
 
-        } catch (InvalidKeyException | URISyntaxException | IOException e) {
+        } catch (InvalidKeyException | URISyntaxException e) {
             fail("should not throw " + e.getMessage());
         }
+
     }
 
     @Test
-    public void testStartAsStartabke() {
+    @Override
+    public void testReadSourceWithOnly1Element() {
+
+        assertEquals(ValidationResult.Result.OK, source.initialize(runtimeContainer, properties).getStatus());
+        assertEquals(ValidationResult.Result.OK, source.validate(runtimeContainer).getStatus());
+        AzureStorageContainerListReader reader = (AzureStorageContainerListReader) source.createReader(runtimeContainer);
+
+        try {
+            final List<CloudBlobContainer> list = new ArrayList<>();
+            list.add(new CloudBlobContainer(new URI("https://fakeAccountName.blob.core.windows.net/container-1")));
+
+            when(blobService.listContainers()).thenReturn(new Iterable<CloudBlobContainer>() {
+
+                @Override
+                public Iterator<CloudBlobContainer> iterator() {
+                    return new DummyCloudBlobContainerIterator(list);
+                }
+            });
+            reader.blobService = blobService;
+
+            assertThat(reader, canStart());
+            assertThat(reader, cannotAdvance());
+
+        } catch (InvalidKeyException | URISyntaxException | StorageException e) {
+            fail("should not throw " + e.getMessage());
+        }
+
+    }
+
+    @Test
+    @Override
+    public void testReadSourceWithManyElements() {
+
+        assertEquals(ValidationResult.Result.OK, source.initialize(runtimeContainer, properties).getStatus());
+        assertEquals(ValidationResult.Result.OK, source.validate(runtimeContainer).getStatus());
+        AzureStorageContainerListReader reader = (AzureStorageContainerListReader) source.createReader(runtimeContainer);
 
         try {
             final List<CloudBlobContainer> list = new ArrayList<>();
@@ -114,52 +155,66 @@ public class AzureStorageContainerListReaderTest {
                     return new DummyCloudBlobContainerIterator(list);
                 }
             });
+            reader.blobService = blobService;
 
-            boolean startable = reader.start();
-            assertTrue(startable);
-            assertNotNull(reader.getCurrent());
-            while (reader.advance()) {
-                assertNotNull(reader.getCurrent());
-            }
-            assertNotNull(reader.getReturnValues());
-            assertEquals(3, reader.getReturnValues().get(ComponentDefinition.RETURN_TOTAL_RECORD_COUNT));
+            assertThat(reader, canStart());
+            assertThat(reader, canAdvance());
 
-        } catch (InvalidKeyException | URISyntaxException | StorageException | IOException e) {
+        } catch (InvalidKeyException | URISyntaxException | StorageException e) {
             fail("should not throw " + e.getMessage());
         }
+
     }
 
-    @Test(expected = NoSuchElementException.class)
-    public void getCurrentOnNonStartableReader() {
-        reader.getCurrent();
-        fail("should throw NoSuchElementException");
-    }
-
-    @Test(expected = NoSuchElementException.class)
-    public void getCurrentOnNonAdvancableReader() {
-
+    @Test
+    @Override
+    public void testReadSourceUnavailableDieOnError() {
         try {
-            final List<CloudBlobContainer> list = new ArrayList<>();
-            list.add(new CloudBlobContainer(new URI("https://fakeAccountName.blob.core.windows.net/container-1")));
-            when(blobService.listContainers()).thenReturn(new Iterable<CloudBlobContainer>() {
+            properties.dieOnError.setValue(true);
 
-                @Override
-                public Iterator<CloudBlobContainer> iterator() {
-                    return new DummyCloudBlobContainerIterator(list);
-                }
-            });
+            assertEquals(ValidationResult.Result.OK, source.initialize(runtimeContainer, properties).getStatus());
+            assertEquals(ValidationResult.Result.OK, source.validate(runtimeContainer).getStatus());
+            AzureStorageContainerListReader reader = (AzureStorageContainerListReader) source.createReader(runtimeContainer);
 
-            boolean startable = reader.start();
-            assertTrue(startable);
-            assertNotNull(reader.getCurrent());
-            assertFalse(reader.advance());
+            when(blobService.listContainers()).thenThrow(new InvalidKeyException(new RuntimeException("Unvailable Source")));
+            reader.blobService = blobService;
 
-            reader.getCurrent();
-            fail("should throw NoSuchElementException");
+            assertThat(reader, startAndDieOnError());
+            assertThat(reader, cannotAdvance());
 
-        } catch (StorageException | URISyntaxException | InvalidKeyException | IOException e) {
+        } catch (URISyntaxException | InvalidKeyException e) {
             fail("should not throw " + e.getMessage());
         }
+
+    }
+
+    @Test
+    @Override
+    public void testReadSourceUnavailableHandleError() {
+        try {
+
+            properties.dieOnError.setValue(false);
+
+            assertEquals(ValidationResult.Result.OK, source.initialize(runtimeContainer, properties).getStatus());
+            assertEquals(ValidationResult.Result.OK, source.validate(runtimeContainer).getStatus());
+            AzureStorageContainerListReader reader = (AzureStorageContainerListReader) source.createReader(runtimeContainer);
+
+            when(blobService.listContainers()).thenThrow(new InvalidKeyException(new RuntimeException("Unvailable Source")));
+            reader.blobService = blobService;
+
+            assertThat(reader, cannotStart());
+            assertThat(reader, cannotAdvance());
+
+        } catch (URISyntaxException | InvalidKeyException e) {
+            fail("should not throw " + e.getMessage());
+        }
+
+    }
+
+    @Test
+    @Override
+    public void testClose() {
+        //
     }
 
 }

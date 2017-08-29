@@ -15,11 +15,7 @@ package org.talend.components.azurestorage.blob.runtime;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
@@ -107,6 +103,10 @@ public class AzureStorageListReader extends AzureStorageReader<IndexedRecord> {
 
     @Override
     public boolean advance() throws IOException {
+        if (!startable) {
+            return false;
+        }
+
         advanceable = blobsIterator.hasNext();
         if (advanceable) {
             dataCount++;

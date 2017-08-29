@@ -13,15 +13,13 @@
 package org.talend.components.azurestorage.blob.runtime;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
+import static org.talend.components.api.test.runtime.reader.ReaderMatchers.*;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
@@ -29,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -37,26 +34,27 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.talend.components.api.component.ComponentDefinition;
 import org.talend.components.api.container.RuntimeContainer;
+import org.talend.components.api.test.runtime.reader.SourceReaderTest;
 import org.talend.components.azurestorage.RuntimeContainerMock;
 import org.talend.components.azurestorage.blob.AzureStorageBlobService;
 import org.talend.components.azurestorage.blob.helpers.RemoteBlobsTable;
 import org.talend.components.azurestorage.blob.tazurestoragelist.TAzureStorageListProperties;
 import org.talend.components.azurestorage.tazurestorageconnection.TAzureStorageConnectionProperties;
 import org.talend.components.azurestorage.tazurestorageconnection.TAzureStorageConnectionProperties.Protocol;
+import org.talend.daikon.properties.ValidationResult;
 
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.blob.ListBlobItem;
 
-public class AzureStorageListReaderTest {
-
-    private AzureStorageListReader reader;
+public class AzureStorageListReaderTest implements SourceReaderTest {
 
     private TAzureStorageListProperties properties;
 
     public static final String PROP_ = "PROP_";
+
+    private AzureStorageSource source;
 
     private RuntimeContainer runtimeContainer;
 
@@ -70,22 +68,28 @@ public class AzureStorageListReaderTest {
     public void setUp() throws Exception {
 
         runtimeContainer = new RuntimeContainerMock();
+        source = new AzureStorageSource();
 
-        AzureStorageSource source = new AzureStorageSource();
         properties = new TAzureStorageListProperties(PROP_ + "List");
         properties.connection = new TAzureStorageConnectionProperties(PROP_ + "Connection");
         properties.connection.protocol.setValue(Protocol.HTTP);
         properties.connection.accountName.setValue("fakeAccountName");
         properties.connection.accountKey.setValue("fakeAccountKey=ANBHFYRJJFHRIKKJFU");
-        properties.setupProperties();
+        properties.remoteBlobs = new RemoteBlobsTable("RemoteBlobsTable");
+        properties.remoteBlobs.include.setValue(Arrays.asList(true));
+        properties.remoteBlobs.prefix.setValue(Arrays.asList("someFilter"));
 
-        source.initialize(runtimeContainer, properties);
-        reader = (AzureStorageListReader) source.createReader(runtimeContainer);
-        reader.azureStorageBlobService = blobService;
+        properties.setupProperties();
     }
 
     @Test
-    public void testStartAsNonStartable() {
+    @Override
+    public void testReadSourceEmpty() {
+
+        assertEquals(ValidationResult.Result.OK, source.initialize(runtimeContainer, properties).getStatus());
+        assertEquals(ValidationResult.Result.OK, source.validate(runtimeContainer).getStatus());
+        AzureStorageListReader reader = (AzureStorageListReader) source.createReader(runtimeContainer);
+
         try {
 
             when(blobService.listBlobs(anyString(), anyString(), anyBoolean())).thenReturn(new Iterable<ListBlobItem>() {
@@ -95,22 +99,53 @@ public class AzureStorageListReaderTest {
                     return new DummyListBlobItemIterator(new ArrayList<CloudBlockBlob>());
                 }
             });
+            reader.azureStorageBlobService = blobService;
 
-            properties.remoteBlobs = new RemoteBlobsTable("RemoteBlobsTable");
-            properties.remoteBlobs.include.setValue(Arrays.asList(true));
-            properties.remoteBlobs.prefix.setValue(Arrays.asList("dummyFilter"));
+            assertThat(reader, cannotStart());
+            assertThat(reader, cannotAdvance());
 
-            boolean startable = reader.start();
-            assertFalse(startable);
-            assertFalse(reader.advance());
-
-        } catch (InvalidKeyException | URISyntaxException | StorageException | IOException e) {
+        } catch (InvalidKeyException | URISyntaxException | StorageException e) {
             fail("should not throw " + e.getMessage());
         }
+
     }
 
     @Test
-    public void testStartAsStartabke() {
+    @Override
+    public void testReadSourceWithOnly1Element() {
+
+        assertEquals(ValidationResult.Result.OK, source.initialize(runtimeContainer, properties).getStatus());
+        assertEquals(ValidationResult.Result.OK, source.validate(runtimeContainer).getStatus());
+        AzureStorageListReader reader = (AzureStorageListReader) source.createReader(runtimeContainer);
+
+        try {
+            final List<CloudBlockBlob> list = new ArrayList<>();
+            list.add(new CloudBlockBlob(new URI("https://storagesample.blob.core.windows.net/mycontainer/blob1.txt")));
+            when(blobService.listBlobs(anyString(), anyString(), anyBoolean())).thenReturn(new Iterable<ListBlobItem>() {
+
+                @Override
+                public Iterator<ListBlobItem> iterator() {
+                    return new DummyListBlobItemIterator(list);
+                }
+            });
+            reader.azureStorageBlobService = blobService;
+
+            assertThat(reader, canStart());
+            assertThat(reader, cannotAdvance());
+
+        } catch (InvalidKeyException | URISyntaxException | StorageException e) {
+            fail("should not throw " + e.getMessage());
+        }
+
+    }
+
+    @Test
+    @Override
+    public void testReadSourceWithManyElements() {
+
+        assertEquals(ValidationResult.Result.OK, source.initialize(runtimeContainer, properties).getStatus());
+        assertEquals(ValidationResult.Result.OK, source.validate(runtimeContainer).getStatus());
+        AzureStorageListReader reader = (AzureStorageListReader) source.createReader(runtimeContainer);
 
         try {
             final List<CloudBlockBlob> list = new ArrayList<>();
@@ -124,60 +159,67 @@ public class AzureStorageListReaderTest {
                     return new DummyListBlobItemIterator(list);
                 }
             });
+            reader.azureStorageBlobService = blobService;
 
-            properties.remoteBlobs = new RemoteBlobsTable("RemoteBlobsTable");
-            properties.remoteBlobs.include.setValue(Arrays.asList(true));
-            properties.remoteBlobs.prefix.setValue(Arrays.asList("someFilter"));
+            assertThat(reader, canStart());
+            assertThat(reader, canAdvance());
 
-            boolean startable = reader.start();
-            assertTrue(startable);
-            assertNotNull(reader.getCurrent());
-            while (reader.advance()) {
-                assertNotNull(reader.getCurrent());
-            }
-            assertNotNull(reader.getReturnValues());
-            assertEquals(3, reader.getReturnValues().get(ComponentDefinition.RETURN_TOTAL_RECORD_COUNT));
-
-        } catch (InvalidKeyException | URISyntaxException | StorageException | IOException e) {
+        } catch (InvalidKeyException | URISyntaxException | StorageException e) {
             fail("should not throw " + e.getMessage());
         }
     }
 
-    @Test(expected = NoSuchElementException.class)
-    public void getCurrentOnNonStartableReader() {
-        reader.getCurrent();
-        fail("should throw NoSuchElementException");
-    }
+    @Test
+    @Override
+    public void testReadSourceUnavailableDieOnError() {
 
-    @Test(expected = NoSuchElementException.class)
-    public void getCurrentOnNonAdvancableReader() {
+        properties.dieOnError.setValue(true);
+
+        assertEquals(ValidationResult.Result.OK, source.initialize(runtimeContainer, properties).getStatus());
+        assertEquals(ValidationResult.Result.OK, source.validate(runtimeContainer).getStatus());
+        AzureStorageListReader reader = (AzureStorageListReader) source.createReader(runtimeContainer);
+
         try {
-            final List<CloudBlockBlob> list = new ArrayList<>();
-            list.add(new CloudBlockBlob(new URI("https://storagesample.blob.core.windows.net/mycontainer/blob1.txt")));
+            when(blobService.listBlobs(anyString(), anyString(), anyBoolean()))
+                    .thenThrow(new StorageException("500", "Unvailable source", new RuntimeException("Unvailable source")));
+            reader.azureStorageBlobService = blobService;
 
-            when(blobService.listBlobs(anyString(), anyString(), anyBoolean())).thenReturn(new Iterable<ListBlobItem>() {
+            assertThat(reader, startAndDieOnError());
+            assertThat(reader, cannotAdvance());
 
-                @Override
-                public Iterator<ListBlobItem> iterator() {
-                    return new DummyListBlobItemIterator(list);
-                }
-            });
-
-            properties.remoteBlobs = new RemoteBlobsTable("RemoteBlobsTable");
-            properties.remoteBlobs.include.setValue(Arrays.asList(true));
-            properties.remoteBlobs.prefix.setValue(Arrays.asList("someFilter"));
-
-            boolean startable = reader.start();
-            assertTrue(startable);
-            assertNotNull(reader.getCurrent());
-            assertFalse(reader.advance());
-
-            reader.getCurrent();
-            fail("should throw NoSuchElementException");
-
-        } catch (InvalidKeyException | URISyntaxException | StorageException | IOException e) {
+        } catch (InvalidKeyException | URISyntaxException | StorageException e) {
             fail("should not throw " + e.getMessage());
         }
+
+    }
+
+    @Test
+    @Override
+    public void testReadSourceUnavailableHandleError() {
+
+        properties.dieOnError.setValue(false);
+
+        assertEquals(ValidationResult.Result.OK, source.initialize(runtimeContainer, properties).getStatus());
+        assertEquals(ValidationResult.Result.OK, source.validate(runtimeContainer).getStatus());
+        AzureStorageListReader reader = (AzureStorageListReader) source.createReader(runtimeContainer);
+
+        try {
+            when(blobService.listBlobs(anyString(), anyString(), anyBoolean()))
+                    .thenThrow(new StorageException("500", "Unvailable source", new RuntimeException("Unvailable source")));
+            reader.azureStorageBlobService = blobService;
+
+            assertThat(reader, cannotStart());
+            assertThat(reader, cannotAdvance());
+
+        } catch (InvalidKeyException | URISyntaxException | StorageException e) {
+            fail("should not throw " + e.getMessage());
+        }
+
+    }
+
+    @Override
+    public void testClose() {
+        //
     }
 
 }

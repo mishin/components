@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.BoundedSource;
 import org.talend.components.api.container.RuntimeContainer;
+import org.talend.components.api.exception.ComponentException;
 import org.talend.components.azurestorage.queue.tazurestoragequeueinputloop.TAzureStorageQueueInputLoopProperties;
 import org.talend.daikon.i18n.GlobalI18N;
 import org.talend.daikon.i18n.I18nMessages;
@@ -106,6 +107,9 @@ public class AzureStorageQueueInputLoopReader extends AzureStorageQueueInputRead
 
         } catch (InterruptedException | StorageException | InvalidKeyException | URISyntaxException e) {
             LOGGER.error(e.getLocalizedMessage());
+            if (dieOnError) {
+                throw new ComponentException(e);
+            }
         }
 
         return false;

@@ -181,7 +181,7 @@ public class ReaderMatchers {
                     // This is the expected behavior, so just ignore this exception here
                     return true;
                 } catch (Throwable e) {
-                    fail("expect that the don't advance whit no error, instead an exception was thrown"
+                    fail("expect that the reader don't advance whit no error, instead an exception was thrown: "
                             + ExceptionUtils.getStackTrace(e));
                 }
                 return true;

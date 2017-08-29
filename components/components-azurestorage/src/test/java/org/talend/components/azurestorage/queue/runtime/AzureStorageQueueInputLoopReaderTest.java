@@ -13,14 +13,15 @@
 package org.talend.components.azurestorage.queue.runtime;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
+import static org.talend.components.api.test.runtime.reader.ReaderMatchers.canStart;
+import static org.talend.components.api.test.runtime.reader.ReaderMatchers.startAndDieOnError;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -28,10 +29,7 @@ import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.avro.Schema.Field;
-import org.apache.avro.generic.IndexedRecord;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,22 +38,24 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.mockito.stubbing.Answer;
-import org.talend.components.api.component.ComponentDefinition;
+import org.talend.components.api.container.RuntimeContainer;
+import org.talend.components.api.test.runtime.reader.SourceReaderTest;
 import org.talend.components.azurestorage.AzureBaseTest;
-import org.talend.components.azurestorage.queue.AzureStorageQueueDefinition;
+import org.talend.components.azurestorage.RuntimeContainerMock;
 import org.talend.components.azurestorage.queue.AzureStorageQueueService;
-import org.talend.components.azurestorage.queue.tazurestoragequeueinput.TAzureStorageQueueInputProperties;
 import org.talend.components.azurestorage.queue.tazurestoragequeueinputloop.TAzureStorageQueueInputLoopProperties;
 import org.talend.daikon.properties.ValidationResult;
 
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.queue.CloudQueueMessage;
 
-public class AzureStorageQueueInputLoopReaderTest extends AzureBaseTest {
+public class AzureStorageQueueInputLoopReaderTest extends AzureBaseTest implements SourceReaderTest {
 
     private TAzureStorageQueueInputLoopProperties properties;
 
-    private AzureStorageQueueInputLoopReader reader;
+    private AzureStorageQueueSource source;
+
+    private RuntimeContainer runtimeContainer;
 
     @Mock
     private AzureStorageQueueService queueService;
@@ -69,19 +69,27 @@ public class AzureStorageQueueInputLoopReaderTest extends AzureBaseTest {
         properties.setupProperties();
         properties.connection = getValidFakeConnection();
         properties.queueName.setValue("some-queue-name");
+
+        source = new AzureStorageQueueSource();
+        runtimeContainer = new RuntimeContainerMock();
     }
 
     @Test
-    public void testStartAsStartable() {
+    @Override
+    public void testReadSourceEmpty() {
+        // Can't test that as the reader loop indefinitely
+    }
+
+    @Test
+    @Override
+    public void testReadSourceWithOnly1Element() {
         try {
 
-            AzureStorageQueueSource source = new AzureStorageQueueSource();
-            ValidationResult vr = source.initialize(getDummyRuntimeContiner(), properties);
-            assertNotNull(vr);
-            assertEquals(ValidationResult.OK.getStatus(), vr.getStatus());
+            assertEquals(ValidationResult.Result.OK, source.initialize(runtimeContainer, properties).getStatus());
+            assertEquals(ValidationResult.Result.OK, source.validate(runtimeContainer).getStatus());
 
-            reader = (AzureStorageQueueInputLoopReader) source.createReader(getDummyRuntimeContiner());
-            reader.queueService = queueService; // inject mocked service
+            AzureStorageQueueInputLoopReader reader = (AzureStorageQueueInputLoopReader) source
+                    .createReader(getDummyRuntimeContiner());
 
             final List<CloudQueueMessage> messages = new ArrayList<>();
             messages.add(new CloudQueueMessage("message-1"));
@@ -100,24 +108,26 @@ public class AzureStorageQueueInputLoopReaderTest extends AzureBaseTest {
                 }
             }).when(queueService).deleteMessage(anyString(), any(CloudQueueMessage.class));
 
-            boolean startable = reader.start();
-            assertTrue(startable);
-        } catch (IOException | InvalidKeyException | URISyntaxException | StorageException e) {
+            reader.queueService = queueService; // inject mocked service
+
+            assertThat(reader, canStart());
+            // assertThat(reader, cannotAdvance()); this will loop indefinitely
+
+        } catch (InvalidKeyException | URISyntaxException | StorageException e) {
             fail("sould not throw " + e.getMessage());
         }
+
     }
 
     @Test
-    public void testAdvanceAsAdvancable() {
+    @Override
+    public void testReadSourceWithManyElements() {
         try {
+            assertEquals(ValidationResult.Result.OK, source.initialize(runtimeContainer, properties).getStatus());
+            assertEquals(ValidationResult.Result.OK, source.validate(runtimeContainer).getStatus());
 
-            AzureStorageQueueSource source = new AzureStorageQueueSource();
-            ValidationResult vr = source.initialize(getDummyRuntimeContiner(), properties);
-            assertNotNull(vr);
-            assertEquals(ValidationResult.OK.getStatus(), vr.getStatus());
-
-            reader = (AzureStorageQueueInputLoopReader) source.createReader(getDummyRuntimeContiner());
-            reader.queueService = queueService; // inject mocked service
+            AzureStorageQueueInputLoopReader reader = (AzureStorageQueueInputLoopReader) source
+                    .createReader(getDummyRuntimeContiner());
 
             final List<CloudQueueMessage> messages = new ArrayList<>();
             messages.add(new CloudQueueMessage("message-1"));
@@ -138,99 +148,52 @@ public class AzureStorageQueueInputLoopReaderTest extends AzureBaseTest {
                 }
             }).when(queueService).deleteMessage(anyString(), any(CloudQueueMessage.class));
 
-            boolean startable = reader.start();
-            assertTrue(startable);
-            boolean advancable = reader.advance();
-            assertTrue(advancable);
+            reader.queueService = queueService; // inject mocked service
 
-        } catch (IOException | InvalidKeyException | URISyntaxException | StorageException e) {
+            assertThat(reader, canStart());
+            // assertThat(reader, canAdvance()); this will loop indefinitely
+
+        } catch (InvalidKeyException | URISyntaxException | StorageException e) {
+            fail("sould not throw " + e.getMessage());
+        }
+
+    }
+
+    @Test
+    @Override
+    public void testReadSourceUnavailableDieOnError() {
+        try {
+
+            properties.dieOnError.setValue(true);
+
+            assertEquals(ValidationResult.Result.OK, source.initialize(runtimeContainer, properties).getStatus());
+            assertEquals(ValidationResult.Result.OK, source.validate(runtimeContainer).getStatus());
+
+            AzureStorageQueueInputLoopReader reader = (AzureStorageQueueInputLoopReader) source
+                    .createReader(getDummyRuntimeContiner());
+
+            when(queueService.retrieveMessages(anyString(), anyInt()))
+                    .thenThrow(new StorageException("500", "Unvailable source", new RuntimeException()));
+
+            reader.queueService = queueService; // inject mocked service
+
+            assertThat(reader, startAndDieOnError());
+            // assertThat(reader, cannotAdvance()); // this will loop indefinitely
+
+        } catch (InvalidKeyException | URISyntaxException | StorageException e) {
             fail("sould not throw " + e.getMessage());
         }
     }
 
     @Test
-    public void testGetCurrent() {
-        try {
-
-            AzureStorageQueueSource source = new AzureStorageQueueSource();
-            ValidationResult vr = source.initialize(getDummyRuntimeContiner(), properties);
-            assertNotNull(vr);
-            assertEquals(ValidationResult.OK.getStatus(), vr.getStatus());
-
-            reader = (AzureStorageQueueInputLoopReader) source.createReader(getDummyRuntimeContiner());
-            reader.queueService = queueService; // inject mocked service
-
-            final List<CloudQueueMessage> messages = new ArrayList<>();
-            messages.add(new CloudQueueMessage("message-1"));
-            messages.add(new CloudQueueMessage("message-2"));
-            messages.add(new CloudQueueMessage("message-3"));
-            when(queueService.retrieveMessages(anyString(), anyInt())).thenReturn(new Iterable<CloudQueueMessage>() {
-
-                @Override
-                public Iterator<CloudQueueMessage> iterator() {
-                    return new DummyCloudQueueMessageIterator(messages);
-                }
-            });
-            boolean startable = reader.start();
-            assertTrue(startable);
-            int i = 1;
-            do {
-                IndexedRecord current = reader.getCurrent();
-                assertNotNull(current);
-                assertNotNull(current.getSchema());
-                Field msgField = current.getSchema().getField(TAzureStorageQueueInputProperties.FIELD_MESSAGE_CONTENT);
-                assertTrue(current.get(msgField.pos()).equals("message-" + i));
-                i++;
-                if (i == 3) {
-                    break;
-                }
-            } while (reader.advance());
-
-        } catch (IOException | InvalidKeyException | URISyntaxException | StorageException e) {
-            fail("sould not throw " + e.getMessage());
-        }
+    @Override
+    public void testReadSourceUnavailableHandleError() {
+        // Can't test that as the reader loop indefinitely
     }
 
-    @Test
-    public void testGetReturnValues() {
-        try {
-
-            AzureStorageQueueSource source = new AzureStorageQueueSource();
-            ValidationResult vr = source.initialize(getDummyRuntimeContiner(), properties);
-            assertNotNull(vr);
-            assertEquals(ValidationResult.OK.getStatus(), vr.getStatus());
-
-            reader = (AzureStorageQueueInputLoopReader) source.createReader(getDummyRuntimeContiner());
-            reader.queueService = queueService; // inject mocked service
-
-            final List<CloudQueueMessage> messages = new ArrayList<>();
-            messages.add(new CloudQueueMessage("message-1"));
-            messages.add(new CloudQueueMessage("message-2"));
-            messages.add(new CloudQueueMessage("message-3"));
-            when(queueService.retrieveMessages(anyString(), anyInt())).thenReturn(new Iterable<CloudQueueMessage>() {
-
-                @Override
-                public Iterator<CloudQueueMessage> iterator() {
-                    return new DummyCloudQueueMessageIterator(messages);
-                }
-            });
-            boolean startable = reader.start();
-            assertTrue(startable);
-            int i = 1;
-            while (reader.advance()) {
-                // read all messages to init the returned values at the end
-                i++;
-                if (i == 3) {
-                    break;
-                }
-            }
-            Map<String, Object> returnedValues = reader.getReturnValues();
-            assertNotNull(returnedValues);
-            assertEquals("some-queue-name", returnedValues.get(AzureStorageQueueDefinition.RETURN_QUEUE_NAME));
-            assertEquals(3, returnedValues.get(ComponentDefinition.RETURN_TOTAL_RECORD_COUNT));
-        } catch (IOException | InvalidKeyException | URISyntaxException | StorageException e) {
-            fail("sould not throw " + e.getMessage());
-        }
+    @Override
+    public void testClose() {
+        //
     }
 
 }
