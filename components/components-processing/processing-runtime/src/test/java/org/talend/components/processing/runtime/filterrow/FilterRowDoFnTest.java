@@ -840,8 +840,10 @@ public class FilterRowDoFnTest {
         List<IndexedRecord> rejects = fnTester.peekOutputElements(FilterRowRuntime.rejectOutput);
 
         assertEquals(2, outputs.size());
+        assertEquals(30, outputs.get(0).get(0));
+        assertEquals(10, outputs.get(1).get(0));
         assertEquals(1, rejects.size());
-
+        assertEquals(20, rejects.get(0).get(0));
     }
 
     @Test
