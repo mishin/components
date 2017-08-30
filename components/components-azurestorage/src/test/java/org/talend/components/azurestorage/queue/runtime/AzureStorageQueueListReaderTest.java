@@ -12,22 +12,14 @@
 // ============================================================================
 package org.talend.components.azurestorage.queue.runtime;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 import org.apache.avro.generic.IndexedRecord;
 import org.junit.Before;
@@ -64,7 +56,7 @@ public class AzureStorageQueueListReaderTest extends AzureBaseTest {
     @Before
     public void setUp() throws Exception {
         dummyCredential = new StorageCredentialsSharedAccessSignature("fakesaas");
-        properties = new TAzureStorageQueueListProperties(PROP_ + "QueueList");
+        properties = new TAzureStorageQueueListProperties("QueueList");
         properties.setupProperties();
         properties.connection = getValidFakeConnection();
     }

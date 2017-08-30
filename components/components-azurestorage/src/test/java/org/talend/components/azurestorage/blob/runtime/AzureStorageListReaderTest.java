@@ -71,6 +71,7 @@ public class AzureStorageListReaderTest implements SourceReaderTest {
         source = new AzureStorageSource();
 
         properties = new TAzureStorageListProperties(PROP_ + "List");
+        properties.setupProperties();
         properties.connection = new TAzureStorageConnectionProperties(PROP_ + "Connection");
         properties.connection.protocol.setValue(Protocol.HTTP);
         properties.connection.accountName.setValue("fakeAccountName");
@@ -79,7 +80,7 @@ public class AzureStorageListReaderTest implements SourceReaderTest {
         properties.remoteBlobs.include.setValue(Arrays.asList(true));
         properties.remoteBlobs.prefix.setValue(Arrays.asList("someFilter"));
 
-        properties.setupProperties();
+
     }
 
     @Test

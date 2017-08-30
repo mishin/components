@@ -12,11 +12,7 @@
 // ============================================================================
 package org.talend.components.api.test.runtime.reader;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -98,7 +94,7 @@ public class ReaderMatchers {
                     // This is the expected behavior, so just ignore this exception here
                     return true;
                 } catch (Throwable e) {
-                    fail("expect that the reader starts whit no error, instead an exception was thrown"
+                    fail("expect that the reader starts whit no error, instead an exception was thrown: "
                             + ExceptionUtils.getStackTrace(e));
                 }
 

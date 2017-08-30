@@ -12,41 +12,40 @@
 // ============================================================================
 package org.talend.components.azurestorage.table.runtime;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
+import static org.talend.components.api.test.runtime.reader.ReaderMatchers.*;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.talend.components.api.component.ComponentDefinition;
-import org.talend.components.api.container.RuntimeContainer;
-import org.talend.components.api.exception.ComponentException;
-import org.talend.components.azurestorage.RuntimeContainerMock;
+import org.talend.components.api.test.runtime.reader.SourceReaderTest;
+import org.talend.components.azurestorage.AzureBaseTest;
 import org.talend.components.azurestorage.table.AzureStorageTableService;
-import org.talend.components.azurestorage.table.helpers.*;
+import org.talend.components.azurestorage.table.helpers.Comparison;
+import org.talend.components.azurestorage.table.helpers.Predicate;
+import org.talend.components.azurestorage.table.helpers.SupportedFieldType;
 import org.talend.components.azurestorage.table.tazurestorageinputtable.TAzureStorageInputTableProperties;
-import org.talend.components.azurestorage.tazurestorageconnection.TAzureStorageConnectionProperties;
-import org.talend.components.azurestorage.tazurestorageconnection.TAzureStorageConnectionProperties.Protocol;
 import org.talend.daikon.properties.ValidationResult;
 
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.table.DynamicTableEntity;
 import com.microsoft.azure.storage.table.TableQuery;
 
-public class AzureStorageTableReaderTest {
-
-    public static final String PROP_ = "PROP_";
-
-    private RuntimeContainer container;
-
-    private AzureStorageTableReader reader;
+public class AzureStorageTableReaderTest extends AzureBaseTest implements SourceReaderTest {
 
     private TAzureStorageInputTableProperties properties;
 
@@ -60,16 +59,10 @@ public class AzureStorageTableReaderTest {
 
     @Before
     public void setUp() throws Exception {
-        container = new RuntimeContainerMock();
 
-        properties = new TAzureStorageInputTableProperties(PROP_ + "InputTable");
+        properties = new TAzureStorageInputTableProperties("InputTable");
         properties.setupProperties();
-        // valid fake connection
-        properties.connection = new TAzureStorageConnectionProperties(PROP_ + "Connection");
-        properties.connection.protocol.setValue(Protocol.HTTP);
-        properties.connection.accountName.setValue("fakeAccountName");
-        properties.connection.accountKey.setValue("fakeAccountKey=ANBHFYRJJFHRIKKJFU");
-
+        properties.connection = getValidFakeConnection();
         properties.tableName.setValue("testTable");
 
         properties.filterExpression.column.setValue(new ArrayList<String>());
@@ -91,15 +84,16 @@ public class AzureStorageTableReaderTest {
     /**
      * Test the reader behavior when the data source is empty
      */
-    @Test(expected = NoSuchElementException.class)
+    @Test
+    @Override
     public void testReadSourceEmpty() {
 
         // setup
         properties.dieOnError.setValue(false);
 
-        assertEquals(ValidationResult.Result.OK, source.initialize(container, properties).getStatus());
-        assertEquals(ValidationResult.Result.OK, source.validate(container).getStatus());
-        reader = (AzureStorageTableReader) source.createReader(container);
+        assertEquals(ValidationResult.Result.OK, source.initialize(getDummyRuntimeContiner(), properties).getStatus());
+        assertEquals(ValidationResult.Result.OK, source.validate(getDummyRuntimeContiner()).getStatus());
+        AzureStorageTableReader reader = (AzureStorageTableReader) source.createReader(getDummyRuntimeContiner());
 
         // mock
         final List<DynamicTableEntity> records = new ArrayList<>();
@@ -112,19 +106,11 @@ public class AzureStorageTableReaderTest {
                     return records.iterator();
                 }
             });
+
+            assertThat(reader, cannotStart());
+            assertThat(reader, cannotAdvance());
+
         } catch (InvalidKeyException | URISyntaxException | StorageException e) {
-            fail("should not throw " + e.getMessage());
-        }
-
-        // assert
-        // Reader do not start and can not advance
-        try {
-            assertNotNull(reader);
-            assertFalse(reader.start());
-            assertFalse(reader.advance());
-
-            reader.getCurrent();
-        } catch (IOException e) {
             fail("should not throw " + e.getMessage());
         }
 
@@ -133,15 +119,15 @@ public class AzureStorageTableReaderTest {
     /**
      * Test the reader behavior when the data source contains only one element
      */
-    @Test(expected = NoSuchElementException.class)
+    @Override
     public void testReadSourceWithOnly1Element() {
 
         // setup
         properties.dieOnError.setValue(false);
 
-        assertEquals(ValidationResult.Result.OK, source.initialize(container, properties).getStatus());
-        assertEquals(ValidationResult.Result.OK, source.validate(container).getStatus());
-        reader = (AzureStorageTableReader) source.createReader(container);
+        assertEquals(ValidationResult.Result.OK, source.initialize(getDummyRuntimeContiner(), properties).getStatus());
+        assertEquals(ValidationResult.Result.OK, source.validate(getDummyRuntimeContiner()).getStatus());
+        AzureStorageTableReader reader = (AzureStorageTableReader) source.createReader(getDummyRuntimeContiner());
 
         // mock
         final List<DynamicTableEntity> records = new ArrayList<>();
@@ -155,26 +141,11 @@ public class AzureStorageTableReaderTest {
                     return records.iterator();
                 }
             });
+
+            assertThat(reader, canStart());
+            assertThat(reader, cannotAdvance());
+
         } catch (InvalidKeyException | URISyntaxException | StorageException e) {
-            fail("should not throw " + e.getMessage());
-        }
-
-        // assert
-        // Reader can start and cannot advance
-        try {
-            assertNotNull(reader);
-            assertTrue(reader.start());
-            assertNotNull(reader.getCurrent());
-            Map<String, Object> returnedValues = reader.getReturnValues();
-            assertNotNull(returnedValues);
-            assertTrue(returnedValues.containsKey(ComponentDefinition.RETURN_TOTAL_RECORD_COUNT));
-            assertEquals(1, returnedValues.get(ComponentDefinition.RETURN_TOTAL_RECORD_COUNT));
-
-            assertFalse(reader.advance());
-            reader.getCurrent();
-            fail("expect the reader#getCurrent() to throw a NoSuchElementException as the reader#start() returned false.");
-
-        } catch (IOException e) {
             fail("should not throw " + e.getMessage());
         }
 
@@ -183,15 +154,16 @@ public class AzureStorageTableReaderTest {
     /**
      * Test the reader behavior when the data source contains many elements
      */
+    @Override
     @Test
     public void testReadSourceWithManyElements() {
 
         // setup
         properties.dieOnError.setValue(false);
 
-        assertEquals(ValidationResult.Result.OK, source.initialize(container, properties).getStatus());
-        assertEquals(ValidationResult.Result.OK, source.validate(container).getStatus());
-        reader = (AzureStorageTableReader) source.createReader(container);
+        assertEquals(ValidationResult.Result.OK, source.initialize(getDummyRuntimeContiner(), properties).getStatus());
+        assertEquals(ValidationResult.Result.OK, source.validate(getDummyRuntimeContiner()).getStatus());
+        AzureStorageTableReader reader = (AzureStorageTableReader) source.createReader(getDummyRuntimeContiner());
 
         // mock
         final List<DynamicTableEntity> records = new ArrayList<>();
@@ -207,29 +179,11 @@ public class AzureStorageTableReaderTest {
                     return records.iterator();
                 }
             });
+
+            assertThat(reader, canStart());
+            assertThat(reader, canAdvance());
+
         } catch (InvalidKeyException | URISyntaxException | StorageException e) {
-            fail("should not throw " + e.getMessage());
-        }
-
-        // assert
-        // Reader can start and can advance whit no error
-        try {
-            assertNotNull(reader);
-            assertTrue(reader.start());
-            assertNotNull(reader.getCurrent());
-
-            int dataCount = 1;
-            while (reader.advance()) {
-                assertNotNull(reader.getCurrent());
-                dataCount++;
-            }
-            assertTrue(dataCount > 1); // assert that the reader advanced at least once
-            Map<String, Object> returnedValues = reader.getReturnValues();
-            assertNotNull(returnedValues);
-            assertTrue(returnedValues.containsKey(ComponentDefinition.RETURN_TOTAL_RECORD_COUNT));
-            assertEquals(dataCount, returnedValues.get(ComponentDefinition.RETURN_TOTAL_RECORD_COUNT));
-
-        } catch (IOException e) {
             fail("should not throw " + e.getMessage());
         }
 
@@ -238,15 +192,16 @@ public class AzureStorageTableReaderTest {
     /**
      * Test the reader behavior when the data source is unavailable reader stop
      */
-    @Test(expected = ComponentException.class)
+    @Test
+    @Override
     public void testReadSourceUnavailableDieOnError() {
 
         // setup
         properties.dieOnError.setValue(true);
 
-        assertEquals(ValidationResult.Result.OK, source.initialize(container, properties).getStatus());
-        assertEquals(ValidationResult.Result.OK, source.validate(container).getStatus());
-        reader = (AzureStorageTableReader) source.createReader(container);
+        assertEquals(ValidationResult.Result.OK, source.initialize(getDummyRuntimeContiner(), properties).getStatus());
+        assertEquals(ValidationResult.Result.OK, source.validate(getDummyRuntimeContiner()).getStatus());
+        AzureStorageTableReader reader = (AzureStorageTableReader) source.createReader(getDummyRuntimeContiner());
 
         // mock
         try {
@@ -254,16 +209,10 @@ public class AzureStorageTableReaderTest {
             when(tableService.executeQuery(anyString(), any(TableQuery.class)))
                     .thenThrow(new StorageException("500", "Storage unavailable", new RuntimeException("")));
 
-        } catch (InvalidKeyException | URISyntaxException | StorageException e) {
-            fail("should not throw " + e.getMessage());
-        }
+            assertThat(reader, startAndDieOnError());
+            assertThat(reader, cannotAdvance());
 
-        // assert
-        // Reader die on error
-        try {
-            assertNotNull(reader);
-            reader.start();
-        } catch (IOException e) {
+        } catch (InvalidKeyException | URISyntaxException | StorageException e) {
             fail("should not throw " + e.getMessage());
         }
 
@@ -272,40 +221,33 @@ public class AzureStorageTableReaderTest {
     /**
      * Test the reader behavior when the data source is unavailable reader handle error
      */
+    @Override
     @Test
     public void testReadSourceUnavailableHandleError() {
 
-        // setup
         properties.dieOnError.setValue(false);
 
-        assertEquals(ValidationResult.Result.OK, source.initialize(container, properties).getStatus());
-        assertEquals(ValidationResult.Result.OK, source.validate(container).getStatus());
-        reader = (AzureStorageTableReader) source.createReader(container);
+        assertEquals(ValidationResult.Result.OK, source.initialize(getDummyRuntimeContiner(), properties).getStatus());
+        assertEquals(ValidationResult.Result.OK, source.validate(getDummyRuntimeContiner()).getStatus());
+        AzureStorageTableReader reader = (AzureStorageTableReader) source.createReader(getDummyRuntimeContiner());
 
-        // mock
         try {
             reader.tableService = tableService;
             when(tableService.executeQuery(anyString(), any(TableQuery.class)))
                     .thenThrow(new StorageException("500", "Storage unavailable", new RuntimeException("")));
 
+            assertThat(reader, cannotStart());
+            assertThat(reader, cannotAdvance());
+
         } catch (InvalidKeyException | URISyntaxException | StorageException e) {
             fail("should not throw " + e.getMessage());
         }
-
-        // assert
-        // Reader handle error
-        try {
-            assertNotNull(reader);
-            assertFalse(reader.start());
-        } catch (IOException e) {
-            fail("should not throw " + e.getMessage());
-        }
-
     }
 
     /**
      * Test reader close
      */
+    @Override
     @Test
     public void testClose() {
 

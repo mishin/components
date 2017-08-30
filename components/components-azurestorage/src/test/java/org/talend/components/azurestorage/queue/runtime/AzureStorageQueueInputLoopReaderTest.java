@@ -65,7 +65,7 @@ public class AzureStorageQueueInputLoopReaderTest extends AzureBaseTest implemen
 
     @Before
     public void setup() throws IOException {
-        properties = new TAzureStorageQueueInputLoopProperties(PROP_ + "QueueInputLoopReader");
+        properties = new TAzureStorageQueueInputLoopProperties("QueueInputLoopReader");
         properties.setupProperties();
         properties.connection = getValidFakeConnection();
         properties.queueName.setValue("some-queue-name");

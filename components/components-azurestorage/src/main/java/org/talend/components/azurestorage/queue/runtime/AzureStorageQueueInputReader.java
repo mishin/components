@@ -101,6 +101,9 @@ public class AzureStorageQueueInputReader extends AzureStorageReader<IndexedReco
                         queueService.deleteMessage(queueName, current);
                     } catch (StorageException e) {
                         LOGGER.error(i18nMessages.getMessage("error.Cannotdelete", current.getId(), e.getLocalizedMessage()));
+                        if (dieOnError) {
+                            throw new ComponentException(e);
+                        }
                     }
                 }
             }
@@ -114,6 +117,11 @@ public class AzureStorageQueueInputReader extends AzureStorageReader<IndexedReco
 
     @Override
     public boolean advance() throws IOException {
+        if (!startable) {
+            advanceable = false;
+            return false;
+        }
+
         advanceable = messages.hasNext();
         if (advanceable) {
             dataCount++;
@@ -124,6 +132,9 @@ public class AzureStorageQueueInputReader extends AzureStorageReader<IndexedReco
                     queueService.deleteMessage(queueName, current);
                 } catch (StorageException | InvalidKeyException | URISyntaxException e) {
                     LOGGER.error(i18nMessages.getMessage("error.Cannotdelete", current.getId(), e.getLocalizedMessage()));
+                    if (dieOnError) {
+                        throw new ComponentException(e);
+                    }
                 }
             }
         }

@@ -17,10 +17,8 @@ import org.talend.components.azurestorage.tazurestorageconnection.TAzureStorageC
 
 public class AzureBaseTest {
 
-    public static final String PROP_ = "PROP_";
-
     public TAzureStorageConnectionProperties getValidFakeConnection() {
-        TAzureStorageConnectionProperties connection = new TAzureStorageConnectionProperties(PROP_ + "Connection");
+        TAzureStorageConnectionProperties connection = new TAzureStorageConnectionProperties("connection");
         connection.protocol.setValue(Protocol.HTTP);
         connection.accountName.setValue("fakeAccountName");
         connection.accountKey.setValue("fakeAccountKey=ANBHFYRJJFHRIKKJFU");
