@@ -211,6 +211,7 @@ public abstract class NetSuiteOutputWriter<T, RefT> implements WriterWithFeedbac
         if (indexedRecordList.isEmpty()) {
             return;
         }
+        cleanWrites();
 
         // Transduce IndexedRecords to NetSuite data model objects
 

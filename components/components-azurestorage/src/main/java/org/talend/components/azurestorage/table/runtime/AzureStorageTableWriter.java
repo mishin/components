@@ -146,6 +146,7 @@ public class AzureStorageTableWriter implements WriterWithFeedback<Result, Index
         if (object == null) {
             return;
         }
+        cleanWrites();
 
         result.totalCount++;
         IndexedRecord inputRecord = (IndexedRecord) object;

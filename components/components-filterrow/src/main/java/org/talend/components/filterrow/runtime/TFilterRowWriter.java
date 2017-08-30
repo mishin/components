@@ -161,12 +161,14 @@ public class TFilterRowWriter implements WriterWithFeedback<Result, IndexedRecor
     @Override
     public Iterable<IndexedRecord> getRejectedWrites() {
         LinkedList<IndexedRecord> rejectsResult = new LinkedList<>(reject);
+        reject.clear();
         return rejectsResult;
     }
 
     @Override
     public Iterable<IndexedRecord> getSuccessfulWrites() {
         LinkedList<IndexedRecord> successResult = new LinkedList<>(success);
+        success.clear();
         return successResult;
     }
 

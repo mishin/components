@@ -230,6 +230,7 @@ public class MarketoListOperationWriter extends MarketoWriter {
     }
 
     private void processResult(MarketoSyncResult mktoResult) {
+        cleanWrites();
         if (!mktoResult.isSuccess()) {
             // build a SyncStatus for record which failed
             SyncStatus status = new SyncStatus();
