@@ -13,6 +13,7 @@
 package org.talend.components.processing.runtime.filterrow;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.avro.Schema;
@@ -21,12 +22,13 @@ import org.apache.avro.generic.GenericData.Record;
 import org.apache.avro.generic.IndexedRecord;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.commons.lang3.StringUtils;
+import org.talend.components.processing.definition.ProcessingErrorCode;
 import org.talend.components.processing.definition.filterrow.ConditionsRowConstant;
+import org.talend.components.processing.definition.filterrow.FilterRowCriteriaProperties;
 import org.talend.components.processing.definition.filterrow.FilterRowProperties;
+import org.talend.components.processing.definition.filterrow.LogicalOpType;
 import org.talend.daikon.avro.AvroRegistry;
 import org.talend.daikon.avro.converter.IndexedRecordConverter;
-import org.talend.daikon.exception.TalendRuntimeException;
-import org.talend.daikon.exception.error.CommonErrorCodes;
 
 public class FilterRowDoFn extends DoFn<Object, IndexedRecord> {
 
@@ -50,24 +52,53 @@ public class FilterRowDoFn extends DoFn<Object, IndexedRecord> {
         }
         IndexedRecord inputRecord = (IndexedRecord) converter.convertToAvro(context.element());
 
-        boolean returnedBooleanValue = true;
-        String columnName = properties.columnName.getValue();
+        // init to false with ANY logical operator
+        // Init to true otherwise
+        boolean conditionsSatisfied = !LogicalOpType.ANY.equals(properties.logicalOp.getValue());
+        // Used to avoid useless conditions evaluation
+        boolean stopEvaluation = false;
+        // Extract filters to be applied
+        Iterator<FilterRowCriteriaProperties> filtersIterator = properties.filters.subProperties.iterator();
+        FilterRowCriteriaProperties currentFilter = null;
+        while (!stopEvaluation && filtersIterator.hasNext()) {
+            currentFilter = filtersIterator.next();
 
-        // If there is no defined input, we filter nothing
-        if (!StringUtils.isEmpty(columnName)) {
-            List<Object> inputValues = getInputFields(inputRecord, columnName);
-            if (inputValues.size() == 0) {
-                // no valid field: reject the input
-                returnedBooleanValue = false;
+            String columnName = currentFilter.columnName.getValue();
+
+            // If there is no defined input, we filter nothing
+            if (!StringUtils.isEmpty(columnName)) {
+                List<Object> inputValues = getInputFields(inputRecord, columnName);
+                if (inputValues.size() == 0) {
+                    // no valid field: reject the input
+                    conditionsSatisfied = false;
+                }
+
+                // TODO handle null with multiples values
+                for (Object inputValue : inputValues) {
+                    switch (properties.logicalOp.getValue()) {
+                    case ANY:
+                        conditionsSatisfied = conditionsSatisfied || checkCondition(inputValue, currentFilter);
+                        // Stop on first satisfied condition
+                        stopEvaluation = conditionsSatisfied;
+                        break;
+                    case NONE:
+                        conditionsSatisfied = conditionsSatisfied && !checkCondition(inputValue, currentFilter);
+                        // Stop on first non satisfied condition
+                        stopEvaluation = !conditionsSatisfied;
+                        break;
+                    default:
+                        // ALL case
+                        conditionsSatisfied = conditionsSatisfied && checkCondition(inputValue, currentFilter);
+                        // Stop on first non satisfied condition
+                        stopEvaluation = !conditionsSatisfied;
+                        break;
+                    }
+                }
             }
 
-            // TODO handle null with multiples values
-            for (Object inputValue : inputValues) {
-                returnedBooleanValue = returnedBooleanValue && checkCondition(inputValue, properties);
-            }
         }
 
-        if (returnedBooleanValue) {
+        if (conditionsSatisfied) {
             if (hasOutputSchema) {
                 context.output(inputRecord);
             }
@@ -78,10 +109,10 @@ public class FilterRowDoFn extends DoFn<Object, IndexedRecord> {
         }
     }
 
-    private <T extends Comparable<T>> Boolean checkCondition(Object inputValue, FilterRowProperties condition) {
-        String function = condition.function.getValue();
-        String conditionOperator = condition.operator.getValue();
-        String referenceValue = condition.value.getValue();
+    private <T extends Comparable<T>> Boolean checkCondition(Object inputValue, FilterRowCriteriaProperties filter) {
+        String function = filter.function.getValue();
+        String conditionOperator = filter.operator.getValue();
+        String referenceValue = filter.value.getValue();
 
         // Apply the transformation function on the input value
         inputValue = FilterRowUtils.applyFunction(inputValue, function);
@@ -115,7 +146,7 @@ public class FilterRowDoFn extends DoFn<Object, IndexedRecord> {
             // The column was existing on the input record, we forward it to the
             // output record.
             if (schema.getField(path[i]) == null) {
-                throw new TalendRuntimeException(CommonErrorCodes.UNEXPECTED_ARGUMENT, new Throwable(String.format("The field %s is not present on the input record", columnName)));
+                throw ProcessingErrorCode.createFieldNotFoundException(null, columnName);
             }
             Object inputValue = inputRecord.get(schema.getField(path[i]).pos());
 

@@ -25,10 +25,11 @@ import org.apache.avro.util.Utf8;
 import org.apache.beam.sdk.transforms.DoFnTester;
 import org.junit.Test;
 import org.talend.components.processing.definition.filterrow.ConditionsRowConstant;
+import org.talend.components.processing.definition.filterrow.FilterRowCriteriaProperties;
 import org.talend.components.processing.definition.filterrow.FilterRowProperties;
-import org.talend.components.processing.runtime.filterrow.FilterRowDoFn;
-import org.talend.components.processing.runtime.filterrow.FilterRowRuntime;
+import org.talend.components.processing.definition.filterrow.LogicalOpType;
 import org.talend.daikon.exception.TalendRuntimeException;
+
 
 public class FilterRowDoFnTest {
 
@@ -56,6 +57,24 @@ public class FilterRowDoFnTest {
             .set("a", 10) //
             .set("b", -100) //
             .set("c", 1000) //
+            .build();
+    
+    private final GenericRecord input_10_100_1000_Record = new GenericRecordBuilder(inputSimpleSchema) //
+            .set("a", 10) //
+            .set("b", 100) //
+            .set("c", 1000) //
+            .build();
+
+    private final GenericRecord input_20_200_2000_Record = new GenericRecordBuilder(inputSimpleSchema) //
+            .set("a", 20) //
+            .set("b", 200) //
+            .set("c", 2000) //
+            .build();
+
+    private final GenericRecord input_30_300_3000_Record = new GenericRecordBuilder(inputSimpleSchema) //
+            .set("a", 30) //
+            .set("b", 300) //
+            .set("c", 3000) //
             .build();
 
     private void checkSimpleInputNoOutput(DoFnTester<Object, IndexedRecord> fnTester) throws Exception {
@@ -204,7 +223,9 @@ public class FilterRowDoFnTest {
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
         properties.schemaListener.afterSchema();
-        properties.value.setValue(null);
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
+        properties.filters.addRow(filterProp);
 
         FilterRowDoFn function = new FilterRowDoFn().withProperties(properties) //
                 .withOutputSchema(false).withRejectSchema(false);
@@ -229,25 +250,27 @@ public class FilterRowDoFnTest {
 
     @Test
     public void test_FilterSimple_Valid() throws Exception {
-
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("a");
-        properties.value.setValue("aaa");
-
+        filterProp.columnName.setValue("a");
+        filterProp.value.setValue("aaa");
+        properties.filters.addRow(filterProp);
         runSimpleTestValidSession(properties);
     }
 
     @Test
     public void test_FilterSimple_Invalid() throws Exception {
-
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("a");
-        properties.value.setValue("c");
-
+        filterProp.columnName.setValue("a");
+        filterProp.value.setValue("c");
+        properties.filters.addRow(filterProp);
         runSimpleTestInvalidSession(properties);
     }
 
@@ -255,10 +278,12 @@ public class FilterRowDoFnTest {
     public void test_invalidColumnName() throws Exception {
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("INVALID");
-        properties.value.setValue("aa");
-
+        filterProp.columnName.setValue("INVALID");
+        filterProp.value.setValue("aa");
+        properties.filters.addRow(filterProp);
         // Will throw an exception
         runSimpleTestInvalidSession(properties);
     }
@@ -268,9 +293,12 @@ public class FilterRowDoFnTest {
 
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("a");
-        properties.value.setValue("aaa");
+        filterProp.columnName.setValue("a");
+        filterProp.value.setValue("aaa");
+        properties.filters.addRow(filterProp);
 
         FilterRowDoFn function = new FilterRowDoFn().withProperties(properties) //
                 .withOutputSchema(false).withRejectSchema(false);
@@ -324,66 +352,71 @@ public class FilterRowDoFnTest {
     /** Test every function possible */
     @Test
     public void test_FilterAbsolute_Valid() throws Exception {
-
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("b");
-        properties.function.setValue(ConditionsRowConstant.Function.ABS_VALUE);
-        properties.value.setValue("100");
-
+        filterProp.columnName.setValue("b");
+        filterProp.function.setValue(ConditionsRowConstant.Function.ABS_VALUE);
+        filterProp.value.setValue("100");
+        properties.filters.addRow(filterProp);
         runNumericTestValidSession(properties);
     }
 
     @Test
     public void test_FilterAbsolute_Invalid() throws Exception {
-
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("b");
-        properties.function.setValue(ConditionsRowConstant.Function.ABS_VALUE);
-        properties.value.setValue("-100");
-
+        filterProp.columnName.setValue("b");
+        filterProp.function.setValue(ConditionsRowConstant.Function.ABS_VALUE);
+        filterProp.value.setValue("-100");
+        properties.filters.addRow(filterProp);
         runNumericTestInvalidSession(properties);
     }
 
     @Test
     public void test_FilterLowerCase_Valid() throws Exception {
-
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("b");
-        properties.function.setValue(ConditionsRowConstant.Function.LOWER_CASE);
-        properties.value.setValue("bbb");
-
+        filterProp.columnName.setValue("b");
+        filterProp.function.setValue(ConditionsRowConstant.Function.LOWER_CASE);
+        filterProp.value.setValue("bbb");
+        properties.filters.addRow(filterProp);
         runSimpleTestValidSession(properties);
     }
 
     @Test
     public void test_FilterLowerCase_Invalid() throws Exception {
-
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("b");
-        properties.function.setValue(ConditionsRowConstant.Function.LOWER_CASE);
-        properties.value.setValue("BBB");
-
+        filterProp.columnName.setValue("b");
+        filterProp.function.setValue(ConditionsRowConstant.Function.LOWER_CASE);
+        filterProp.value.setValue("BBB");
+        properties.filters.addRow(filterProp);
         runSimpleTestInvalidSession(properties);
     }
 
     @Test
     public void test_FilterUpperCase_Valid() throws Exception {
-
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("a");
-        properties.function.setValue(ConditionsRowConstant.Function.UPPER_CASE);
-        properties.value.setValue("AAA");
-
+        filterProp.columnName.setValue("a");
+        filterProp.function.setValue(ConditionsRowConstant.Function.UPPER_CASE);
+        filterProp.value.setValue("AAA");
+        properties.filters.addRow(filterProp);
         runSimpleTestValidSession(properties);
     }
 
@@ -391,11 +424,13 @@ public class FilterRowDoFnTest {
     public void test_FilterUpperCase_Invalid() throws Exception {
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("a");
-        properties.function.setValue(ConditionsRowConstant.Function.UPPER_CASE);
-        properties.value.setValue("aaa");
-
+        filterProp.columnName.setValue("a");
+        filterProp.function.setValue(ConditionsRowConstant.Function.UPPER_CASE);
+        filterProp.value.setValue("aaa");
+        properties.filters.addRow(filterProp);
         runSimpleTestInvalidSession(properties);
     }
 
@@ -403,11 +438,13 @@ public class FilterRowDoFnTest {
     public void test_FilterFirstCharLowerCase_Valid() throws Exception {
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("b");
-        properties.function.setValue(ConditionsRowConstant.Function.FIRST_CHARACTER_LOWER_CASE);
-        properties.value.setValue("b");
-
+        filterProp.columnName.setValue("b");
+        filterProp.function.setValue(ConditionsRowConstant.Function.FIRST_CHARACTER_LOWER_CASE);
+        filterProp.value.setValue("b");
+        properties.filters.addRow(filterProp);
         runSimpleTestValidSession(properties);
     }
 
@@ -415,11 +452,13 @@ public class FilterRowDoFnTest {
     public void test_FilterFirstCharLowerCase_Invalid() throws Exception {
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("b");
-        properties.function.setValue(ConditionsRowConstant.Function.FIRST_CHARACTER_LOWER_CASE);
-        properties.value.setValue("BBB");
-
+        filterProp.columnName.setValue("b");
+        filterProp.function.setValue(ConditionsRowConstant.Function.FIRST_CHARACTER_LOWER_CASE);
+        filterProp.value.setValue("BBB");
+        properties.filters.addRow(filterProp);
         runSimpleTestInvalidSession(properties);
     }
 
@@ -427,11 +466,13 @@ public class FilterRowDoFnTest {
     public void test_FilterFirstCharUpperCase_Valid() throws Exception {
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("a");
-        properties.function.setValue(ConditionsRowConstant.Function.FIRST_CHARACTER_UPPER_CASE);
-        properties.value.setValue("A");
-
+        filterProp.columnName.setValue("a");
+        filterProp.function.setValue(ConditionsRowConstant.Function.FIRST_CHARACTER_UPPER_CASE);
+        filterProp.value.setValue("A");
+        properties.filters.addRow(filterProp);
         runSimpleTestValidSession(properties);
     }
 
@@ -439,11 +480,13 @@ public class FilterRowDoFnTest {
     public void test_FilterFirstCharUpperCase_Invalid() throws Exception {
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("a");
-        properties.function.setValue(ConditionsRowConstant.Function.FIRST_CHARACTER_UPPER_CASE);
-        properties.value.setValue("a");
-
+        filterProp.columnName.setValue("a");
+        filterProp.function.setValue(ConditionsRowConstant.Function.FIRST_CHARACTER_UPPER_CASE);
+        filterProp.value.setValue("a");
+        properties.filters.addRow(filterProp);
         runSimpleTestInvalidSession(properties);
     }
 
@@ -451,11 +494,13 @@ public class FilterRowDoFnTest {
     public void test_FilterLength_Valid() throws Exception {
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("a");
-        properties.function.setValue(ConditionsRowConstant.Function.LENGTH);
-        properties.value.setValue("3");
-
+        filterProp.columnName.setValue("a");
+        filterProp.function.setValue(ConditionsRowConstant.Function.LENGTH);
+        filterProp.value.setValue("3");
+        properties.filters.addRow(filterProp);
         runSimpleTestValidSession(properties);
     }
 
@@ -463,11 +508,13 @@ public class FilterRowDoFnTest {
     public void test_FilterLength_Invalid() throws Exception {
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("a");
-        properties.function.setValue(ConditionsRowConstant.Function.LENGTH);
-        properties.value.setValue("4");
-
+        filterProp.columnName.setValue("a");
+        filterProp.function.setValue(ConditionsRowConstant.Function.LENGTH);
+        filterProp.value.setValue("4");
+        properties.filters.addRow(filterProp);
         runSimpleTestInvalidSession(properties);
     }
 
@@ -478,11 +525,13 @@ public class FilterRowDoFnTest {
 
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("a");
-        properties.operator.setValue(ConditionsRowConstant.Operator.NOT_EQUAL);
-        properties.value.setValue("aaaa");
-
+        filterProp.columnName.setValue("a");
+        filterProp.operator.setValue(ConditionsRowConstant.Operator.NOT_EQUAL);
+        filterProp.value.setValue("aaaa");
+        properties.filters.addRow(filterProp);
         runSimpleTestValidSession(properties);
     }
 
@@ -490,11 +539,13 @@ public class FilterRowDoFnTest {
     public void test_FilterNotEquals_Invalid() throws Exception {
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("a");
-        properties.operator.setValue(ConditionsRowConstant.Operator.NOT_EQUAL);
-        properties.value.setValue("aaa");
-
+        filterProp.columnName.setValue("a");
+        filterProp.operator.setValue(ConditionsRowConstant.Operator.NOT_EQUAL);
+        filterProp.value.setValue("aaa");
+        properties.filters.addRow(filterProp);
         runSimpleTestInvalidSession(properties);
     }
 
@@ -503,11 +554,13 @@ public class FilterRowDoFnTest {
 
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("c");
-        properties.operator.setValue(ConditionsRowConstant.Operator.LOWER);
-        properties.value.setValue("1001");
-
+        filterProp.columnName.setValue("c");
+        filterProp.operator.setValue(ConditionsRowConstant.Operator.LOWER);
+        filterProp.value.setValue("1001");
+        properties.filters.addRow(filterProp);
         runNumericTestValidSession(properties);
     }
 
@@ -516,11 +569,13 @@ public class FilterRowDoFnTest {
 
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("c");
-        properties.operator.setValue(ConditionsRowConstant.Operator.LOWER);
-        properties.value.setValue("1000");
-
+        filterProp.columnName.setValue("c");
+        filterProp.operator.setValue(ConditionsRowConstant.Operator.LOWER);
+        filterProp.value.setValue("1000");
+        properties.filters.addRow(filterProp);
         runNumericTestInvalidSession(properties);
     }
 
@@ -529,11 +584,13 @@ public class FilterRowDoFnTest {
 
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("c");
-        properties.operator.setValue(ConditionsRowConstant.Operator.GREATER);
-        properties.value.setValue("999");
-
+        filterProp.columnName.setValue("c");
+        filterProp.operator.setValue(ConditionsRowConstant.Operator.GREATER);
+        filterProp.value.setValue("999");
+        properties.filters.addRow(filterProp);
         runNumericTestValidSession(properties);
     }
 
@@ -542,11 +599,13 @@ public class FilterRowDoFnTest {
 
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("c");
-        properties.operator.setValue(ConditionsRowConstant.Operator.GREATER);
-        properties.value.setValue("1000");
-
+        filterProp.columnName.setValue("c");
+        filterProp.operator.setValue(ConditionsRowConstant.Operator.GREATER);
+        filterProp.value.setValue("1000");
+        properties.filters.addRow(filterProp);
         runNumericTestInvalidSession(properties);
     }
 
@@ -555,11 +614,13 @@ public class FilterRowDoFnTest {
 
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("c");
-        properties.operator.setValue(ConditionsRowConstant.Operator.LOWER_OR_EQUAL);
-        properties.value.setValue("1000");
-
+        filterProp.columnName.setValue("c");
+        filterProp.operator.setValue(ConditionsRowConstant.Operator.LOWER_OR_EQUAL);
+        filterProp.value.setValue("1000");
+        properties.filters.addRow(filterProp);
         runNumericTestValidSession(properties);
     }
 
@@ -568,11 +629,13 @@ public class FilterRowDoFnTest {
 
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("c");
-        properties.operator.setValue(ConditionsRowConstant.Operator.LOWER_OR_EQUAL);
-        properties.value.setValue("999");
-
+        filterProp.columnName.setValue("c");
+        filterProp.operator.setValue(ConditionsRowConstant.Operator.LOWER_OR_EQUAL);
+        filterProp.value.setValue("999");
+        properties.filters.addRow(filterProp);
         runNumericTestInvalidSession(properties);
     }
 
@@ -581,11 +644,13 @@ public class FilterRowDoFnTest {
 
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("c");
-        properties.operator.setValue(ConditionsRowConstant.Operator.GREATER_OR_EQUAL);
-        properties.value.setValue("1000");
-
+        filterProp.columnName.setValue("c");
+        filterProp.operator.setValue(ConditionsRowConstant.Operator.GREATER_OR_EQUAL);
+        filterProp.value.setValue("1000");
+        properties.filters.addRow(filterProp);
         runNumericTestValidSession(properties);
     }
 
@@ -594,24 +659,57 @@ public class FilterRowDoFnTest {
 
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("c");
-        properties.operator.setValue(ConditionsRowConstant.Operator.GREATER_OR_EQUAL);
-        properties.value.setValue("1001");
-
+        filterProp.columnName.setValue("c");
+        filterProp.operator.setValue(ConditionsRowConstant.Operator.GREATER_OR_EQUAL);
+        filterProp.value.setValue("1001");
+        properties.filters.addRow(filterProp);
         runNumericTestInvalidSession(properties);
     }
 
+    @Test
+    public void test_FilterBetween() throws Exception {
+        FilterRowProperties properties = new FilterRowProperties("test");
+        properties.init();
+        FilterRowCriteriaProperties filterGreater = new FilterRowCriteriaProperties("filter1");
+        filterGreater.init();
+        filterGreater.columnName.setValue("a");
+        filterGreater.operator.setValue(ConditionsRowConstant.Operator.GREATER);
+        filterGreater.value.setValue("10");
+        properties.filters.addRow(filterGreater);
+        FilterRowCriteriaProperties filterLess = new FilterRowCriteriaProperties("filter2");
+        filterLess.init();
+        filterLess.columnName.setValue("a");
+        filterLess.operator.setValue(ConditionsRowConstant.Operator.LOWER);
+        filterLess.value.setValue("30");
+        properties.filters.addRow(filterLess);
+
+        FilterRowDoFn function = new FilterRowDoFn().withProperties(properties) //
+                .withOutputSchema(true).withRejectSchema(true);
+        DoFnTester<Object, IndexedRecord> fnTester = DoFnTester.of(function);
+
+        List<IndexedRecord> outputs = fnTester.processBundle(input_30_300_3000_Record, input_10_100_1000_Record, input_20_200_2000_Record);
+        List<IndexedRecord> rejects = fnTester.peekOutputElements(FilterRowRuntime.rejectOutput);
+
+        assertEquals(1, outputs.size());
+        assertEquals(2, rejects.size());
+
+    }
+    
     @Test
     public void test_FilterMatch_Valid() throws Exception {
 
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("a");
-        properties.operator.setValue(ConditionsRowConstant.Operator.MATCH);
-        properties.value.setValue("^aaa$");
-
+        filterProp.columnName.setValue("a");
+        filterProp.operator.setValue(ConditionsRowConstant.Operator.MATCH);
+        filterProp.value.setValue("^aaa$");
+        properties.filters.addRow(filterProp);
         runSimpleTestValidSession(properties);
     }
 
@@ -619,11 +717,13 @@ public class FilterRowDoFnTest {
     public void test_FilterMatch_Invalid() throws Exception {
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("a");
-        properties.operator.setValue(ConditionsRowConstant.Operator.MATCH);
-        properties.value.setValue("^aaaa$");
-
+        filterProp.columnName.setValue("a");
+        filterProp.operator.setValue(ConditionsRowConstant.Operator.MATCH);
+        filterProp.value.setValue("^aaaa$");
+        properties.filters.addRow(filterProp);
         runSimpleTestInvalidSession(properties);
     }
 
@@ -632,10 +732,12 @@ public class FilterRowDoFnTest {
 
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("a");
-        properties.operator.setValue(ConditionsRowConstant.Operator.NOT_MATCH);
-        properties.value.setValue("^aaaa$");
+        filterProp.columnName.setValue("a");
+        filterProp.operator.setValue(ConditionsRowConstant.Operator.NOT_MATCH);
+        filterProp.value.setValue("^aaaa$");
         runSimpleTestValidSession(properties);
     }
 
@@ -643,11 +745,13 @@ public class FilterRowDoFnTest {
     public void test_FilterNotMatch_Invalid() throws Exception {
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("a");
-        properties.operator.setValue(ConditionsRowConstant.Operator.NOT_MATCH);
-        properties.value.setValue("^aaa$");
-
+        filterProp.columnName.setValue("a");
+        filterProp.operator.setValue(ConditionsRowConstant.Operator.NOT_MATCH);
+        filterProp.value.setValue("^aaa$");
+        properties.filters.addRow(filterProp);
         runSimpleTestInvalidSession(properties);
     }
 
@@ -656,11 +760,13 @@ public class FilterRowDoFnTest {
 
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("a");
-        properties.operator.setValue(ConditionsRowConstant.Operator.CONTAINS);
-        properties.value.setValue("aa");
-
+        filterProp.columnName.setValue("a");
+        filterProp.operator.setValue(ConditionsRowConstant.Operator.CONTAINS);
+        filterProp.value.setValue("aa");
+        properties.filters.addRow(filterProp);
         runSimpleTestValidSession(properties);
     }
 
@@ -668,11 +774,13 @@ public class FilterRowDoFnTest {
     public void test_FilterContains_Invalid() throws Exception {
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("a");
-        properties.operator.setValue(ConditionsRowConstant.Operator.CONTAINS);
-        properties.value.setValue("aaaa");
-
+        filterProp.columnName.setValue("a");
+        filterProp.operator.setValue(ConditionsRowConstant.Operator.CONTAINS);
+        filterProp.value.setValue("aaaa");
+        properties.filters.addRow(filterProp);
         runSimpleTestInvalidSession(properties);
     }
 
@@ -681,11 +789,13 @@ public class FilterRowDoFnTest {
 
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("a");
-        properties.operator.setValue(ConditionsRowConstant.Operator.NOT_CONTAINS);
-        properties.value.setValue("aaaa");
-
+        filterProp.columnName.setValue("a");
+        filterProp.operator.setValue(ConditionsRowConstant.Operator.NOT_CONTAINS);
+        filterProp.value.setValue("aaaa");
+        properties.filters.addRow(filterProp);
         runSimpleTestValidSession(properties);
     }
 
@@ -693,12 +803,84 @@ public class FilterRowDoFnTest {
     public void test_FilterNotContains_Invalid() throws Exception {
         FilterRowProperties properties = new FilterRowProperties("test");
         properties.init();
+        FilterRowCriteriaProperties filterProp = new FilterRowCriteriaProperties("filter");
+        filterProp.init();
         properties.schemaListener.afterSchema();
-        properties.columnName.setValue("a");
-        properties.operator.setValue(ConditionsRowConstant.Operator.NOT_CONTAINS);
-        properties.value.setValue("aa");
-
+        filterProp.columnName.setValue("a");
+        filterProp.operator.setValue(ConditionsRowConstant.Operator.NOT_CONTAINS);
+        filterProp.value.setValue("aa");
+        properties.filters.addRow(filterProp);
         runSimpleTestInvalidSession(properties);
+    }
+
+    @Test
+    public void test_FilterLogicalOpAny() throws Exception {
+        FilterRowProperties properties = new FilterRowProperties("test");
+        properties.init();
+        properties.logicalOp.setValue(LogicalOpType.ANY);
+        FilterRowCriteriaProperties condition1 = new FilterRowCriteriaProperties("filter1");
+        condition1.init();
+        condition1.columnName.setValue("a");
+        condition1.operator.setValue(ConditionsRowConstant.Operator.EQUAL);
+        condition1.value.setValue("10");
+        properties.filters.addRow(condition1);
+        FilterRowCriteriaProperties condition2 = new FilterRowCriteriaProperties("filter2");
+        condition2.init();
+        condition2.columnName.setValue("b");
+        condition2.operator.setValue(ConditionsRowConstant.Operator.EQUAL);
+        condition2.value.setValue("300");
+        properties.filters.addRow(condition2);
+
+        FilterRowDoFn function = new FilterRowDoFn().withProperties(properties) //
+                .withOutputSchema(true).withRejectSchema(true);
+        DoFnTester<Object, IndexedRecord> fnTester = DoFnTester.of(function);
+
+        List<IndexedRecord> outputs = fnTester.processBundle(input_30_300_3000_Record, input_10_100_1000_Record,
+                input_20_200_2000_Record);
+        List<IndexedRecord> rejects = fnTester.peekOutputElements(FilterRowRuntime.rejectOutput);
+
+        assertEquals(2, outputs.size());
+        assertEquals(30, outputs.get(0).get(0));
+        assertEquals(10, outputs.get(1).get(0));
+        assertEquals(1, rejects.size());
+        assertEquals(20, rejects.get(0).get(0));
+    }
+
+    @Test
+    public void test_FilterLogicalOpNone() throws Exception {
+        FilterRowProperties properties = new FilterRowProperties("test");
+        properties.init();
+        properties.logicalOp.setValue(LogicalOpType.NONE);
+        FilterRowCriteriaProperties condition1 = new FilterRowCriteriaProperties("filter1");
+        condition1.init();
+        condition1.columnName.setValue("a");
+        condition1.operator.setValue(ConditionsRowConstant.Operator.EQUAL);
+        condition1.value.setValue("10");
+        properties.filters.addRow(condition1);
+        FilterRowCriteriaProperties condition2 = new FilterRowCriteriaProperties("filter2");
+        condition2.init();
+        condition2.columnName.setValue("b");
+        condition2.operator.setValue(ConditionsRowConstant.Operator.EQUAL);
+        condition2.value.setValue("100");
+        properties.filters.addRow(condition2);
+        FilterRowCriteriaProperties condition3 = new FilterRowCriteriaProperties("filter3");
+        condition3.init();
+        condition3.columnName.setValue("a");
+        condition3.operator.setValue(ConditionsRowConstant.Operator.EQUAL);
+        condition3.value.setValue("20");
+        properties.filters.addRow(condition3);
+
+        FilterRowDoFn function = new FilterRowDoFn().withProperties(properties) //
+                .withOutputSchema(true).withRejectSchema(true);
+        DoFnTester<Object, IndexedRecord> fnTester = DoFnTester.of(function);
+
+        List<IndexedRecord> outputs = fnTester.processBundle(input_30_300_3000_Record, input_10_100_1000_Record,
+                input_20_200_2000_Record);
+        List<IndexedRecord> rejects = fnTester.peekOutputElements(FilterRowRuntime.rejectOutput);
+
+        assertEquals(1, outputs.size());
+        assertEquals(2, rejects.size());
+
     }
 
     // TODO test function and operator on every single type
