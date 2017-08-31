@@ -4,25 +4,32 @@ The following endpoints have been implemented:
 
 |   | URL | Description |
 |---|-----|-------------|
-| GET |  [/definitions/{definitionType}](#list-definitions) | List definitions |
-| GET |  [/definitions/components](#list-component-definitions) | List component definitions |
-| GET |  [/properties/{definitionName}?formName=MAIN](#get-properties) | Get properties |
-| POST |  [/properties/{definitionName}?formName=MAIN](#get-properties-from-existing-data) | Get properties from existing data |
-| GET |  [/properties/{definitionName}/icon/{type}](#get-properties-icon) | Get properties icon |
-| GET |  [/properties/{definitionName}/connectors](#get-properties-connectors) | Get properties connectors |
-| POST |  [/properties/{definitionName}/{trigger}/{propName}?formName=MAIN](#trigger-on-a-single-property) | Trigger on a single property |
-| POST |  [/properties/{definitionName}/validate](#validate-component-properties) | Validate component properties |
-| POST |  [/runtimes/{datastoreDefinitionName}](#check-datastore-connection) | Check datastore connection |
-| POST |  [/properties/{datastoreDefinitionName}/dataset?formName=MAIN](#get-dataset-properties) | Get dataset properties |
-| POST |  [/properties/{datasetDefinitionName}](#validate-dataset-properties) | Validate dataset properties |
-| POST |  [/runtimes/{datasetDefinitionName}](#check-datastore-connection) | Check dataset connection |
-| POST |  [/runtimes/{datasetDefinitionName}/schema](#get-dataset-schema) | Get dataset schema |
-| POST |  [/runtimes/{datasetDefinitionName}/data?limit=100](#get-dataset-data) | Get dataset data |
+| GET |  [/v0/definitions/{definitionType}](#list-definitions) | List definitions |
+| GET |  [/v0/definitions/components](#list-component-definitions) | List component definitions |
+| GET |  [/v0/properties/{definitionName}?formName=MAIN](#get-properties) | Get properties |
+| POST |  [/v0/properties/serialize](#serialize-to-persitable) | convert uispecs properties into persitable json |
+| POST |  [/v0/properties/uispecs?formName=MAIN](#get-properties-from-existing-data) | Get properties from existing data |
+| GET |  [/v0/properties/{definitionName}/icon/{type}](#get-properties-icon) | Get properties icon |
+| GET |  [/v0/properties/{definitionName}/connectors](#get-properties-connectors) | Get properties connectors |
+| POST |  [/v0/properties/trigger/{trigger}/{propName}?formName=MAIN](#trigger-on-a-single-property) | Trigger on a single property |
+| POST |  [/v0/properties/validate](#validate-component-properties) | Validate properties |
+| POST |  [/v0/properties/dataset?formName=MAIN](#get-dataset-properties) | Get dataset properties |
+| POST |  [/v0/runtimes/check](#check-datastore-connection) | Check datastore connection |
+| POST |  [/v0/runtimes/schema](#get-dataset-schema) | Get dataset schema |
+| POST |  [/v0/runtimes/data?limit=100](#get-dataset-data) | Get dataset data |
+| PUT |  [/v0/runtimes/data?limit=100](#write-dataset-data) | writer dataset data |
 
 
 :warning: _Definition names must be unique_
+# whats new in V0 ;)
+1) all routes are prefixed with V0.
+2) a New route (/properties/serialize) has been added to be called before persisting any Properties. This will provide a way to encrypt sensitive data and offer a migration path when deserialized.
+3) All the POST routes taking a definition name as parameter have had this parameter removed so avoid duplication. 
+4) Almos all POST routes taking [multiple ui-specs](#multiple-ui-spec-properties-format) also take [multiple JsonIo](#multiple-json-io-properties-format) properties.
+5) ui specs and json-io input and output payload have specific content types that you must use when querying the service see [here](#multiple-ui-spec-properties-format) and below.
 
 **Q: How do we get the component properties for a given dataset+datastore?**
+
 
 # List definitions
 
@@ -74,47 +81,38 @@ Parameters:
 
 - `formName` : Optional name of the wanted form. Accepted values are `Main`, `CitizenUser`. If not specified, the main form will be requested.
 
-Returns the ui specs:
+Returns the [ui specs](#ui-spec-format)
+
+# Serialize to persitable
+
+## Signature
 
 ```
-{
-    {jsonSchema: ...},
-    {uiSchema: ...},
-    {properties: ...}
-}
+POST /properties/serialize
 ```
+This converts ui-spec properties into a json form to be persisted that can be migrated and encrypted 
+Parameters:
+
+- `request body` : the form properties with its dependencies in the form of [multiple ui-spec properties](#multiple-ui-spec-properties-format)
+
+Returns the [json io](#json-io-properties-format)
+
+
 # Get properties from existing data
 
 ## Signature
 
 ```
-POST /properties/{definitionName}?formName=MAIN
+POST /properties/uispec?formName=MAIN
 ```
 
 Parameters:
 
 - `formName` : Optional name of the wanted form. Accepted values are `Main`, `CitizenUser`. If not specified, the main form will be requested.
-- `request body` : the form properties with its dependencies in the form:
+- `request body` : the form properties with its dependencies in the form of [multiple ui-spec properties](#multiple-ui-spec-properties-format) or [multiple jsonio properties](#multiple-json-io-properties-format)
 
-  ```javascript
-  {
-        "properties":{"@definitionName":"my definition"},
-        "dependencies":[
-            {"@definitionName":"dependency definition"},
-            {}
-        ]
-    }
-  ```
 
-Returns the ui specs:
-
-```
-{
-    {jsonSchema: ...},
-    {uiSchema: ...},
-    {properties: ...}
-}
-```
+Returns the [ui specs](#ui-spec-format)
 
 # Get properties icon
 
@@ -126,67 +124,33 @@ In progress...
 
 # Trigger on a single property
 
-**TODO** Seb, do we need all these triggers ?
-
 ## Signature
 
 ```
-POST /properties/{definitionName}/validate/{propName}?formName=XXX
-POST /properties/{definitionName}/beforeActivate/{propName}?formName=XXX
-POST /properties/{definitionName}/beforeRender/{propName}?formName=XXX
-POST /properties/{definitionName}/after/{propName}?formName=XXX
+POST /properties/trigger/{trigger}/{propName}?formName=XXX
 ```
 
 Parameters:
 
-- `definitionName` : the definition name
+- `trigger` : can be one of [validate, beforeActivate, beforeRender, after]
 - `propName` : the property name
-- `request body` : the form properties with its dependencies in the form:
-
-  ```javascript
-  {
-        "properties":{"@definitionName":"my definition"},
-        "dependencies":[
-            {"@definitionName":"dependency definition"},
-            {}
-        ]
-    }
-  ```
-
+- `request body` : the form properties with its dependencies in the form of [multiple ui-spec properties](#multiple-ui-spec-properties-format)
 - `formName` : Optional name of the wanted form. Accepted values are `Main`, `CitizenUser`. If not specified, the main form will be requested.
 
-Returns ui specs
-
-```
-{
-    {json-schema: ...},
-    {ui-schema: ...},
-    {form-data (properties): ...}
-}
-```
+Returns the [ui specs](#ui-spec-format)
 
 # Validate component properties
 
 ## Signature
 
 ```
-POST /properties/{definitionName}/validate
+POST /properties/validate
 ```
 
 Parameters:
 
-- `definitionName` the definition name
-- `request body` : the form properties with its dependencies in the form:
+- `request body` : the form properties with its dependencies in the form of [multiple ui-spec properties](#multiple-ui-spec-properties-format) or [multiple jsonio properties](#multiple-json-io-properties-format)
 
-  ```javascript
-  {
-        "properties":{"@definitionName":"my definition"},
-        "dependencies":[
-            {"@definitionName":"dependency definition"},
-            {}
-        ]
-    }
-  ```
 
 Returns:
 
@@ -211,76 +175,34 @@ _TODO Geoffroy / Sébastien : define proper way to raise errors (per fields, per
 
 _TODO Vincent manage error stacktrace to ease debugging et print understandable messages back to user_
 
-# Check datastore connection
-
-## Signature
-
-```
-POST /runtimes/{datastoreDefinitionName}
-```
-
-Parameters:
-
-- `datastoreDefinitionName` the data store definition name
-- `request body` : the data store properties with its dependencies in the [Properties format](#properties-format)
-
-Returns:
-
-- all properties validated : HTTP 200 OK with the details of checks results
-- error with properties : HTTP 400 with the details of checks results
-
-The response is the same as [Validate component properties](Validate-component-properties)
-
 # Get dataset properties
 
 ## Signature
 
 ```
-POST /properties/{datastoreDefinitionName}/dataset?fornName=XXX
+POST /properties/dataset?fornName=XXX
 ```
 
 Parameters:
 
-- `datastoreDefinitionName` : the data store definition name
-- `request body` : the data store properties with its dependencies in the [Properties format](#properties-format)
+- `request body` : the data store properties with its dependencies in the form of [multiple ui-spec properties](#multiple-ui-spec-properties-format) or [multiple jsonio properties](#multiple-json-io-properties-format)
 - `formName` : Optional name of the wanted form. Accepted values are `Main`, `CitizenUser`. If not specified, the main form will be requested.
 
 Returns:
 
-- the dataset ui specs
+- the dataset [ui specs](#ui-spec-format)
 
-# Validate dataset properties
-
-This is to validate the properties, not to validate the connection to the dataset.
+# Check datastore connection
 
 ## Signature
 
 ```
-POST /properties/{datasetDefinitionName}
+POST /runtimes/check
 ```
 
 Parameters:
 
-- `datasetDefinitionName` the data set definition name
-- `request body` : the data set properties with its dependencies (i.e. data store properties) in the [Properties format](#properties-format)
-
-- all properties validated : HTTP 200 OK
-
-- error with properties : HTTP 400 with the ui specs containing errors
-
-_TODO Ryan/Geoffroy define proper / secure way to handle sensitive form fields (credentials...) ?_
-
-# Check dataset connection
-
-## Signature
-
-```
-POST /runtimes/{datasetDefinitionName}
-```
-
-Parameters:
-
-- `request body` : the data set properties with its dependencies in the [Properties format](#properties-format)
+- `request body` : the form properties with its dependencies in the form of [multiple ui-spec properties](#multiple-ui-spec-properties-format) or [multiple jsonio properties](#multiple-json-io-properties-format)
 
 Returns:
 
@@ -288,13 +210,15 @@ Returns:
 - error with properties : HTTP 400 with the details of checks results
 
 The response is the same as [Validate component properties](Validate-component-properties)
+
+
 
 # Get dataset schema
 
 ## Signature
 
 ```
-POST /runtimes/{datasetDefinitionName}/schema
+POST /runtimes/schema
 ```
 
 _TODO Marc/Geoffroy: We can replace this endpoint with custom buttons on the UI form for a Dataset (leaving the implementation to the component developer). Should we?_
@@ -302,7 +226,7 @@ _TODO Marc/Geoffroy: We can replace this endpoint with custom buttons on the UI 
 Parameters:
 
 - `datasetDefinitionName` the dataset definition name
-- `request body` : the data set properties with its dependencies in the [Properties format](#properties-format)
+- `request body` : the data set properties with its dependencies in the form of [multiple ui-spec properties](#multiple-ui-spec-properties-format) or [multiple jsonio properties](#multiple-json-io-properties-format)
 
 Returns:
 
@@ -313,13 +237,12 @@ Returns:
 ## Signature
 
 ```
-POST /runtimes/datasets/{datasetdefinitionName}/data?from=1000&limit=5000
+POST /runtimes/data?from=1000&limit=5000
 ```
 
 Parameters:
 
-- `datasetdefinitionName` the dataset definition name
-- `request body` : the data set properties with its dependencies in the form see [Properties format](#properties-format)
+- `request body` : the data set properties with its dependencies in the form of [multiple ui-spec properties](#multiple-ui-spec-properties-format) or [multiple jsonio properties](#multiple-json-io-properties-format)
 - `from` (optional) where to start in the dataset
 - `limit` (optional) how many rows should be returned
 - `content-type header` to specify the response type:
@@ -331,13 +254,27 @@ Returns:
 
 - either json or avro response
 
+# Write dataset data
+
+## Signature
+
+```
+PUT /runtimes/data
+```
+
+Parameters:
+
+- `request body` : see [org.talend.components.service.rest.impl.DatasetWritePayload](../../src/main/java/org/talend/components/service/rest/impl/DatasetWritePayload.java)
+
+
+
 # TODO
 
 raise a specific error when we need to migrate properties
 
-# Properties format
+# Multiple UI-spec Properties format
 
-When posting properties to TComp API, the structure is always in the form:
+When posting uispec properties to TComp API, the structure is always in the form:
 
 ```javascript
 {
@@ -348,11 +285,51 @@ When posting properties to TComp API, the structure is always in the form:
         ]
     }
 ```
+ui-spec properties payload is associated with the following content header(with an s at the end of uispec) :`application/uispecs+json;charset=UTF-8";`
 
-For example for a data set, the properties field contains the data set properties JSon object itself when the dependencies field will contains a singleton list containing the data store properties JSon object.
+# UI-spec format
+
+When getting uispec  from TComp API, the structure is always in the form:
+
+```javascript
+{
+    {jsonSchema: ...},
+    {uiSchema: ...},
+    {properties: ...}
+}
+```
+ui-spec properties payload is associated with the following content header :`application/uispec+json;charset=UTF-8";`
+
+# Multiple Json-IO Properties format
+
+When posting jsonio properties to TComp API, the structure is always in the form:
+
+```javascript
+{
+        "properties":{...json-io payload...},
+        "dependencies":[
+            {...json-io payload...},
+            {}
+        ]
+    }
+```
+jsonio properties payload are associated with the following content header (with an s at the end of jsonio) :`application/jsonios+json;charset=UTF-8";`
+
+# Json-IO Properties format
+
+When posting jsonio properties to TComp API, the structure is always in the form:
+
+```javascript
+{
+     ...json-io payload...
+}
+```
+jsonio properties payload are associated with the following content header :`application/jsonio+json;charset=UTF-8";`
+
 
 **Note**, Avro _schema_ value should be represented as a JSON string value with escaped double quotes.
 E.g.
+
 ```
 "schema":"{\"type\":\"record\",\"name\":\"empty\",\"fields\":[]}",
 ```

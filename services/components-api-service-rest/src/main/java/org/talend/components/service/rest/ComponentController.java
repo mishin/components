@@ -1,4 +1,4 @@
-//==============================================================================
+// ==============================================================================
 //
 // Copyright (C) 2006-2017 Talend Inc. - www.talend.com
 //
@@ -9,11 +9,12 @@
 // along with this program; if not, write to Talend SA
 // 9 rue Pages 92150 Suresnes, France
 //
-//==============================================================================
+// ==============================================================================
 package org.talend.components.service.rest;
 
-import static org.springframework.http.MediaType.*;
-import static org.springframework.web.bind.annotation.RequestMethod.*;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 import java.util.List;
 import java.util.Set;
@@ -33,6 +34,7 @@ import org.talend.components.api.exception.ComponentException;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.api.wizard.ComponentWizard;
 import org.talend.components.api.wizard.WizardImageType;
+import org.talend.daikon.annotation.ApiVersion;
 import org.talend.daikon.annotation.Service;
 import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.presentation.Form;
@@ -42,7 +44,8 @@ import org.talend.daikon.properties.service.Repository;
  *
  */
 @Service(name = "ComponentController")
-@RequestMapping("/components")
+@RequestMapping("components")
+@ApiVersion(ServiceConstants.V0)
 public interface ComponentController {
 
     /**
@@ -55,7 +58,8 @@ public interface ComponentController {
      */
     @RequestMapping(value = "/properties/{name}", method = GET, produces = APPLICATION_JSON_VALUE)
     @ResponseBody
-    StreamingResponseBody getComponentProperties(@PathVariable(value = "name") String name, @RequestParam(required = false) String formName);
+    StreamingResponseBody getComponentProperties(@PathVariable(value = "name") String name,
+            @RequestParam(required = false) String formName);
 
     /**
      * Get the list of all the components {@link ComponentDefinition} that are registered
@@ -74,31 +78,32 @@ public interface ComponentController {
      * For example, the Salesforce wizard would be called "salesforce", and a wizard dealing with only the Salesforce
      * modules would be called "salesforce.modules" in order to make sure the name is unique.
      *
-     * @param name               the name of the wizard
-     * @param repositoryLocation an arbitrary repositoryLocation string to optionally be used in the wizard processing. This is
-     *                           given to an implementation of the {@link Repository} object when the {@link ComponentProperties} are stored.
+     * @param name the name of the wizard
+     * @param repositoryLocation an arbitrary repositoryLocation string to optionally be used in the wizard processing.
+     * This is given to an implementation of the {@link Repository} object when the {@link ComponentProperties} are
+     * stored.
      * @return a {@code ComponentWizard} object.
      * @returnWrapped org.talend.components.api.wizard.ComponentWizard
      */
     @RequestMapping(value = "/wizard/{name}/{repositoryLocation}", method = GET, produces = APPLICATION_JSON_VALUE)
     ComponentWizard getComponentWizard(@PathVariable(value = "name") String name,
-                                       @PathVariable(value = "repositoryLocation") String repositoryLocation);
+            @PathVariable(value = "repositoryLocation") String repositoryLocation);
 
     /**
      * Creates {@link ComponentWizard}(s) that are populated by the given properties.
      * <p>
-     * This is used when you already have the object from a previous execution of the wizard and you wish to
-     * show wizards applicable to the those properties.
+     * This is used when you already have the object from a previous execution of the wizard and you wish to show
+     * wizards applicable to the those properties.
      *
-     * @param properties         a object previously created
+     * @param properties a object previously created
      * @param repositoryLocation the repository location of where the were stored.
      * @return a {@link List} of {@code ComponentWizard} object(s)
      * @returnWrapped java.util.List<org.talend.components.api.wizard.ComponentWizard>
      */
     @RequestMapping(value = "/wizardForProperties/{repositoryLocation}", method = RequestMethod.POST, produces = APPLICATION_JSON_VALUE)
     List<ComponentWizard> getComponentWizardsForProperties( //
-                                                            @RequestBody ComponentProperties properties, //
-                                                            @PathVariable(value = "repositoryLocation") String repositoryLocation);
+            @RequestBody ComponentProperties properties, //
+            @PathVariable(value = "repositoryLocation") String repositoryLocation);
 
     /**
      * Return the {@link ComponentDefinition} objects for any component(s) that can be constructed from the given
@@ -114,30 +119,32 @@ public interface ComponentController {
     /**
      * Makes the specified {@link Form} object cancelable, which means that modifications to the values can be canceled.
      * <p>
-     * This is intended for local use only. When using this with the REST service, the values can simply be reset in the JSON
-     * version of the {@link Form} object, so the cancel operation can be implemented entirely by the client.
+     * This is intended for local use only. When using this with the REST service, the values can simply be reset in the
+     * JSON version of the {@link Form} object, so the cancel operation can be implemented entirely by the client.
      *
      * @param properties the {@link Properties} object associated with the {@code Form}.
-     * @param formName   the name of the form
+     * @param formName the name of the form
      * @return the {@link Properties} object specified as modified by this service.
      * @returnWrapped org.talend.daikon.properties.Properties
      */
     @RequestMapping(value = "/makeFormCancelable", method = RequestMethod.POST, produces = APPLICATION_JSON_VALUE)
-    Properties makeFormCancelable(@RequestBody Properties properties, @RequestParam(required = false, defaultValue = Form.MAIN) String formName);
+    Properties makeFormCancelable(@RequestBody Properties properties,
+            @RequestParam(required = false, defaultValue = Form.MAIN) String formName);
 
     /**
      * Cancels the changes to the values in the specified {@link Form} object after the it was made cancelable.
      * <p>
-     * This is intended for local use only. When using this with the REST service, the values can simply be reset in the JSON
-     * version of the {@link Form} object, so the cancel operation can be implemented entirely by the client.
+     * This is intended for local use only. When using this with the REST service, the values can simply be reset in the
+     * JSON version of the {@link Form} object, so the cancel operation can be implemented entirely by the client.
      *
      * @param properties the {@link Properties} object associated with the {@code Form}.
-     * @param formName   the name of the form
+     * @param formName the name of the form
      * @return the {@link Properties} object specified as modified by this service.
      * @returnWrapped org.talend.daikon.properties.Properties
      */
     @RequestMapping(value = "/commitFormValues", method = RequestMethod.POST, produces = APPLICATION_JSON_VALUE)
-    Properties cancelFormValues(@RequestBody Properties properties, @RequestParam(required = false, defaultValue = Form.MAIN) String formName);
+    Properties cancelFormValues(@RequestBody Properties properties,
+            @RequestParam(required = false, defaultValue = Form.MAIN) String formName);
 
     /**
      * @return the {@link Properties} object specified as modified by this service.
@@ -246,12 +253,12 @@ public interface ComponentController {
      * @param type, the type of image requested
      * @return the png image stream or null if none was provided or could not be found
      * @throws ComponentException thrown if the componentName is not registered in the service
-     *                            <p>
-     *                            TODO change the method signature not to deal with HttpServletResponse
+     * <p>
+     * TODO change the method signature not to deal with HttpServletResponse
      */
     @RequestMapping(value = "/wizards/{name}/icon/{type}", method = GET, produces = IMAGE_PNG_VALUE)
     void getWizardImageRest(@PathVariable(value = "name") String name, @PathVariable(value = "type") WizardImageType type,
-                            HttpServletResponse response);
+            HttpServletResponse response);
 
     /**
      * Return the png image related to the given component
@@ -263,6 +270,6 @@ public interface ComponentController {
      */
     @RequestMapping(value = "/icon/{name}", method = GET, produces = IMAGE_PNG_VALUE)
     void getComponentsImageRest(@PathVariable(value = "name") String name, @PathVariable(value = "type") ComponentImageType type,
-                                HttpServletResponse response);
+            HttpServletResponse response);
 
 }

@@ -33,10 +33,10 @@ class ExceptionConvertionAspect {
     // there is not way to create a point cut on all method implmenting an interface with a given annotation.
     // this is a horrible hack to list all interface to
 
-    @Around("execution(public * org.talend.components.service.rest.ComponentController .*(..)) "
-            + "|| execution(public * org.talend.components.service.rest.DefinitionsController .*(..)) "
-            + "|| execution(public * org.talend.components.service.rest.PropertiesController .*(..)) "
-            + "|| execution(public * org.talend.components.service.rest.RuntimesController .*(..)) ")
+    @Around("execution(public * org.talend.components.service.rest.*.ComponentController .*(..)) "
+            + "|| execution(public * org.talend.components.service.rest.*.DefinitionsController .*(..)) "
+            + "|| execution(public * org.talend.components.service.rest.*.PropertiesController .*(..)) "
+            + "|| execution(public * org.talend.components.service.rest.*.RuntimesController .*(..)) ")
     // + "|| execution(public *
     // org.talend.components.service.rest.configuration.RestProcessingExceptionThrowingControllerI .*(..)) ") // test
     // class
