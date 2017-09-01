@@ -65,7 +65,7 @@ public class PocAggregateDefinition extends AbstractComponentDefinition {
             return new JarRuntimeInfo(new URL("mvn:org.talend.components/processing-runtime"),
                     DependenciesReader.computeDependenciesFilePath(ProcessingFamilyDefinition.MAVEN_GROUP_ID,
                             ProcessingFamilyDefinition.MAVEN_ARTIFACT_ID),
-                    "org.talend.components.processing.runtime.PocAggregateRuntime");
+                    "org.talend.components.processing.runtime.pocaggregate.PocAggregateRuntime");
         } catch (MalformedURLException e) {
             throw new ComponentException(e);
         }
