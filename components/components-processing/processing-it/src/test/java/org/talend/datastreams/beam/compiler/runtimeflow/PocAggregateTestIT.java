@@ -10,17 +10,20 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.simplefileio.runtime;
+package org.talend.datastreams.beam.compiler.runtimeflow;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.avro.file.DataFileStream;
 import org.apache.avro.generic.GenericDatumReader;
@@ -29,8 +32,9 @@ import org.apache.avro.generic.IndexedRecord;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.testing.ValidatesRunner;
 import org.apache.beam.sdk.values.PCollection;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
+import org.apache.spark.api.java.JavaSparkContext;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -43,7 +47,9 @@ import org.talend.components.simplefileio.SimpleFileIODatastoreProperties;
 import org.talend.components.simplefileio.SimpleFileIOFormat;
 import org.talend.components.simplefileio.input.SimpleFileIOInputProperties;
 import org.talend.components.simplefileio.output.SimpleFileIOOutputProperties;
-import org.talend.components.test.SparkIntegrationTestResource;
+import org.talend.components.simplefileio.runtime.SimpleFileIOInputRuntime;
+import org.talend.components.simplefileio.runtime.SimpleFileIOOutputRuntime;
+import org.talend.components.simplefileio.runtime.utils.FileSystemUtil;
 
 /**
  * Unit tests for {@link SimpleFileIOOutputRuntime} using the Spark runner.
@@ -105,20 +111,58 @@ public class PocAggregateTestIT {
      */
     @Category(ValidatesRunner.class)
     @Test
-    public void testBasicDefaults() throws IOException {
+    public void testBasicDefaults() throws IOException, URISyntaxException {
+
         // Use the resource to create the pipeline.
         final Pipeline p = spark.createPipeline();
 
-        final FileSystem fs = FileSystem.get(spark.createHadoopConfiguration());
+        final String pathIn = "hdfs://talend-cdh580.weave.local:8020/user/talend/recordSimple/";
+        final String pathOut = "hdfs://talend-cdh580.weave.local:8020/user/" + System.getProperty("user.name")
+                + "/recordSimpleOut";
 
-        // ==================================
-        // LazyAvroCoder.setSchemaRegistry();
+        // Upload the jars.
+        Set<String> toUpload = new HashSet<>();
+        toUpload.add("processing-definition-0.20.0-SNAPSHOT.jar");
+        toUpload.add("processing-runtime-0.20.0-SNAPSHOT.jar");
+        toUpload.add("simplefileio-definition-0.20.0-SNAPSHOT.jar");
+        toUpload.add("simplefileio-runtime-0.20.0-SNAPSHOT.jar");
+        toUpload.add("daikon-0.18.0-SNAPSHOT.jar");
+        toUpload.add("beam-runners-spark-2.0.0.jar");
+        toUpload.add("beam-sdks-java-core-2.0.0.jar");
+        toUpload.add("beam-sdks-java-io-hadoop-common-2.0.0.jar");
+        toUpload.add("beam-runners-core-java-2.0.0.jar");
+        toUpload.add("components-adapter-beam-0.20.0-SNAPSHOT.jar");
+        toUpload.add("avro-mapred-1.8.1-hadoop2.jar");
+        toUpload.add("commons-csv-1.4.jar");
+        toUpload.add("data-streams-beamcompiler-0.6.0-SNAPSHOT.jar");
+
+        final JavaSparkContext jsc = spark.getOptions().getProvidedSparkContext();
+        // for (String s : System.getProperty("java.class.path").split(File.pathSeparator)) {
+        // File f = new File(s);
+        // String fn = f.getName();
+        // if (toUpload.contains(fn)) {
+        // System.out.println("Uploading " + s + " to the SparkContext...");
+        // jsc.addJar(s);
+        // }
+        // }
+
+        // mvn dependency:copy-dependencies -DoutputDirectory=/tmp/xxx
+        for (String s : toUpload) {
+            System.out.println("Uploading " + s + " to the SparkContext...");
+            jsc.addJar("/tmp/xxx/" + s);
+
+        }
+
+        // Set the schema registry before starting to compile components into the pipeline.
+        // TODO
+        ServerSocketAvroSchemaRegistry ssasr = new ServerSocketAvroSchemaRegistry();
+        LazyAvroCoder.setSchemaRegistry(ssasr);
 
         // Configure the input.
         final PCollection<IndexedRecord> in;
         {
             SimpleFileIOInputProperties props = createInputComponentProperties();
-            props.getDatasetProperties().path.setValue("/user/talend/recordSimpleIn");
+            props.getDatasetProperties().path.setValue(pathIn);
             props.getDatasetProperties().format.setValue(SimpleFileIOFormat.AVRO);
 
             // Create the runtime.
@@ -133,16 +177,16 @@ public class PocAggregateTestIT {
             props.init();
             PocAggregateRuntime runtime = new PocAggregateRuntime();
             runtime.initialize(null, props);
-            // pocAggregate = p.apply(runtime);
-            pocAggregate = in;
+            pocAggregate = in.apply(runtime);
+            // pocAggregate = in;
         }
 
         // Configure the output
         {
             SimpleFileIOOutputProperties props = createOutputComponentProperties();
             props.overwrite.setValue(true);
-            props.getDatasetProperties().path.setValue("/user/talend/recordSimpleIn");
-            props.getDatasetProperties().format.setValue(SimpleFileIOFormat.CSV);
+            props.getDatasetProperties().path.setValue(pathOut);
+            props.getDatasetProperties().format.setValue(SimpleFileIOFormat.AVRO);
 
             // Create the runtime.
             SimpleFileIOOutputRuntime runtime = new SimpleFileIOOutputRuntime();
@@ -151,23 +195,28 @@ public class PocAggregateTestIT {
         }
 
         // SCHEMA REGISTRY RUN ==================================
+        ssasr.run();
 
         // And run the test.
         p.run().waitUntilFinish();
 
-        // SCHEMA REGISTRY RUN ==================================
+        // SCHEMA REGISTRY SHUTDOWN ==================================
+        ssasr.shutdown();
+        LazyAvroCoder.resetSchemaRegistry();
 
-        // ==================================
-        // LazyAvroCoder.resetSchemaRegistry();
-
-
-        // TODO: Check the expected values.
-        String path = "/user/talend/recordsSimpleOut/part-00000-of-00000";
+        // Check the expected values.
         List<IndexedRecord> found = new ArrayList<>();
-        try (DataFileStream<GenericRecord> reader = new DataFileStream<GenericRecord>(
-                new BufferedInputStream(fs.open(new Path(path))), new GenericDatumReader<GenericRecord>())) {
-            while (reader.hasNext()) {
-                found.add(reader.iterator().next());
+        {
+            FileSystem fs = FileSystem.get(new URI(pathOut), spark.createHadoopConfiguration());
+            for (FileStatus fstatus : FileSystemUtil.listSubFiles(fs, pathOut)) {
+                try (DataFileStream<GenericRecord> reader = new DataFileStream<>(
+                        new BufferedInputStream(fs.open(fstatus.getPath())), new GenericDatumReader<GenericRecord>())) {
+                    while (reader.hasNext()) {
+                        IndexedRecord r = reader.next();
+                        System.out.println(r);
+                        found.add(r);
+                    }
+                }
             }
         }
         assertThat(found, not(hasSize(0)));

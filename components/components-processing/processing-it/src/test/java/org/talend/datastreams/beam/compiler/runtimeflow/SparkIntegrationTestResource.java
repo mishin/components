@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.test;
+package org.talend.datastreams.beam.compiler.runtimeflow;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +27,6 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-import org.talend.components.adapter.beam.coders.LazyAvroCoder;
 
 import avro.shaded.com.google.common.collect.ImmutableMap;
 

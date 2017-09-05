@@ -20,7 +20,9 @@ import static org.junit.Assert.assertThat;
 
 import java.util.List;
 
+import org.apache.avro.file.CodecFactory;
 import org.apache.avro.generic.IndexedRecord;
+import org.apache.beam.sdk.io.AvroIO;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.testing.PAssert;
@@ -93,6 +95,18 @@ public class RowGeneratorIOTest {
         PCollection<IndexedRecord> output = pipeline.apply(RowGeneratorIO.read()
                 .withSchema(SampleSchemas.recordCompositesRequired()).withSeed(0L).withRows(95L).withPartitions(13));
         PAssert.thatSingleton(output.apply("Count", Count.<IndexedRecord> globally())).isEqualTo(95L);
+        pipeline.run();
+
+        // TODO: we could test the generated records here.
+    }
+
+    @Test
+    @Category(ValidatesRunner.class)
+    public void testWriteAvro() throws Exception {
+        // Non-deterministic read, just do a count.
+        PCollection output = pipeline.apply(RowGeneratorIO.read()
+                .withSchema(SampleSchemas.recordSimple()).withSeed(0L).withRows(1000).withPartitions(10));
+        output.apply(AvroIO.writeGenericRecords(SampleSchemas.recordSimple()).withCodec(CodecFactory.snappyCodec()).withNumShards(10).to("/tmp/recordSimple/part"));
         pipeline.run();
 
         // TODO: we could test the generated records here.
