@@ -10,14 +10,16 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.datastreams.beam.compiler.runtimeflow;
+package org.talend.components.processing.it;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.beam.runners.spark.SparkContextOptions;
 import org.apache.beam.runners.spark.SparkRunner;
 import org.apache.beam.sdk.Pipeline;
+import org.apache.beam.sdk.io.hdfs.HadoopFileSystemOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.CommonConfigurationKeys;
@@ -110,6 +112,8 @@ public class SparkIntegrationTestResource extends TemporaryFolder {
         if (options == null) {
             options = PipelineOptionsFactory.as(SparkContextOptions.class);
             options.setRunner(SparkRunner.class);
+            HadoopFileSystemOptions hdfs = options.as(HadoopFileSystemOptions.class);
+            hdfs.setHdfsConfiguration(Arrays.asList(createHadoopConfiguration()));
         }
         return options;
     }

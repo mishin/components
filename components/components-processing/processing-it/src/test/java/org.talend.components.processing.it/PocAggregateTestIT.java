@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.datastreams.beam.compiler.runtimeflow;
+package org.talend.components.processing.it;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
@@ -50,6 +50,7 @@ import org.talend.components.simplefileio.output.SimpleFileIOOutputProperties;
 import org.talend.components.simplefileio.runtime.SimpleFileIOInputRuntime;
 import org.talend.components.simplefileio.runtime.SimpleFileIOOutputRuntime;
 import org.talend.components.simplefileio.runtime.utils.FileSystemUtil;
+import org.talend.datastreams.beam.compiler.runtimeflow.ServerSocketAvroSchemaRegistry;
 
 /**
  * Unit tests for {@link SimpleFileIOOutputRuntime} using the Spark runner.
@@ -219,7 +220,7 @@ public class PocAggregateTestIT {
                 }
             }
         }
-        assertThat(found, not(hasSize(0)));
+        assertThat(found, hasSize(1000));
     }
 
 }
