@@ -51,6 +51,14 @@ import org.talend.daikon.avro.SampleSchemas;
 
 /**
  * Unit tests using the Spark runner.
+ *
+ * This loads jars from the /tmp/xxx directory -- you have to do this before running.
+ *
+ * <pre>
+ * mvn install -DskipTests
+ * mvn dependency:copy-dependencies -DoutputDirectory=/tmp/xxx
+ * cp target/processing-it-0.20.0-SNAPSHOT.jar /tmp/xxx
+ * </pre>
  */
 public class PureBeamSparkTestIT {
 
