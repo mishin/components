@@ -22,11 +22,15 @@ The following endpoints have been implemented:
 
 :warning: _Definition names must be unique_
 # whats new in V0 ;)
-1) all routes are prefixed with V0.
-2) a New route (/properties/serialize) has been added to be called before persisting any Properties. This will provide a way to encrypt sensitive data and offer a migration path when deserialized.
-3) All the POST routes taking a definition name as parameter have had this parameter removed so avoid duplication. 
-4) Almos all POST routes taking [multiple ui-specs](#multiple-ui-spec-properties-format) also take [multiple JsonIo](#multiple-json-io-properties-format) properties.
-5) ui specs and json-io input and output payload have specific content types that you must use when querying the service see [here](#multiple-ui-spec-properties-format) and below.
+1. all routes are prefixed with V0.
+2. a New route (/properties/serialize) has been added to be called before persisting any Properties. This will provide a way to encrypt sensitive data and offer a migration path when deserialized.
+3. All the POST routes taking a definition name as parameter have had this parameter removed so avoid duplication. 
+4. Almos all POST routes taking [multiple ui-specs](#multiple-ui-spec-properties-format) also take [multiple JsonIo](#multiple-json-io-properties-format) properties.
+5. ui specs and json-io input and output payload have specific content types that you must use when querying the service see [here](#multiple-ui-spec-properties-format) and below.
+6. some routes have changed their url for more clarity
+   * `/properties/{definitionName}?formName=MAIN` became `v0/properties/uispecs?formName=MAIN`
+   * `/properties/{definitionName}/{trigger}/{propName}?formName=MAIN]` became `/v0/properties/trigger/{trigger}/{propName}?formName=MAIN`
+   * `/runtimes/{datasetDefinitionName}` became `/v0/runtimes/check` 
 
 **Q: How do we get the component properties for a given dataset+datastore?**
 
