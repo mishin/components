@@ -51,11 +51,7 @@ import net.snowflake.client.loader.StreamLoader;
 
 public final class SnowflakeWriter implements WriterWithFeedback<Result, IndexedRecord, IndexedRecord> {
 
-    private static SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
-
-    private static SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm:ss.SSS");
-
-    private static SimpleDateFormat timestampFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSXXX");
+    private Formatter formatter = new Formatter();
 
     private StreamLoader loader;
 
@@ -92,12 +88,6 @@ public final class SnowflakeWriter implements WriterWithFeedback<Result, Indexed
     private transient boolean isFirst = true;
 
     private transient List<Schema.Field> collectedFields;
-
-    static {
-        // Time in milliseconds would mean time from midnight. It shouldn't be influenced by timezone differences.
-        // That's why we have to use GMT.
-        timeFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
-    }
 
     @Override
     public Iterable<IndexedRecord> getSuccessfulWrites() {
@@ -351,36 +341,11 @@ public final class SnowflakeWriter implements WriterWithFeedback<Result, Indexed
                 Date date = (Date) input.get(i);
                 row[i] = date.getTime();
             } else if (LogicalTypes.fromSchemaIgnoreInvalid(s) == LogicalTypes.timeMillis()) {
-                Date date = new Date((int) input.get(i));
-                row[i] = timeFormatter.format(date);
+                row[i] = formatter.formatTimeMillis(inputValue);
             } else if (LogicalTypes.fromSchemaIgnoreInvalid(s) == LogicalTypes.date()) {
-                Date date = null;
-                if (input.get(i) instanceof Date) {
-                    // Sometimes it can be sent as a Date object. We need to process it like a common date then.
-                    date = (Date) input.get(i);
-                } else if (input.get(i) instanceof Integer) {
-                    // If the date is int, it represents amount of days from 1970(no timezone). So if the date is
-                    // 14.01.2017 it shouldn't be influenced by timezones time differences. It should be the same date
-                    // in any timezone.
-                    Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-                    c.setTimeInMillis(0);
-                    c.add(Calendar.DATE, (Integer) input.get(i));
-                    c.setTimeZone(TimeZone.getDefault());
-                    long timeInMillis = c.getTime().getTime();
-                    date = new Date(timeInMillis - c.getTimeZone().getOffset(timeInMillis));
-                } else {
-                    // long is just a common timestamp value.
-                    date = new Date((Long) input.get(i));
-                }
-                row[i] = dateFormatter.format(date);
+                row[i] = formatter.formatDate(inputValue);
             } else if (LogicalTypes.fromSchemaIgnoreInvalid(s) == LogicalTypes.timestampMillis()) {
-                if (inputValue instanceof Date) {
-                    row[i] = timestampFormatter.format(inputValue);
-                } else if (inputValue instanceof Long) {
-                    row[i] = timestampFormatter.format(new Date((Long) inputValue));
-                } else {
-                    row[i] = inputValue;
-                }
+                row[i] = formatter.formatTimestampMillis(inputValue);
             } else {
                 row[i] = input.get(i);
             }
