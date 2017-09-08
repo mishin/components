@@ -62,8 +62,6 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
 
     protected AllSetting setting;
 
-    private Connection conn;
-
     private transient AvroRegistry avroRegistry;
 
     private transient IndexedRecordConverter<ResultSet, IndexedRecord> converter;
@@ -108,7 +106,7 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
     public ValidationResult validate(RuntimeContainer runtime) {
         ValidationResultMutable vr = new ValidationResultMutable();
         try {
-            conn = connect(runtime);
+            initConnection(runtime);
         } catch (Exception ex) {
             vr.setStatus(Result.ERROR);
             vr.setMessage(ex.getMessage());
@@ -184,13 +182,6 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
             runtime.setComponentData(ComponentConstants.USERNAME_KEY, runtime.getCurrentComponentId(), setting.getUsername());
         }
 
-        return conn;
-    }
-
-    public Connection getConnection(RuntimeContainer runtime) throws ClassNotFoundException, SQLException {
-        if (conn == null) {
-            conn = connect(runtime);
-        }
         return conn;
     }
 
