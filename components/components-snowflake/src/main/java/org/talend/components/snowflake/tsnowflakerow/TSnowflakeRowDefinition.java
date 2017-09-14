@@ -82,4 +82,9 @@ public class TSnowflakeRowDefinition extends SnowflakeDefinition {
         return true;
     }
 
+    @Override
+    public boolean isRejectAfterClose() {
+        return true;
+    }
+
 }

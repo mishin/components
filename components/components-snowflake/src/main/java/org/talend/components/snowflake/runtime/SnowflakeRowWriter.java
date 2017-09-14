@@ -13,6 +13,7 @@
 package org.talend.components.snowflake.runtime;
 
 import java.io.IOException;
+import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -91,6 +92,8 @@ public class SnowflakeRowWriter implements WriterWithFeedback<Result, IndexedRec
 
     private Result result;
 
+    private List<IndexedRecord> inputRecords;
+
     public SnowflakeRowWriter(RuntimeContainer adaptor, SnowflakeRowWriteOperation writeOperation) {
         this.container = adaptor;
         this.writeOperation = writeOperation;
@@ -100,9 +103,9 @@ public class SnowflakeRowWriter implements WriterWithFeedback<Result, IndexedRec
 
     @Override
     public void open(String uId) throws IOException {
+        inputRecords = new ArrayList<>();
         successfulWrites = new ArrayList<>();
         rejectedWrites = new ArrayList<>();
-
         connection = sink.createConnection(container);
         mainSchema = sink.getRuntimeSchema(container);
 
@@ -123,7 +126,8 @@ public class SnowflakeRowWriter implements WriterWithFeedback<Result, IndexedRec
         commitCount++;
 
         IndexedRecord input = (IndexedRecord) object;
-
+        inputRecords.add(input);
+        //TODO: Must refactor this code with strategies to have better code.
         try {
             if (rowProperties.usePreparedStatement()) {
                 PreparedStatement pstmt = (PreparedStatement) statement;
@@ -131,6 +135,7 @@ public class SnowflakeRowWriter implements WriterWithFeedback<Result, IndexedRec
                 if (rowProperties.propagateQueryResultSet()) {
                     pstmt.execute();
                     rs = pstmt.getResultSet();
+                    handleSuccess(input);
                 } else {
                     pstmt.addBatch();
                 }
@@ -138,13 +143,12 @@ public class SnowflakeRowWriter implements WriterWithFeedback<Result, IndexedRec
             } else {
                 if (rowProperties.propagateQueryResultSet()) {
                     rs = statement.executeQuery(sink.getQuery());
+                    handleSuccess(input);
                 } else {
                     statement.addBatch(sink.getQuery());
                 }
             }
 
-            // We should return the result of query execution, instead of returning incoming value if checked propagate query's result set.
-            handleSuccess(input);
         } catch (SQLException e) {
             if (rowProperties.dieOnError.getValue()) {
                 throw new IOException(e);
@@ -156,11 +160,7 @@ public class SnowflakeRowWriter implements WriterWithFeedback<Result, IndexedRec
         try {
             if (rowProperties.connection.getReferencedComponentId() == null
                     && commitCount == rowProperties.commitCount.getValue()) {
-                if (!rowProperties.propagateQueryResultSet()) {
-                    statement.executeBatch();
-                }
-                connection.commit();
-                commitCount = 0;
+                performCommit();
             }
         } catch (SQLException e) {
             if (rowProperties.dieOnError.getValue()) {
@@ -202,11 +202,11 @@ public class SnowflakeRowWriter implements WriterWithFeedback<Result, IndexedRec
                             output.put(outField.pos(), resultSetIndexedRecord.get(inputField.pos()));
                         }
                     }
-                    result.totalCount++;
-                    result.successCount++;
 
                     successfulWrites.add(output);
                 }
+                result.totalCount++;
+                result.successCount++;
             }
         } else {
             IndexedRecord output = new GenericData.Record(outputSchema);
@@ -293,15 +293,8 @@ public class SnowflakeRowWriter implements WriterWithFeedback<Result, IndexedRec
 
         try {
 
-            successfulWrites.clear();
-            rejectedWrites.clear();
-
             if (commitCount > 0 && connection != null && statement != null) {
-                if (!rowProperties.usePreparedStatement()) {
-                    statement.executeBatch();
-                }
-                connection.commit();
-                commitCount = 0;
+                performCommit();
             }
 
             if (rs != null) {
@@ -318,6 +311,38 @@ public class SnowflakeRowWriter implements WriterWithFeedback<Result, IndexedRec
         }
 
         return result;
+    }
+
+    private void performCommit() throws IOException, SQLException {
+        if (!rowProperties.propagateQueryResultSet()) {
+            try {
+                statement.executeBatch();
+                for (IndexedRecord succeeded : inputRecords) {
+                    handleSuccess(succeeded);
+                }
+            } catch (SQLException e) {
+                if (rowProperties.dieOnError.getValue()) {
+                    throw new IOException(e);
+                }
+                if (e instanceof BatchUpdateException) {
+                    long[] statuses = ((BatchUpdateException)e).getLargeUpdateCounts();
+                    for (int i = 0; i < statuses.length; i++) {
+                        if (statuses[i] == Statement.EXECUTE_FAILED) {
+                            handleReject(inputRecords.get(i), e);
+                        } else {
+                            handleSuccess(inputRecords.get(i));
+                        }
+                    }
+                } else {
+                    for (IndexedRecord rejected : inputRecords) {
+                        handleReject(rejected, e);
+                    }
+                }
+            }
+        }
+        connection.commit();
+        inputRecords.clear();
+        commitCount = 0;
     }
 
     @Override
