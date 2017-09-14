@@ -149,6 +149,7 @@ public class SnowflakeRowWriter implements WriterWithFeedback<Result, IndexedRec
                 }
             }
 
+            // We should return the result of query execution, instead of returning incoming value if checked propagate query's result set.
         } catch (SQLException e) {
             if (rowProperties.dieOnError.getValue()) {
                 throw new IOException(e);
