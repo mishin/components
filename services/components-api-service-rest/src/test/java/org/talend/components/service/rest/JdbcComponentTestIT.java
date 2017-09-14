@@ -104,16 +104,16 @@ public class JdbcComponentTestIT {
         db.shutdown();
     }
 
+    // TODO the test will fail if the writer is case sensitive, please see org.talend.components.jdbc.runtime.type.RowWriter for
+    // DI, we can make the test success by change jdbc_component_write_properties_on_DI.json, but not sure should do it
     @Test
     public void setDatasetData_DiRuntime() throws Exception {
         // given
-        String payload = IOUtils
-                .toString(getClass().getResourceAsStream("jdbc_component_write_properties_on_DI.json"))
+        String payload = IOUtils.toString(getClass().getResourceAsStream("jdbc_component_write_properties_on_DI.json"))
                 .replace("{jdbc_url}", dbUrl);
 
         // when
-        given().content(payload)
-                .contentType(APPLICATION_JSON_UTF8_VALUE) //
+        given().content(payload).contentType(APPLICATION_JSON_UTF8_VALUE) //
                 .expect().statusCode(200).log().ifError() //
                 .put("runtimes/data");
 
@@ -122,10 +122,10 @@ public class JdbcComponentTestIT {
         ResultSet countRS = statement.executeQuery("SELECT COUNT(*) AS count FROM users");
         countRS.next();
         assertEquals(101, countRS.getInt("count"));
-        
+
         ResultSet resultSet = statement.executeQuery("SELECT * FROM users WHERE email='david.bowie@awesome.uk'");
 
-        while (resultSet.next()) {  
+        while (resultSet.next()) {
             assertEquals("1", resultSet.getString("id"));
             assertEquals("David", resultSet.getString("first_name"));
             assertEquals("Bowie", resultSet.getString("last_name"));
