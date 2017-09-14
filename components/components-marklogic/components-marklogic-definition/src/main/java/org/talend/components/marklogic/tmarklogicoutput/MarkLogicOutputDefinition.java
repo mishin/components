@@ -1,0 +1,50 @@
+package org.talend.components.marklogic.tmarklogicoutput;
+
+import org.talend.components.api.component.AbstractComponentDefinition;
+import org.talend.components.api.component.ConnectorTopology;
+import org.talend.components.api.component.runtime.ExecutionEngine;
+import org.talend.components.api.properties.ComponentProperties;
+import org.talend.components.marklogic.RuntimeInfoProvider;
+import org.talend.daikon.properties.property.Property;
+import org.talend.daikon.runtime.RuntimeInfo;
+
+import java.util.EnumSet;
+import java.util.Set;
+
+public class MarkLogicOutputDefinition extends AbstractComponentDefinition {
+
+    public static final String COMPONENT_NAME = "tMarkLogicOutputNEW";
+
+    public MarkLogicOutputDefinition() {
+        super(COMPONENT_NAME, ExecutionEngine.DI, ExecutionEngine.BEAM);
+    }
+
+    @Override
+    public String[] getFamilies() {
+        return new String[] { "Databases/MarkLogic", "Big Data/MarkLogic" }; //$NON-NLS-1$
+    }
+
+    @Override
+    public Property[] getReturnProperties() {
+        return new Property[] { RETURN_TOTAL_RECORD_COUNT_PROP, RETURN_SUCCESS_RECORD_COUNT_PROP, RETURN_REJECT_RECORD_COUNT_PROP,
+                RETURN_ERROR_MESSAGE_PROP };
+    }
+
+    @Override
+    public Class<? extends ComponentProperties> getPropertyClass() {
+        return MarkLogicOutputProperties.class;
+    }
+
+    @Override
+    public RuntimeInfo getRuntimeInfo(ExecutionEngine engine, ComponentProperties properties, ConnectorTopology connectorTopology) {
+        assertEngineCompatibility(engine);
+        assertConnectorTopologyCompatibility(connectorTopology);
+        return RuntimeInfoProvider.getCommonRuntimeInfo("org.talend.components.marklogic.runtime.MarkLogicSink");
+    }
+
+    @Override
+    public Set<ConnectorTopology> getSupportedConnectorTopologies() {
+        return EnumSet.of(ConnectorTopology.INCOMING, ConnectorTopology.INCOMING_AND_OUTGOING);
+    }
+
+}
