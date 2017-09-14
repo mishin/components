@@ -13,6 +13,7 @@
 package org.talend.components.processing.runtime.filterrow;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.avro.generic.IndexedRecord;
@@ -108,17 +109,22 @@ public class FilterRowDoFn extends DoFn<Object, IndexedRecord> {
         }
 
         List<Object> values = getInputFields(record, accessor);
-        if (values.size() != 0) {
-            // Apply all of the criteria.
-            for (Object value : values) {
-                aggregate = fieldOp.combineAggregate(aggregate, checkCondition(value, criteria));
-                if (fieldOp.canShortCircuit(aggregate))
-                    break;
-            }
+
+        if (ConditionsRowConstant.Function.COUNT.equals(criteria.function.getStringValue())) {
+            values = Arrays.asList((Object) values.size());
+        } else if (values.size() == 0) {
+            // If the function is not COUNT and no values are returned, then consider the criteria not matched.
+            return false;
+        }
+
+        // Apply all of the criteria.
+        for (Object value : values) {
+            aggregate = fieldOp.combineAggregate(aggregate, checkCondition(value, criteria));
+            if (fieldOp.canShortCircuit(aggregate))
+                break;
         }
 
         return aggregate;
-
     }
 
     private <T extends Comparable<T>> Boolean checkCondition(Object inputValue, FilterRowCriteriaProperties filter) {
