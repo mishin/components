@@ -29,7 +29,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- *
+ * DB configuration parser (mapping_*.xml)
  */
 public class MappingFileLoader2 {
 
