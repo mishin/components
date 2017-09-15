@@ -121,10 +121,8 @@ public class MarkLogicInputProperties extends FixedConnectorsComponentProperties
         schema.schema.setValue(initialSchema);
     }
 
-    public ValidationResult afterUseQueryOption() {
+    public void afterUseQueryOption() {
         refreshLayout(getForm(Form.ADVANCED));
-
-        return ValidationResult.OK;
     }
     @Override
     protected Set<PropertyPathConnector> getAllSchemaPropertiesConnectors(boolean isOutputConnection) {

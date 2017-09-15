@@ -27,7 +27,7 @@ public class MarkLogicSink implements Sink {
 
     @Override
     public WriteOperation<?> createWriteOperation() {
-        return null;
+        return new MarkLogicWriteOperation();
     }
 
     @Override
@@ -42,11 +42,11 @@ public class MarkLogicSink implements Sink {
 
     @Override
     public ValidationResult validate(RuntimeContainer container) {
-        return null;
+        return ValidationResult.OK;
     }
 
     @Override
     public ValidationResult initialize(RuntimeContainer container, ComponentProperties properties) {
-        return null;
+        return ValidationResult.OK;
     }
 }

@@ -27,7 +27,7 @@ import static org.talend.daikon.properties.property.PropertyFactory.newProperty;
 
 public class MarkLogicConnectionProperties extends ComponentPropertiesImpl {
 
-    public final ComponentReferenceProperties<MarkLogicConnectionProperties> referencedComponent = new ComponentReferenceProperties(
+    public final ComponentReferenceProperties<MarkLogicConnectionProperties> referencedComponent = new ComponentReferenceProperties<>(
             "referencedComponent", MarkLogicConnectionDefinition.COMPONENT_NAME);
 
     public StringProperty host = PropertyFactory.newString("host");
@@ -41,8 +41,11 @@ public class MarkLogicConnectionProperties extends ComponentPropertiesImpl {
     public Property<String> password = newProperty("password")
             .setFlags(EnumSet.of(Property.Flags.ENCRYPT, Property.Flags.SUPPRESS_LOGGING));
 
-
     public Property<String> authentication = PropertyFactory.newString("authentication");
+
+    public MarkLogicConnectionProperties(String name) {
+        super(name);
+    }
 
     @Override
     public void setupProperties() {
@@ -79,8 +82,8 @@ public class MarkLogicConnectionProperties extends ComponentPropertiesImpl {
     public void refreshLayout(Form form) {
         super.refreshLayout(form);
         String refComponentId = referencedComponent.componentInstanceId.getStringValue();
-        boolean refConnectionUsed = refComponentId != null
-                && refComponentId.startsWith(MarkLogicConnectionDefinition.COMPONENT_NAME);
+        boolean refConnectionUsed =
+                refComponentId != null && refComponentId.startsWith(MarkLogicConnectionDefinition.COMPONENT_NAME);
 
         if (form.getName().equals(Form.MAIN) /*|| form.getName().equals() */) {
             form.getWidget(host).setHidden(refConnectionUsed);
@@ -96,9 +99,5 @@ public class MarkLogicConnectionProperties extends ComponentPropertiesImpl {
     public void afterReferencedComponent() {
         refreshLayout(getForm(Form.MAIN));
         refreshLayout(getForm(Form.REFERENCE));
-    }
-
-    public MarkLogicConnectionProperties(String name) {
-        super(name);
     }
 }

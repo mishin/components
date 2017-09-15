@@ -24,18 +24,18 @@ import org.talend.daikon.definition.service.DefinitionRegistryService;
 
 public class MarkLogicInputTestBase extends AbstractComponentTest2 {
 
-    @Inject
-    private DefinitionRegistryService definitionRegistry;
+    @Inject private DefinitionRegistryService definitionRegistry;
 
     @Override
     public DefinitionRegistryService getDefinitionRegistry() {
         return definitionRegistry;
     }
-    
+
     @Test
     @Ignore
-    public void testComponentHasBeenRegistered(){
-        assertComponentIsRegistered(ComponentDefinition.class, MarkLogicInputDefinition.COMPONENT_NAME, MarkLogicInputDefinition.class);
+    public void testComponentHasBeenRegistered() {
+        assertComponentIsRegistered(ComponentDefinition.class, MarkLogicInputDefinition.COMPONENT_NAME,
+                MarkLogicInputDefinition.class);
         assertComponentIsRegistered(Definition.class, "FileInput", MarkLogicInputDefinition.class);
     }
 }

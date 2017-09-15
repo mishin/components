@@ -24,9 +24,9 @@ import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.talend.components.api.ComponentsPaxExamOptions;
 
-@RunWith(PaxExam.class)
-@ExamReactorStrategy(PerClass.class)
-public class OsgiMarkLogicInputTestIT extends MarkLogicInputTestBase {
+@RunWith(PaxExam.class) @ExamReactorStrategy(PerClass.class)
+public class OsgiMarkLogicInputTestIT
+        extends MarkLogicInputTestBase {
 
     @Configuration
     public Option[] config() {

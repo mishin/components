@@ -25,11 +25,11 @@ import org.talend.daikon.runtime.RuntimeInfo;
 
 /**
  * The MarkLogicInputDefinition acts as an entry point for all of services that
- * a component provides to integrate with the Runtime Platform (at design-time) and other 
+ * a component provides to integrate with the Runtime Platform (at design-time) and other
  * components (at run-time).
  */
 public class MarkLogicInputDefinition extends AbstractComponentDefinition {
-    
+
     public static final String COMPONENT_NAME = "tMarkLogicInputNEW"; //$NON-NLS-1$
 
     public MarkLogicInputDefinition() {
@@ -42,14 +42,14 @@ public class MarkLogicInputDefinition extends AbstractComponentDefinition {
     }
 
     /**
-     * Defines a list of Return Properties (a.k.a After Properties). 
+     * Defines a list of Return Properties (a.k.a After Properties).
      * These properties collect different metrics and information during component execution.
      * Values of these properties are returned after component finished his work.
      * Runtime Platform may use this method to retrieve a this list and show in UI
      * Here, it is defined 2 properties: <br>
      * 1) Error message
      * 2) Number of records processed
-     * For Error message property no efforts are required from component developer to set its value. 
+     * For Error message property no efforts are required from component developer to set its value.
      * Runtime Platform will set its value by itself in case of Exception in runtime.
      * As for Number of records property see Reader implementation in runtime part
      */
@@ -57,24 +57,23 @@ public class MarkLogicInputDefinition extends AbstractComponentDefinition {
     public Property[] getReturnProperties() {
         return new Property[] { RETURN_TOTAL_RECORD_COUNT_PROP, RETURN_ERROR_MESSAGE_PROP };
     }
-    
+
     @Override
     public Class<? extends ComponentProperties> getPropertyClass() {
         return MarkLogicInputProperties.class;
     }
-    
+
     @Override
-    public RuntimeInfo getRuntimeInfo(ExecutionEngine engine, ComponentProperties properties, ConnectorTopology connectorTopology) {
+    public RuntimeInfo getRuntimeInfo(ExecutionEngine engine, ComponentProperties properties,
+            ConnectorTopology connectorTopology) {
         assertEngineCompatibility(engine);
         assertConnectorTopologyCompatibility(connectorTopology);
         return RuntimeInfoProvider.getCommonRuntimeInfo("org.talend.components.marklogic.runtime.MarkLogicSource");
     }
 
-
-
     @Override
     public Set<ConnectorTopology> getSupportedConnectorTopologies() {
         return EnumSet.of(ConnectorTopology.OUTGOING);
-    } 
-    
+    }
+
 }

@@ -37,7 +37,7 @@ public class MarkLogicConnectionDefinition extends AbstractComponentDefinition {
 
     @Override
     public String[] getFamilies() {
-         return new String[] { "Databases/MarkLogic", "Big Data/MarkLogic" };
+        return new String[] { "Databases/MarkLogic", "Big Data/MarkLogic" };
     }
 
     @Override
@@ -47,7 +47,7 @@ public class MarkLogicConnectionDefinition extends AbstractComponentDefinition {
 
     @Override
     public Property[] getReturnProperties() {
-        return new Property [] {RETURN_ERROR_MESSAGE_PROP};
+        return new Property[] { RETURN_ERROR_MESSAGE_PROP };
     }
 
     @Override
@@ -55,7 +55,8 @@ public class MarkLogicConnectionDefinition extends AbstractComponentDefinition {
             ConnectorTopology connectorTopology) {
         assertEngineCompatibility(engine);
         if (connectorTopology == ConnectorTopology.NONE) {
-            return RuntimeInfoProvider.getCommonRuntimeInfo("org.talend.components.marklogic.connection.TMarkLogicConnectionStandalone");
+            return RuntimeInfoProvider
+                    .getCommonRuntimeInfo("org.talend.components.marklogic.connection.TMarkLogicConnectionStandalone");
         } else {
             return null;
         }

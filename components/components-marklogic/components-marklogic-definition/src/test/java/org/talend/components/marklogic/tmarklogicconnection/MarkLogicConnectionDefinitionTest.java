@@ -44,14 +44,16 @@ public class MarkLogicConnectionDefinitionTest {
         Set<ConnectorTopology> connectorTopologies = definition.getSupportedConnectorTopologies();
 
         assertThat(connectorTopologies, contains(ConnectorTopology.NONE));
-        assertThat(connectorTopologies, not((contains(ConnectorTopology.INCOMING,ConnectorTopology.OUTGOING,ConnectorTopology.INCOMING_AND_OUTGOING))));
+        assertThat(connectorTopologies,
+                not((contains(ConnectorTopology.INCOMING, ConnectorTopology.OUTGOING, ConnectorTopology.INCOMING_AND_OUTGOING))));
     }
 
     @Test
     public void testGetRuntimeInfo() {
         RuntimeInfo runtimeInfo = definition.getRuntimeInfo(ExecutionEngine.DI, null, ConnectorTopology.NONE);
 
-        assertEquals("org.talend.components.marklogic.connection.TMarkLogicConnectionStandalone", runtimeInfo.getRuntimeClassName());
+        assertEquals("org.talend.components.marklogic.connection.TMarkLogicConnectionStandalone",
+                runtimeInfo.getRuntimeClassName());
     }
 
     @Test
@@ -67,7 +69,7 @@ public class MarkLogicConnectionDefinitionTest {
 
     @Test
     public void testGetFamilies() {
-        String[] expectedFamilies = new String[] {"Databases/MarkLogic", "Big Data/MarkLogic"};
+        String[] expectedFamilies = new String[] { "Databases/MarkLogic", "Big Data/MarkLogic" };
 
         String[] actualFamilies = definition.getFamilies();
 
@@ -83,10 +85,9 @@ public class MarkLogicConnectionDefinitionTest {
 
     @Test
     public void testGetReturnProperties() {
-        Property[] expectedReturnProperties = new Property[] {RETURN_ERROR_MESSAGE_PROP};
+        Property[] expectedReturnProperties = new Property[] { RETURN_ERROR_MESSAGE_PROP };
 
         assertArrayEquals(expectedReturnProperties, definition.getReturnProperties());
     }
-
 
 }

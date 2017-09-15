@@ -28,9 +28,10 @@ import org.talend.components.marklogic.tmarklogicoutput.MarkLogicOutputDefinitio
 /**
  * Install all of the definitions provided for the FileInput family of components.
  */
-@AutoService(ComponentInstaller.class)
-@Component(name = Constants.COMPONENT_INSTALLER_PREFIX + MarkLogicFamilyDefinition.NAME, provide = ComponentInstaller.class)
-public class MarkLogicFamilyDefinition extends AbstractComponentFamilyDefinition implements ComponentInstaller {
+@AutoService(ComponentInstaller.class) @Component(name = Constants.COMPONENT_INSTALLER_PREFIX
+        + MarkLogicFamilyDefinition.NAME, provide = ComponentInstaller.class)
+public class MarkLogicFamilyDefinition
+        extends AbstractComponentFamilyDefinition implements ComponentInstaller {
 
     public static final String NAME = "MarkLogicNEW";
 

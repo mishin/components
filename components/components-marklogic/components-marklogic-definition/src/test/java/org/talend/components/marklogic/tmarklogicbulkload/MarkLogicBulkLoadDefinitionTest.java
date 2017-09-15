@@ -31,6 +31,7 @@ import static org.junit.Assert.assertTrue;
 import static org.talend.components.api.component.ComponentDefinition.RETURN_ERROR_MESSAGE_PROP;
 
 public class MarkLogicBulkLoadDefinitionTest {
+
     MarkLogicBulkLoadDefinition bulkLoadDefinition;
 
     @Before
@@ -40,7 +41,7 @@ public class MarkLogicBulkLoadDefinitionTest {
 
     @Test
     public void testGetFamilies() {
-        String[] expectedFamilies = new String[] {"Databases/MarkLogic", "Big Data/MarkLogic"};
+        String[] expectedFamilies = new String[] { "Databases/MarkLogic", "Big Data/MarkLogic" };
 
         String[] actualFamilies = bulkLoadDefinition.getFamilies();
 
@@ -56,7 +57,7 @@ public class MarkLogicBulkLoadDefinitionTest {
 
     @Test
     public void testGetReturnProperties() {
-        Property[] expectedReturnProperties = new Property[] {RETURN_ERROR_MESSAGE_PROP};
+        Property[] expectedReturnProperties = new Property[] { RETURN_ERROR_MESSAGE_PROP };
 
         assertArrayEquals(expectedReturnProperties, bulkLoadDefinition.getReturnProperties());
     }
@@ -84,7 +85,8 @@ public class MarkLogicBulkLoadDefinitionTest {
         Set<ConnectorTopology> connectorTopologies = bulkLoadDefinition.getSupportedConnectorTopologies();
 
         assertThat(connectorTopologies, contains(ConnectorTopology.NONE));
-        assertThat(connectorTopologies, not((contains(ConnectorTopology.INCOMING,ConnectorTopology.OUTGOING,ConnectorTopology.INCOMING_AND_OUTGOING))));
+        assertThat(connectorTopologies,
+                not((contains(ConnectorTopology.INCOMING, ConnectorTopology.OUTGOING, ConnectorTopology.INCOMING_AND_OUTGOING))));
     }
 
 }

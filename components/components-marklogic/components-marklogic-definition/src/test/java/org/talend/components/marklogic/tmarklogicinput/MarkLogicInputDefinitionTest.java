@@ -36,68 +36,69 @@ import org.talend.daikon.runtime.RuntimeInfo;
 
 public class MarkLogicInputDefinitionTest {
 
-	@Rule
-	public final ExpectedException thrown = ExpectedException.none();
+    @Rule public final ExpectedException thrown = ExpectedException.none();
 
-	@Test
-	public void testGetFamilies() {
-		MarkLogicInputDefinition definition = new MarkLogicInputDefinition();
-		String[] actual = definition.getFamilies();
+    @Test
+    public void testGetFamilies() {
+        MarkLogicInputDefinition definition = new MarkLogicInputDefinition();
+        String[] actual = definition.getFamilies();
 
-		assertThat(Arrays.asList(actual), contains("Databases/MarkLogic", "Big Data/MarkLogic"));
-	}
+        assertThat(Arrays.asList(actual), contains("Databases/MarkLogic", "Big Data/MarkLogic"));
+    }
 
-	@Test
-	public void testGetPropertyClass() {
-		MarkLogicInputDefinition definition = new MarkLogicInputDefinition();
-		Class<?> propertyClass = definition.getPropertyClass();
-		String canonicalName = propertyClass.getCanonicalName();
+    @Test
+    public void testGetPropertyClass() {
+        MarkLogicInputDefinition definition = new MarkLogicInputDefinition();
+        Class<?> propertyClass = definition.getPropertyClass();
+        String canonicalName = propertyClass.getCanonicalName();
 
-		assertThat(canonicalName, equalTo("org.talend.components.marklogic.tmarklogicinput.MarkLogicInputProperties"));
-	}
+        assertThat(canonicalName, equalTo("org.talend.components.marklogic.tmarklogicinput.MarkLogicInputProperties"));
+    }
 
-	@Test
-	public void testGetReturnProperties() {
-		MarkLogicInputDefinition definition = new MarkLogicInputDefinition();
-		Property[] returnProperties = definition.getReturnProperties();
-		List<Property> propertyList = Arrays.asList(returnProperties);
+    @Test
+    public void testGetReturnProperties() {
+        MarkLogicInputDefinition definition = new MarkLogicInputDefinition();
+        Property[] returnProperties = definition.getReturnProperties();
+        List<Property> propertyList = Arrays.asList(returnProperties);
 
-		assertThat(propertyList, hasSize(2));
-		assertTrue(propertyList.contains(RETURN_TOTAL_RECORD_COUNT_PROP));
-		assertTrue(propertyList.contains(RETURN_ERROR_MESSAGE_PROP));
-	}
-	
-	@Test
-	public void testGetRuntimeInfo() {
-		MarkLogicInputDefinition definition = new MarkLogicInputDefinition();
-		RuntimeInfo runtimeInfo = definition.getRuntimeInfo(ExecutionEngine.DI, null, ConnectorTopology.OUTGOING);
-		String runtimeClassName = runtimeInfo.getRuntimeClassName();
-		assertThat(runtimeClassName, equalTo("org.talend.components.marklogic.runtime.MarkLogicSource"));
-	}
+        assertThat(propertyList, hasSize(2));
+        assertTrue(propertyList.contains(RETURN_TOTAL_RECORD_COUNT_PROP));
+        assertTrue(propertyList.contains(RETURN_ERROR_MESSAGE_PROP));
+    }
 
-	@Test
-	public void testGetRuntimeInfoWrongEngine() {
-		MarkLogicInputDefinition definition = new MarkLogicInputDefinition();
-		thrown.expect(TalendRuntimeException.class);
-		thrown.expectMessage("WRONG_EXECUTION_ENGINE:{component=tMarkLogicInputNEW, requested=DI_SPARK_STREAMING, available=[DI, BEAM]}");
-		definition.getRuntimeInfo(ExecutionEngine.DI_SPARK_STREAMING, null, ConnectorTopology.OUTGOING);
-	}
+    @Test
+    public void testGetRuntimeInfo() {
+        MarkLogicInputDefinition definition = new MarkLogicInputDefinition();
+        RuntimeInfo runtimeInfo = definition.getRuntimeInfo(ExecutionEngine.DI, null, ConnectorTopology.OUTGOING);
+        String runtimeClassName = runtimeInfo.getRuntimeClassName();
+        assertThat(runtimeClassName, equalTo("org.talend.components.marklogic.runtime.MarkLogicSource"));
+    }
 
-	@Test
-	public void testGetRuntimeInfoWrongTopology() {
-		MarkLogicInputDefinition definition = new MarkLogicInputDefinition();
-		thrown.expect(TalendRuntimeException.class);
-		thrown.expectMessage("WRONG_CONNECTOR:{component=tMarkLogicInputNEW}");
-		definition.getRuntimeInfo(ExecutionEngine.DI, null, ConnectorTopology.INCOMING);
-	}
-	
-	@Test
-	public void testGetSupportedConnectorTopologies() {
-		MarkLogicInputDefinition definition = new MarkLogicInputDefinition();
-		Set<ConnectorTopology> connectorTopologies = definition.getSupportedConnectorTopologies();
-		
-		assertThat(connectorTopologies, contains(ConnectorTopology.OUTGOING));
-		assertThat(connectorTopologies, not((contains(ConnectorTopology.INCOMING,ConnectorTopology.NONE,ConnectorTopology.INCOMING_AND_OUTGOING))));
-	}
-	
+    @Test
+    public void testGetRuntimeInfoWrongEngine() {
+        MarkLogicInputDefinition definition = new MarkLogicInputDefinition();
+        thrown.expect(TalendRuntimeException.class);
+        thrown.expectMessage(
+                "WRONG_EXECUTION_ENGINE:{component=tMarkLogicInputNEW, requested=DI_SPARK_STREAMING, available=[DI, BEAM]}");
+        definition.getRuntimeInfo(ExecutionEngine.DI_SPARK_STREAMING, null, ConnectorTopology.OUTGOING);
+    }
+
+    @Test
+    public void testGetRuntimeInfoWrongTopology() {
+        MarkLogicInputDefinition definition = new MarkLogicInputDefinition();
+        thrown.expect(TalendRuntimeException.class);
+        thrown.expectMessage("WRONG_CONNECTOR:{component=tMarkLogicInputNEW}");
+        definition.getRuntimeInfo(ExecutionEngine.DI, null, ConnectorTopology.INCOMING);
+    }
+
+    @Test
+    public void testGetSupportedConnectorTopologies() {
+        MarkLogicInputDefinition definition = new MarkLogicInputDefinition();
+        Set<ConnectorTopology> connectorTopologies = definition.getSupportedConnectorTopologies();
+
+        assertThat(connectorTopologies, contains(ConnectorTopology.OUTGOING));
+        assertThat(connectorTopologies,
+                not((contains(ConnectorTopology.INCOMING, ConnectorTopology.NONE, ConnectorTopology.INCOMING_AND_OUTGOING))));
+    }
+
 }

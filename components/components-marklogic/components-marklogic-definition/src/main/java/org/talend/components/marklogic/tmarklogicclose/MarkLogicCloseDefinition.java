@@ -22,16 +22,17 @@ import org.talend.daikon.runtime.RuntimeInfo;
 
 import java.util.Set;
 
-public class MarkLogicCloseDefinition extends AbstractComponentDefinition{
+public class MarkLogicCloseDefinition extends AbstractComponentDefinition {
 
     public static final String COMPONENT_NAME = "tMarkLogicCloseNEW";
+
     public MarkLogicCloseDefinition() {
         super(COMPONENT_NAME, ExecutionEngine.DI, ExecutionEngine.BEAM);
     }
 
     @Override
     public String[] getFamilies() {
-        return new String[] { "Databases/MarkLogic", "Big Data/MarkLogic"};
+        return new String[] { "Databases/MarkLogic", "Big Data/MarkLogic" };
     }
 
     @Override
@@ -41,7 +42,7 @@ public class MarkLogicCloseDefinition extends AbstractComponentDefinition{
 
     @Override
     public Property[] getReturnProperties() {
-        return new Property[] {RETURN_ERROR_MESSAGE_PROP};
+        return new Property[] { RETURN_ERROR_MESSAGE_PROP };
     }
 
     @Override
@@ -49,7 +50,8 @@ public class MarkLogicCloseDefinition extends AbstractComponentDefinition{
             ConnectorTopology connectorTopology) {
         assertEngineCompatibility(engine);
         if (connectorTopology == ConnectorTopology.NONE) {
-            return RuntimeInfoProvider.getCommonRuntimeInfo("org.talend.components.marklogic.connection.TMarkLogicCloseStandalone");
+            return RuntimeInfoProvider
+                    .getCommonRuntimeInfo("org.talend.components.marklogic.connection.TMarkLogicCloseStandalone");
         } else {
             return null;
         }

@@ -36,15 +36,14 @@ public class MarkLogicBulkLoadDefinition extends AbstractComponentDefinition {
         return MarkLogicBulkLoadProperties.class;
     }
 
-
     @Override
     public String[] getFamilies() {
-        return new String[] { "Databases/MarkLogic", "Big Data/MarkLogic"};
+        return new String[] { "Databases/MarkLogic", "Big Data/MarkLogic" };
     }
 
     @Override
     public Property[] getReturnProperties() {
-        return new Property[] {RETURN_ERROR_MESSAGE_PROP};
+        return new Property[] { RETURN_ERROR_MESSAGE_PROP };
     }
 
     @Override

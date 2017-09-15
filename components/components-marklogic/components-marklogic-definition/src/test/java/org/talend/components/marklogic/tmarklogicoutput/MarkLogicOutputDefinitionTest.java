@@ -34,6 +34,7 @@ import static org.talend.components.api.component.ComponentDefinition.RETURN_SUC
 import static org.talend.components.api.component.ComponentDefinition.RETURN_TOTAL_RECORD_COUNT_PROP;
 
 public class MarkLogicOutputDefinitionTest {
+
     MarkLogicOutputDefinition definition;
 
     @Before
@@ -43,7 +44,7 @@ public class MarkLogicOutputDefinitionTest {
 
     @Test
     public void testGetFamilies() {
-        String[] expectedFamilies = new String[] {"Databases/MarkLogic", "Big Data/MarkLogic"};
+        String[] expectedFamilies = new String[] { "Databases/MarkLogic", "Big Data/MarkLogic" };
 
         String[] actualFamilies = definition.getFamilies();
 
@@ -59,8 +60,8 @@ public class MarkLogicOutputDefinitionTest {
 
     @Test
     public void testGetReturnProperties() {
-        Property[] expectedReturnProperties = new Property[] {RETURN_TOTAL_RECORD_COUNT_PROP, RETURN_SUCCESS_RECORD_COUNT_PROP, RETURN_REJECT_RECORD_COUNT_PROP,
-                RETURN_ERROR_MESSAGE_PROP};
+        Property[] expectedReturnProperties = new Property[] { RETURN_TOTAL_RECORD_COUNT_PROP, RETURN_SUCCESS_RECORD_COUNT_PROP,
+                RETURN_REJECT_RECORD_COUNT_PROP, RETURN_ERROR_MESSAGE_PROP };
 
         assertArrayEquals(expectedReturnProperties, definition.getReturnProperties());
     }
@@ -72,7 +73,7 @@ public class MarkLogicOutputDefinitionTest {
         assertEquals("org.talend.components.marklogic.runtime.MarkLogicSink", runtimeInfo.getRuntimeClassName());
     }
 
-    @Test (expected = TalendRuntimeException.class)
+    @Test(expected = TalendRuntimeException.class)
     public void testGetRuntimeInfoForWrongTopology() {
         RuntimeInfo runtimeInfo = definition.getRuntimeInfo(ExecutionEngine.DI, null, ConnectorTopology.NONE);
         assertNull(runtimeInfo);

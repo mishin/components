@@ -48,7 +48,7 @@ public class MarkLogicFamilyDefinitionTest {
 
         List<Class> actualDefinitionsNames = new ArrayList<>();
 
-        for (Definition d: familyDefinition.getDefinitions()) {
+        for (Definition d : familyDefinition.getDefinitions()) {
             actualDefinitionsNames.add(d.getClass());
         }
 

@@ -12,104 +12,127 @@
 // ============================================================================
 package org.talend.components.marklogic.tmarklogicinput;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Collection;
-
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.talend.components.api.component.PropertyPathConnector;
 import org.talend.daikon.properties.presentation.Form;
-import org.talend.daikon.properties.presentation.Widget;
+
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.talend.daikon.avro.SchemaConstants.TALEND_IS_LOCKED;
 
 public class MarkLogicInputPropertiesTest {
 
-	/**
-	 * Checks forms are filled with required widgets
-	 */
-	@Test
-	public void testSetupLayout() {
-		MarkLogicInputProperties properties = new MarkLogicInputProperties("root");
-		properties.schema.init();
+    MarkLogicInputProperties testInputProperties;
 
-		/*properties.setupLayout();
+    @Before
+    public void init() {
+        testInputProperties = new MarkLogicInputProperties("testInputProperties");
+        testInputProperties.connection.init();
+    }
 
-		Form main = properties.getForm(Form.MAIN);
-		assertThat(main, notNullValue());
+    /**
+     * Checks forms are filled with required widgets
+     */
+    @Test
+    public void testSetupLayout() {
+        testInputProperties.schema.init();
 
-		Collection<Widget> mainWidgets = main.getWidgets();
-		assertThat(mainWidgets, hasSize(6));
+        testInputProperties.setupLayout();
+        Form main = testInputProperties.getForm(Form.MAIN);
+        assertNotNull(main.getWidget(testInputProperties.connection));
+        assertNotNull(main.getWidget(testInputProperties.criteria));
+        //should not be on main form
+        assertNull(main.getWidget(testInputProperties.maxRetrieve));
+        assertNull(main.getWidget(testInputProperties.pageSize));
+        assertNull(main.getWidget(testInputProperties.useQueryOption));
+        assertNull(main.getWidget(testInputProperties.queryLiteralType));
+        assertNull(main.getWidget(testInputProperties.queryOptionName));
+        assertNull(main.getWidget(testInputProperties.queryOptionLiterals));
 
-		Widget schemaWidget = main.getWidget("schema");
-		assertThat(schemaWidget, notNullValue());
+        Form advanced = testInputProperties.getForm(Form.ADVANCED);
+        assertNotNull(advanced.getWidget(testInputProperties.maxRetrieve));
+        assertNotNull(advanced.getWidget(testInputProperties.pageSize));
+        assertNotNull(advanced.getWidget(testInputProperties.useQueryOption));
+        assertNotNull(advanced.getWidget(testInputProperties.queryLiteralType));
+        assertNotNull(advanced.getWidget(testInputProperties.queryOptionName));
+        assertNotNull(advanced.getWidget(testInputProperties.queryOptionLiterals));
+    }
 
-		Widget fileWidget = main.getWidget("filename");
-		assertThat(fileWidget, notNullValue());
+    /**
+     * Checks default values are set correctly
+     */
+    @Test
+    public void testSetupProperties() {
+        String expectedDefaultHost = "127.0.0.1";
+        Integer expectedDefaultPort = 8000;
+        String expectedDefaultDataBase = "Documents";
+        Integer expectedDefaultMaxRetrieveNumber = -1;
+        Integer expectedDefaultPageSize = 10;
+        Boolean expectedDefaultUseQueryOption = false;
+        String expectedDefaultQueryLiteralType = "XML";
 
-		Widget useCustomDelimiterWidget = main.getWidget("useCustomDelimiter");
-		assertThat(useCustomDelimiterWidget, notNullValue());
+        testInputProperties.setupProperties();
 
-		Widget delimiterWidget = main.getWidget("delimiter");
-		assertThat(delimiterWidget, notNullValue());
+        assertEquals(expectedDefaultHost, testInputProperties.connection.host.getValue());
+        assertEquals(expectedDefaultPort, testInputProperties.connection.port.getValue());
+        assertEquals(expectedDefaultDataBase, testInputProperties.connection.database.getValue());
+        assertNull(testInputProperties.connection.username.getValue());
+        assertNull(testInputProperties.connection.password.getValue());
+        assertNull(testInputProperties.criteria.getValue());
+        assertNull(testInputProperties.criteria.getValue());
+        assertEquals(expectedDefaultMaxRetrieveNumber, testInputProperties.maxRetrieve.getValue());
+        assertEquals(expectedDefaultPageSize, testInputProperties.pageSize.getValue());
+        assertEquals(expectedDefaultUseQueryOption, testInputProperties.useQueryOption.getValue());
+        assertEquals(expectedDefaultQueryLiteralType, testInputProperties.queryLiteralType.getValue());
+        assertNull(testInputProperties.queryOptionName.getValue());
+        assertNull(testInputProperties.queryOptionLiterals.getValue());
+    }
 
-		Widget customDelimiterWidget = main.getWidget("customDelimiter");
-		assertThat(customDelimiterWidget, notNullValue());
+    @Test
+    public void testSchemaIsLocked() {
+        testInputProperties.setupSchema();
+        assertEquals("true", testInputProperties.schema.schema.getValue().getProp(TALEND_IS_LOCKED));
+    }
 
-		Widget guessSchemaWidget = main.getWidget("guessSchema");
-		assertThat(guessSchemaWidget, notNullValue());*/
-	}
+    @Test
+    public void testGetAllSchemaPropertiesConnectors() {
+        Set<PropertyPathConnector> actualConnectors = testInputProperties.getAllSchemaPropertiesConnectors(true);
+    }
 
-	/**
-	 * Checks default values are set correctly
-	 */
-	@Test
-	@Ignore
-	public void testSetupProperties() {
-//		MarkLogicInputProperties properties = new MarkLogicInputProperties("root");
-//		properties.setupProperties();
-//
-//		StringDelimiter delimiter = properties.delimiter.getValue();
-//		assertThat(delimiter, equalTo(StringDelimiter.SEMICOLON));
-//
-//		boolean useCustomDelimiter = properties.useCustomDelimiter.getValue();
-//		assertEquals(false, useCustomDelimiter);
-//
-//		String customDelimiter = properties.customDelimiter.getValue();
-//		assertThat(customDelimiter, equalTo(""));
-	}
+    /**
+     * Checks initial layout
+     */
+    @Test
+    @Ignore
+    public void testRefreshLayout() {
+        MarkLogicInputProperties properties = new MarkLogicInputProperties("root");
+        properties.init();
 
-	/**
-	 * Checks initial layout
-	 */
-	@Test
-	@Ignore
-	public void testRefreshLayout() {
-		MarkLogicInputProperties properties = new MarkLogicInputProperties("root");
-		properties.init();
+        properties.refreshLayout(properties.getForm(Form.MAIN));
 
-		properties.refreshLayout(properties.getForm(Form.MAIN));
+        boolean schemaHidden = properties.getForm(Form.MAIN).getWidget("schema").isHidden();
+        assertFalse(schemaHidden);
 
-		boolean schemaHidden = properties.getForm(Form.MAIN).getWidget("schema").isHidden();
-		assertFalse(schemaHidden);
+        boolean filenameHidden = properties.getForm(Form.MAIN).getWidget("filename").isHidden();
+        assertFalse(filenameHidden);
 
-		boolean filenameHidden = properties.getForm(Form.MAIN).getWidget("filename").isHidden();
-		assertFalse(filenameHidden);
+        boolean useCustomDelimiterHidden = properties.getForm(Form.MAIN).getWidget("useCustomDelimiter").isHidden();
+        assertFalse(useCustomDelimiterHidden);
 
-		boolean useCustomDelimiterHidden = properties.getForm(Form.MAIN).getWidget("useCustomDelimiter").isHidden();
-		assertFalse(useCustomDelimiterHidden);
+        boolean delimiterHidden = properties.getForm(Form.MAIN).getWidget("delimiter").isHidden();
+        assertFalse(delimiterHidden);
 
-		boolean delimiterHidden = properties.getForm(Form.MAIN).getWidget("delimiter").isHidden();
-		assertFalse(delimiterHidden);
+        boolean customDelimiterHidden = properties.getForm(Form.MAIN).getWidget("customDelimiter").isHidden();
+        assertTrue(customDelimiterHidden);
 
-		boolean customDelimiterHidden = properties.getForm(Form.MAIN).getWidget("customDelimiter").isHidden();
-		assertTrue(customDelimiterHidden);
-
-		boolean guessSchemaHidden = properties.getForm(Form.MAIN).getWidget("guessSchema").isHidden();
-		assertFalse(guessSchemaHidden);
-	}
+        boolean guessSchemaHidden = properties.getForm(Form.MAIN).getWidget("guessSchema").isHidden();
+        assertFalse(guessSchemaHidden);
+    }
 }
