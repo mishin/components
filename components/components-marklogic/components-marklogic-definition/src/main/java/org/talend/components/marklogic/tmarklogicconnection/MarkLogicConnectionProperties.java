@@ -14,6 +14,7 @@ package org.talend.components.marklogic.tmarklogicconnection;
 
 import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.api.properties.ComponentReferenceProperties;
+import org.talend.components.common.UserPasswordProperties;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
@@ -50,9 +51,14 @@ public class MarkLogicConnectionProperties extends ComponentPropertiesImpl {
     @Override
     public void setupProperties() {
         super.setupProperties();
+        host.setRequired();
         host.setValue("127.0.0.1");
+        port.setRequired();
         port.setValue(8000);
+        database.setRequired();
         database.setValue("Documents");
+        username.setRequired();
+        password.setRequired();
         authentication.setPossibleValues("DIGEST", "BASIC");
         authentication.setValue("DIGEST");
 
@@ -62,7 +68,6 @@ public class MarkLogicConnectionProperties extends ComponentPropertiesImpl {
     public void setupLayout() {
         super.setupLayout();
         Form mainForm = new Form(this, Form.MAIN);
-        //        mainForm.addRow();
 
         mainForm.addRow(host);
         mainForm.addColumn(port);
@@ -85,7 +90,7 @@ public class MarkLogicConnectionProperties extends ComponentPropertiesImpl {
         boolean refConnectionUsed =
                 refComponentId != null && refComponentId.startsWith(MarkLogicConnectionDefinition.COMPONENT_NAME);
 
-        if (form.getName().equals(Form.MAIN) /*|| form.getName().equals() */) {
+        if (form.getName().equals(Form.MAIN)) {
             form.getWidget(host).setHidden(refConnectionUsed);
             form.getWidget(port).setHidden(refConnectionUsed);
             form.getWidget(database).setHidden(refConnectionUsed);

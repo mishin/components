@@ -77,6 +77,7 @@ public class MarkLogicOutputProperties extends FixedConnectorsComponentPropertie
         setupSchema();
         connection.setupProperties();
         action.setPossibleValues("UPSERT", "PATCH", "DELETE");
+        action.setValue("UPSERT");
         docType.setPossibleValues("MIXED", "PLAIN TEXT", "JSON", "XML", "BINARY");
         docType.setValue("MIXED");
         docIdPrefix.setValue("/");

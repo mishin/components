@@ -50,6 +50,8 @@ public class MarkLogicBulkLoadProperties extends ComponentPropertiesImpl {
     public void setupProperties() {
         super.setupProperties();
         connection.setupProperties();
+
+        loadFolder.setRequired();
     }
 
     @Override

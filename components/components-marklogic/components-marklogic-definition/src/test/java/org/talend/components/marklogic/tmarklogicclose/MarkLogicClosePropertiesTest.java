@@ -23,7 +23,7 @@ public class MarkLogicClosePropertiesTest {
     MarkLogicCloseProperties closeProperties;
 
     @Before
-    public void reset() {
+    public void setUp() {
         closeProperties = new MarkLogicCloseProperties("close");
     }
 
@@ -37,10 +37,9 @@ public class MarkLogicClosePropertiesTest {
 
     @Test
     public void testGetReferencedComponentId() {
-        String expectedStringValue;
+        String expectedStringValue = "SomeStringValue";;
         String referencedComponentId;
 
-        expectedStringValue = "SomeStringValue";
         closeProperties.referencedComponent.componentInstanceId.setValue(expectedStringValue);
         referencedComponentId = closeProperties.getReferencedComponentId();
 

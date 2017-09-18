@@ -61,6 +61,8 @@ public class MarkLogicInputProperties extends FixedConnectorsComponentProperties
         super.setupProperties();
         connection.setupProperties();
 
+        criteria.setRequired();
+
         useQueryOption.setValue(false);
 
         maxRetrieve.setValue(-1);

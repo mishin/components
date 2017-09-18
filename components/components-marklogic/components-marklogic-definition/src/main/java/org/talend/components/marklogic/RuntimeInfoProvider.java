@@ -27,9 +27,8 @@ public final class RuntimeInfoProvider {
 
     public static final String MAVEN_RUNTIME_URI = "mvn:" + MAVEN_GROUP_ID + "/" + MAVEN_RUNTIME_ARTIFACT_ID;
 
-    private RuntimeInfoProvider() {
-        // Class provides static utility methods and shouldn't be instantiated
-    }
+    // Class provides static utility methods and shouldn't be instantiated
+    private RuntimeInfoProvider() {}
 
     public static RuntimeInfo getCommonRuntimeInfo(String clazzFullName) {
         return new JarRuntimeInfo(MAVEN_RUNTIME_URI,

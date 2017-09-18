@@ -12,14 +12,19 @@
 // ============================================================================
 package org.talend.components.marklogic.tmarklogicinput;
 
+import org.hamcrest.Matchers;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.talend.components.api.component.PropertyPathConnector;
+import org.talend.components.marklogic.tmarklogicconnection.MarkLogicConnectionDefinition;
+import org.talend.components.marklogic.tmarklogicconnection.MarkLogicConnectionProperties;
+import org.talend.components.marklogic.tmarklogicconnection.MarkLogicConnectionPropertiesTest;
 import org.talend.daikon.properties.presentation.Form;
 
 import java.util.Set;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -29,12 +34,11 @@ import static org.talend.daikon.avro.SchemaConstants.TALEND_IS_LOCKED;
 
 public class MarkLogicInputPropertiesTest {
 
-    MarkLogicInputProperties testInputProperties;
+    private MarkLogicInputProperties testInputProperties;
 
     @Before
-    public void init() {
+    public void setUp() {
         testInputProperties = new MarkLogicInputProperties("testInputProperties");
-        testInputProperties.connection.init();
     }
 
     /**
@@ -42,6 +46,7 @@ public class MarkLogicInputPropertiesTest {
      */
     @Test
     public void testSetupLayout() {
+        testInputProperties.connection.init();
         testInputProperties.schema.init();
 
         testInputProperties.setupLayout();
@@ -70,9 +75,6 @@ public class MarkLogicInputPropertiesTest {
      */
     @Test
     public void testSetupProperties() {
-        String expectedDefaultHost = "127.0.0.1";
-        Integer expectedDefaultPort = 8000;
-        String expectedDefaultDataBase = "Documents";
         Integer expectedDefaultMaxRetrieveNumber = -1;
         Integer expectedDefaultPageSize = 10;
         Boolean expectedDefaultUseQueryOption = false;
@@ -80,12 +82,11 @@ public class MarkLogicInputPropertiesTest {
 
         testInputProperties.setupProperties();
 
-        assertEquals(expectedDefaultHost, testInputProperties.connection.host.getValue());
-        assertEquals(expectedDefaultPort, testInputProperties.connection.port.getValue());
-        assertEquals(expectedDefaultDataBase, testInputProperties.connection.database.getValue());
+        assertEquals(MarkLogicConnectionPropertiesTest.EXPECTED_DEFAULT_HOST, testInputProperties.connection.host.getValue());
+        assertEquals(MarkLogicConnectionPropertiesTest.EXPECTED_DEFAULT_PORT, testInputProperties.connection.port.getValue());
+        assertEquals(MarkLogicConnectionPropertiesTest.EXPECTED_DEFAULT_DATABASE, testInputProperties.connection.database.getValue());
         assertNull(testInputProperties.connection.username.getValue());
         assertNull(testInputProperties.connection.password.getValue());
-        assertNull(testInputProperties.criteria.getValue());
         assertNull(testInputProperties.criteria.getValue());
         assertEquals(expectedDefaultMaxRetrieveNumber, testInputProperties.maxRetrieve.getValue());
         assertEquals(expectedDefaultPageSize, testInputProperties.pageSize.getValue());
@@ -104,35 +105,86 @@ public class MarkLogicInputPropertiesTest {
     @Test
     public void testGetAllSchemaPropertiesConnectors() {
         Set<PropertyPathConnector> actualConnectors = testInputProperties.getAllSchemaPropertiesConnectors(true);
+
+        assertThat(actualConnectors, Matchers.contains(testInputProperties.MAIN_CONNECTOR));
     }
+
+    @Test
+    public void testGetAllSchemaPropertiesConnectorsForWrongConnection() {
+        Set<PropertyPathConnector> actualConnectors = testInputProperties.getAllSchemaPropertiesConnectors(false);
+
+        assertThat(actualConnectors, empty());
+    }
+
+
 
     /**
      * Checks initial layout
      */
     @Test
-    @Ignore
     public void testRefreshLayout() {
-        MarkLogicInputProperties properties = new MarkLogicInputProperties("root");
-        properties.init();
+        testInputProperties.init();
+        testInputProperties.refreshLayout(testInputProperties.getForm(Form.MAIN));
+        testInputProperties.refreshLayout(testInputProperties.getForm(Form.ADVANCED));
 
-        properties.refreshLayout(properties.getForm(Form.MAIN));
+        boolean schemaHidden = testInputProperties.getForm(Form.MAIN).getWidget("schema").isHidden();
+        boolean isConnectionPropertiesHidden = testInputProperties.getForm(Form.MAIN).getWidget("connection").isHidden();
+        boolean isQueryCriteriaHidden = testInputProperties.getForm(Form.MAIN).getWidget("criteria").isHidden();
+        boolean isMaxRetrieveHidden = testInputProperties.getForm(Form.ADVANCED).getWidget("maxRetrieve").isHidden();
+        boolean isPageSizeHidden = testInputProperties.getForm(Form.ADVANCED).getWidget("pageSize").isHidden();
+        boolean isUseQueryOptionHidden = testInputProperties.getForm(Form.ADVANCED).getWidget("useQueryOption").isHidden();
+        boolean isQueryLiteralTypeHidden = testInputProperties.getForm(Form.ADVANCED).getWidget("queryLiteralType").isHidden();
+        boolean isQueryOptionNameHidden = testInputProperties.getForm(Form.ADVANCED).getWidget("queryOptionName").isHidden();
+        boolean isQueryOptionLiteralsHidden = testInputProperties.getForm(Form.ADVANCED).getWidget("queryOptionLiterals").isHidden();
 
-        boolean schemaHidden = properties.getForm(Form.MAIN).getWidget("schema").isHidden();
         assertFalse(schemaHidden);
+        assertFalse(isConnectionPropertiesHidden);
+        assertFalse(isQueryCriteriaHidden);
+        assertFalse(isMaxRetrieveHidden);
+        assertFalse(isPageSizeHidden);
+        assertFalse(isUseQueryOptionHidden);
 
-        boolean filenameHidden = properties.getForm(Form.MAIN).getWidget("filename").isHidden();
-        assertFalse(filenameHidden);
+        assertTrue(isQueryLiteralTypeHidden);
+        assertTrue(isQueryOptionNameHidden);
+        assertTrue(isQueryOptionLiteralsHidden);
+    }
 
-        boolean useCustomDelimiterHidden = properties.getForm(Form.MAIN).getWidget("useCustomDelimiter").isHidden();
-        assertFalse(useCustomDelimiterHidden);
+    @Test
+    public void testUseExistedConnectionHideConnectionWidget() {
+        MarkLogicConnectionProperties someConnection = new MarkLogicConnectionProperties("connection");
 
-        boolean delimiterHidden = properties.getForm(Form.MAIN).getWidget("delimiter").isHidden();
-        assertFalse(delimiterHidden);
+        testInputProperties.init();
+        someConnection.init();
+        testInputProperties.connection.referencedComponent.setReference(someConnection);
+        testInputProperties.connection.referencedComponent.componentInstanceId.setValue(MarkLogicConnectionDefinition.COMPONENT_NAME + "_1");
+        testInputProperties.refreshLayout(testInputProperties.getForm(Form.MAIN));
 
-        boolean customDelimiterHidden = properties.getForm(Form.MAIN).getWidget("customDelimiter").isHidden();
-        assertTrue(customDelimiterHidden);
+        boolean isConnectionHostPropertyHidden = testInputProperties.connection.getForm(Form.MAIN).getWidget(testInputProperties.connection.host).isHidden();
+        boolean isConnectionPortPropertyHidden = testInputProperties.connection.getForm(Form.MAIN).getWidget(testInputProperties.connection.port).isHidden();
+        boolean isUserNameHidden = testInputProperties.connection.getForm(Form.MAIN).getWidget(testInputProperties.connection.username).isHidden();
+        boolean isPasswordHidden = testInputProperties.connection.getForm(Form.MAIN).getWidget(testInputProperties.connection.password).isHidden();
+        boolean isConnectionDatabasePropertyHidden = testInputProperties.connection.getForm(Form.MAIN).getWidget(testInputProperties.connection.database).isHidden();
 
-        boolean guessSchemaHidden = properties.getForm(Form.MAIN).getWidget("guessSchema").isHidden();
-        assertFalse(guessSchemaHidden);
+        assertTrue(isConnectionHostPropertyHidden);
+        assertTrue(isConnectionPortPropertyHidden);
+        assertTrue(isUserNameHidden);
+        assertTrue(isPasswordHidden);
+        assertTrue(isConnectionDatabasePropertyHidden);
+    }
+
+    @Test
+    public void testAfterUseQueryOption() {
+        testInputProperties.init();
+
+        testInputProperties.useQueryOption.setValue(true);
+        testInputProperties.afterUseQueryOption();
+
+        boolean isQueryLiteralTypeVisible = testInputProperties.getForm(Form.ADVANCED).getWidget(testInputProperties.queryLiteralType).isVisible();
+        boolean isQueryOptionNameVisible = testInputProperties.getForm(Form.ADVANCED).getWidget(testInputProperties.queryOptionName).isVisible();
+        boolean isQueryLiteralsVisible = testInputProperties.getForm(Form.ADVANCED).getWidget(testInputProperties.queryOptionLiterals).isVisible();
+
+        assertTrue(isQueryLiteralTypeVisible);
+        assertTrue(isQueryOptionNameVisible);
+        assertTrue(isQueryLiteralsVisible);
     }
 }

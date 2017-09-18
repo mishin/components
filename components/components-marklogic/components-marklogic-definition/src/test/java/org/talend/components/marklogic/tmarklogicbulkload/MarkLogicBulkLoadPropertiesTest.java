@@ -18,13 +18,14 @@ import org.talend.daikon.properties.presentation.Form;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class MarkLogicBulkLoadPropertiesTest {
 
     MarkLogicBulkLoadProperties bulkLoadProperties;
 
     @Before
-    public void init() {
+    public void setUp() {
         bulkLoadProperties = new MarkLogicBulkLoadProperties("bulk load");
     }
 
@@ -36,6 +37,7 @@ public class MarkLogicBulkLoadPropertiesTest {
 
         assertNotNull(bulkLoadProperties.loadFolder);
         assertNull(bulkLoadProperties.loadFolder.getStringValue());
+        assertTrue(bulkLoadProperties.loadFolder.isRequired());
 
         assertNotNull(bulkLoadProperties.docidPrefix);
         assertNull(bulkLoadProperties.docidPrefix.getStringValue());
