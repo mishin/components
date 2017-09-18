@@ -59,8 +59,8 @@ public class MappingFileLoader2 {
      */
     private List<Dbms> constructAllDbms(NodeList dbmsNodes) {
         ArrayList<Dbms> dbmsList = new ArrayList<>();
-        for (int dbmsIndex = 0; dbmsIndex < dbmsNodes.getLength(); dbmsIndex++) {
-            Dbms dbms = constructDbms((Element) dbmsNodes.item(dbmsIndex));
+        for (int i = 0; i < dbmsNodes.getLength(); i++) {
+            Dbms dbms = constructDbms((Element) dbmsNodes.item(i));
             dbmsList.add(dbms);
         }
         return dbmsList;
@@ -78,12 +78,39 @@ public class MappingFileLoader2 {
         String id = dbmsAttributes.getNamedItem("id").getNodeValue(); //$NON-NLS-1$
         String label = dbmsAttributes.getNamedItem("label").getNodeValue(); //$NON-NLS-1$
         boolean isDefault = Boolean.parseBoolean(dbmsAttributes.getNamedItem("default").getNodeValue()); //$NON-NLS-1$
-        
+
         Dbms dbms = new Dbms(id, productName, label, isDefault);
-        
-        List<Node> childrenOfDbmsNode = getChildElementNodes(dbmsNode);
-        
+        NodeList dbTypesNodeList = dbmsNode.getElementsByTagName("dbTypes");
+        Element dbTypesNode = (Element) dbTypesNodeList.item(0);
+
+        NodeList dbTypes = dbTypesNode.getElementsByTagName("dbType");
+        for (int i = 0; i < dbTypes.getLength(); i++) {
+            constructDbType((Element) dbTypes.item(i));
+        }
+        // List<Node> childrenOfDbmsNode = getChildElementNodes(dbmsNode);
+
         return dbms;
+    }
+    
+    /**
+     * Constructs db type from DOM object
+     * 
+     * @param dbTypeNode
+     */
+    private void constructDbType(Element dbTypeNode) {
+        NamedNodeMap dbTypeAttributes = dbTypeNode.getAttributes();
+        String typeName = dbTypeAttributes.getNamedItem("type").getNodeValue();
+        boolean ignorePre = false;
+        Node ignorePreAttribute = dbTypeAttributes.getNamedItem("ignorePre");
+        if (ignorePreAttribute != null) {
+            ignorePre = Boolean.parseBoolean(ignorePreAttribute.getNodeValue());
+        }
+        
+        
+        boolean ignoreLen;
+        int defaultLength;
+        int defaultPrecision;
+        boolean preBeforelen;
     }
     
     /**
