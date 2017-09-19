@@ -49,7 +49,9 @@ public class SalesforceFamilyDefinition extends AbstractComponentFamilyDefinitio
                 new TSalesforceInputDefinition(), new TSalesforceOutputDefinition(), new TSalesforceOutputBulkDefinition(),
                 new TSalesforceOutputBulkExecDefinition(),
                 // Component wizards
-                new SalesforceConnectionEditWizardDefinition(), new SalesforceConnectionWizardDefinition(),
+                new SalesforceConnectionWizardDefinition(),
+                //TODO remove the edit one as it's duplicated
+                new SalesforceConnectionEditWizardDefinition(), 
                 new SalesforceModuleWizardDefinition(),
                 // Datastore, Dataset and the component
                 new SalesforceDatastoreDefinition(), new SalesforceDatasetDefinition(), new SalesforceInputDefinition());

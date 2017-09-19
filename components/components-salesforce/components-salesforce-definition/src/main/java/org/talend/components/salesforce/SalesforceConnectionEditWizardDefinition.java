@@ -12,11 +12,6 @@
 // ============================================================================
 package org.talend.components.salesforce;
 
-import org.talend.components.api.Constants;
-import org.talend.components.api.wizard.ComponentWizardDefinition;
-
-import aQute.bnd.annotation.component.Component;
-
 public class SalesforceConnectionEditWizardDefinition extends SalesforceConnectionWizardDefinition {
 
     public static final String COMPONENT_WIZARD_NAME = "salesforce.edit"; //$NON-NLS-1$

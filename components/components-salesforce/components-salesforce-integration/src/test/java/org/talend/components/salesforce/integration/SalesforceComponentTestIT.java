@@ -49,14 +49,11 @@ import org.talend.components.api.wizard.ComponentWizardDefinition;
 import org.talend.components.api.wizard.WizardImageType;
 import org.talend.components.api.wizard.WizardNameComparator;
 import org.talend.components.common.CommonTestUtils;
-import org.talend.components.common.oauth.OauthProperties;
 import org.talend.components.salesforce.SalesforceConnectionProperties;
 import org.talend.components.salesforce.SalesforceConnectionProperties.LoginType;
-import org.talend.components.salesforce.SalesforceConnectionWizard;
 import org.talend.components.salesforce.SalesforceConnectionWizardDefinition;
 import org.talend.components.salesforce.SalesforceModuleListProperties;
 import org.talend.components.salesforce.SalesforceModuleProperties;
-import org.talend.components.salesforce.SalesforceModuleWizard;
 import org.talend.components.salesforce.SalesforceOutputProperties.OutputAction;
 import org.talend.components.salesforce.SalesforceUserPasswordProperties;
 import org.talend.components.salesforce.runtime.SalesforceSourceOrSink;
@@ -110,7 +107,6 @@ public abstract class SalesforceComponentTestIT extends SalesforceTestBase {
         Form mainForm = props.getForm(Form.MAIN);
         assertEquals("Salesforce Connection Settings", mainForm.getTitle());
         assertFalse(mainForm.getWidget(SalesforceUserPasswordProperties.class).isHidden());
-        assertTrue(mainForm.getWidget(OauthProperties.class).isHidden());
 
         loginType.setValue(SalesforceConnectionProperties.LoginType.OAuth);
         props = checkAndAfter(mainForm, "loginType", props);
@@ -118,7 +114,6 @@ public abstract class SalesforceComponentTestIT extends SalesforceTestBase {
         assertTrue(mainForm.isRefreshUI());
 
         assertTrue(mainForm.getWidget(SalesforceUserPasswordProperties.class).isHidden());
-        assertFalse(mainForm.getWidget(OauthProperties.class).isHidden());
     }
 
     @Test
@@ -127,7 +122,7 @@ public abstract class SalesforceComponentTestIT extends SalesforceTestBase {
                 .createProperties();
         assertTrue(props.userPassword.userId.isRequired());
         assertTrue(props.userPassword.password.isRequired());
-        assertFalse(props.userPassword.securityToken.isRequired());
+        assertFalse(props.userPassword.securityKey.isRequired());
 
         assertFalse(props.proxy.userPassword.userId.isRequired());
         assertFalse(props.proxy.userPassword.password.isRequired());
@@ -272,22 +267,21 @@ public abstract class SalesforceComponentTestIT extends SalesforceTestBase {
         getComponentService().setRepository(repo);
 
         Set<ComponentWizardDefinition> wizards = getComponentService().getTopLevelComponentWizards();
-        int count = 0;
+        int connectionWizardDefinitionNumber = 0;
         ComponentWizardDefinition wizardDef = null;
         for (ComponentWizardDefinition wizardDefinition : wizards) {
             if (wizardDefinition instanceof SalesforceConnectionWizardDefinition) {
                 wizardDef = wizardDefinition;
-                count++;
+                connectionWizardDefinitionNumber++;
             }
         }
-        assertEquals(1, count);
-        assertEquals("Create Salesforce Connection", wizardDef.getMenuItemName());
-        ComponentWizard wiz = getComponentService().getComponentWizard(SalesforceConnectionWizardDefinition.COMPONENT_WIZARD_NAME,
-                "nodeSalesforce");
-        assertNotNull(wiz);
-        assertEquals("nodeSalesforce", wiz.getRepositoryLocation());
-        SalesforceConnectionWizard swiz = (SalesforceConnectionWizard) wiz;
-        List<Form> forms = wiz.getForms();
+        assertEquals(1, connectionWizardDefinitionNumber);
+        assertEquals("Salesforce Connection", wizardDef.getMenuItemName());
+        ComponentWizard connectionWizard = getComponentService()
+                .getComponentWizard(SalesforceConnectionWizardDefinition.COMPONENT_WIZARD_NAME, "nodeSalesforce");
+        assertNotNull(connectionWizard);
+        assertEquals("nodeSalesforce", connectionWizard.getRepositoryLocation());
+        List<Form> forms = connectionWizard.getForms();
         Form connFormWizard = forms.get(0);
         assertEquals("Wizard", connFormWizard.getName());
         assertFalse(connFormWizard.isAllowBack());
@@ -300,10 +294,11 @@ public abstract class SalesforceComponentTestIT extends SalesforceTestBase {
 
         SalesforceConnectionProperties connProps = (SalesforceConnectionProperties) connFormWizard.getProperties();
 
-        Form af = connProps.getForm(Form.ADVANCED);
+        Form advancedForm = connProps.getForm(Form.ADVANCED);
         assertTrue(
-                ((PresentationItem) connFormWizard.getWidget("advanced").getContent()).getFormtoShow() + " should be == to " + af,
-                ((PresentationItem) connFormWizard.getWidget("advanced").getContent()).getFormtoShow() == af);
+                ((PresentationItem) connFormWizard.getWidget("advanced").getContent()).getFormtoShow() + " should be == to "
+                        + advancedForm,
+                ((PresentationItem) connFormWizard.getWidget("advanced").getContent()).getFormtoShow() == advancedForm);
 
         Object image = getComponentService().getWizardPngImage(SalesforceConnectionWizardDefinition.COMPONENT_WIZARD_NAME,
                 WizardImageType.TREE_ICON_16X16);
@@ -375,34 +370,25 @@ public abstract class SalesforceComponentTestIT extends SalesforceTestBase {
 
     @Test
     public void testModuleWizard() throws Throwable {
-        ComponentWizard wiz = getComponentService().getComponentWizard(SalesforceConnectionWizardDefinition.COMPONENT_WIZARD_NAME,
-                "nodeSalesforce");
-        List<Form> forms = wiz.getForms();
-        Form connFormWizard = forms.get(0);
-        SalesforceConnectionProperties connProps = (SalesforceConnectionProperties) connFormWizard.getProperties();
+        ComponentWizard connectionWizard = getComponentService()
+                .getComponentWizard(SalesforceConnectionWizardDefinition.COMPONENT_WIZARD_NAME, "nodeSalesforce");
+        List<Form> forms = connectionWizard.getForms();
+        Form connectionWizardForm = forms.get(0);
+        SalesforceConnectionProperties connProps = (SalesforceConnectionProperties) connectionWizardForm.getProperties();
 
         ComponentWizard[] subWizards = getComponentService().getComponentWizardsForProperties(connProps, "location")
-                .toArray(new ComponentWizard[2]);
+                .toArray(new ComponentWizard[3]);
         Arrays.sort(subWizards, new WizardNameComparator());
-        assertEquals(2, subWizards.length);
-        // Edit connection wizard - we copy the connection properties, as we present the UI, so we use the
-        // connection properties object created by the new wizard
-        assertFalse(connProps == subWizards[1].getForms().get(0).getProperties());
-        assertFalse(subWizards[1].getDefinition().isTopLevel());
-        assertEquals("Edit Salesforce Connection", subWizards[1].getDefinition().getMenuItemName());
+        assertEquals(3, subWizards.length);
+
         assertTrue(subWizards[0].getDefinition().isTopLevel());
-        assertEquals("Create Salesforce Connection", subWizards[0].getDefinition().getMenuItemName());
-
-        // Checking wizard for SalesforceModuleListProperties
-        SalesforceModuleListProperties moduleListProperties = new SalesforceModuleListProperties("moduleList");
-        moduleListProperties.setConnection(connProps);
-        List<ComponentWizard> moduleListWizardList = getComponentService().getComponentWizardsForProperties(moduleListProperties, "location");
-        ComponentWizard moduleListWizard = moduleListWizardList.get(0);
-
-        assertTrue(moduleListWizard instanceof SalesforceModuleWizard);
-        assertEquals(1, moduleListWizardList.size());
-        assertFalse(moduleListWizard.getDefinition().isTopLevel());
-        assertEquals("Add Salesforce Modules", moduleListWizard.getDefinition().getMenuItemName());
+        assertEquals("Salesforce Connection", subWizards[0].getDefinition().getMenuItemName());
+        
+        assertFalse(subWizards[1].getDefinition().isTopLevel());
+        assertEquals("Edit Salesforce", subWizards[1].getDefinition().getMenuItemName());
+        
+        assertFalse(subWizards[2].getDefinition().isTopLevel());
+        assertEquals("Salesforce Modules", subWizards[2].getDefinition().getMenuItemName());
     }
 
     @Test

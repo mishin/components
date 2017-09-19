@@ -12,15 +12,11 @@
 // ============================================================================
 package org.talend.components.processing.runtime.pythonrow;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
 
 import org.apache.avro.Schema;
-import org.apache.avro.generic.GenericDatumReader;
+import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.generic.IndexedRecord;
-import org.apache.avro.io.DecoderFactory;
-import org.apache.avro.io.JsonDecoder;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.python.core.PyList;
 import org.python.core.PyObject;
@@ -28,11 +24,15 @@ import org.python.core.PyString;
 import org.python.util.PythonInterpreter;
 import org.talend.components.api.component.runtime.RuntimableRuntime;
 import org.talend.components.api.container.RuntimeContainer;
-import org.talend.components.processing.pythonrow.MapType;
-import org.talend.components.processing.pythonrow.PythonRowProperties;
+import org.talend.components.processing.definition.pythonrow.MapType;
+import org.talend.components.processing.definition.pythonrow.PythonRowProperties;
 import org.talend.daikon.avro.AvroRegistry;
 import org.talend.daikon.avro.converter.IndexedRecordConverter;
+import org.talend.daikon.avro.converter.JsonGenericRecordConverter;
+import org.talend.daikon.avro.inferrer.JsonSchemaInferrer;
 import org.talend.daikon.properties.ValidationResult;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class PythonRowDoFn extends DoFn<Object, Object> implements RuntimableRuntime<PythonRowProperties> {
 
@@ -42,10 +42,7 @@ public class PythonRowDoFn extends DoFn<Object, Object> implements RuntimableRun
 
     private IndexedRecordConverter converter = null;
 
-    private Schema schema = null;
-
-    private GenericDatumReader<IndexedRecord> reader = null;
-
+    private JsonGenericRecordConverter jsonGenericRecordConverter = null;
 
     @Override
     public ValidationResult initialize(RuntimeContainer container, PythonRowProperties componentProperties) {
@@ -68,13 +65,6 @@ public class PythonRowDoFn extends DoFn<Object, Object> implements RuntimableRun
             }
             IndexedRecord input = (IndexedRecord) converter.convertToAvro(context.element());
 
-            if (schema == null) {
-                schema = retrieveOutputSchema(input);
-            }
-            if (reader == null) {
-                reader = new GenericDatumReader<>(schema);
-            }
-
             if (MapType.MAP.equals(properties.mapType.getValue())) {
                 map(input, context);
             } else { // flatmap
@@ -84,19 +74,12 @@ public class PythonRowDoFn extends DoFn<Object, Object> implements RuntimableRun
         python.cleanup();
     }
 
-    private Schema retrieveOutputSchema(IndexedRecord input) {
-        if (properties.changeOutputSchema.getValue()) {
-            return properties.schemaFlow.schema.getValue();
-        } else {
-            return input.getSchema();
-        }
-    }
-
     private void map(IndexedRecord input, ProcessContext context) throws IOException {
         // Prepare Python environment
         python.set("inputJSON", new PyString(input.toString()));
-        python.exec("input = json.loads(inputJSON)");
-        python.exec("output = json.loads(\"{}\")");
+        python.exec("import collections");
+        python.exec("input = json.loads(inputJSON, object_pairs_hook=collections.OrderedDict)");
+        python.exec("output = json.loads(\"{}\", object_pairs_hook=collections.OrderedDict)");
 
         // Execute user command
         python.exec(properties.pythonCode.getValue());
@@ -105,16 +88,21 @@ public class PythonRowDoFn extends DoFn<Object, Object> implements RuntimableRun
         python.exec("outputJSON = json.dumps(output)");
         PyObject output = python.get("outputJSON");
 
-        ByteArrayInputStream bais = new ByteArrayInputStream(output.toString().getBytes());
-        DataInputStream din = new DataInputStream(bais);
-        JsonDecoder decoder = DecoderFactory.get().jsonDecoder(schema, din);
-        context.output(reader.read(null, decoder));
+        if (jsonGenericRecordConverter == null) {
+            JsonSchemaInferrer jsonSchemaInferrer = new JsonSchemaInferrer(new ObjectMapper());
+            Schema jsonSchema = jsonSchemaInferrer.inferSchema(output.toString());
+            jsonGenericRecordConverter = new JsonGenericRecordConverter(jsonSchema);
+        }
+
+        GenericRecord outputRecord = jsonGenericRecordConverter.convertToAvro(output.toString());
+        context.output(outputRecord);
     }
 
     private void flatMap(IndexedRecord input, ProcessContext context) throws IOException {
         // Prepare Python environment
         python.set("inputJSON", new PyString(input.toString()));
-        python.exec("input = json.loads(inputJSON)");
+        python.exec("import collections");
+        python.exec("input = json.loads(inputJSON, object_pairs_hook=collections.OrderedDict)");
         python.exec("outputList = []");
 
         // Execute user command
@@ -127,10 +115,13 @@ public class PythonRowDoFn extends DoFn<Object, Object> implements RuntimableRun
         if (outputList instanceof PyList) {
             PyList list = (PyList) outputList;
             for (Object output : list) {
-                ByteArrayInputStream bais = new ByteArrayInputStream(output.toString().getBytes());
-                DataInputStream din = new DataInputStream(bais);
-                JsonDecoder decoder = DecoderFactory.get().jsonDecoder(schema, din);
-                context.output(reader.read(null, decoder));
+                if (jsonGenericRecordConverter == null) {
+                    JsonSchemaInferrer jsonSchemaInferrer = new JsonSchemaInferrer(new ObjectMapper());
+                    Schema jsonSchema = jsonSchemaInferrer.inferSchema(output.toString());
+                    jsonGenericRecordConverter = new JsonGenericRecordConverter(jsonSchema);
+                }
+                GenericRecord outputRecord = jsonGenericRecordConverter.convertToAvro(output.toString());
+                context.output(outputRecord);
             }
         }
     }
