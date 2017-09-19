@@ -19,17 +19,18 @@ import java.util.List;
 import org.apache.avro.generic.IndexedRecord;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.commons.lang3.StringUtils;
+import org.talend.components.processing.definition.ProcessingErrorCode;
 import org.talend.components.processing.definition.filterrow.ConditionsRowConstant;
 import org.talend.components.processing.definition.filterrow.FilterRowCriteriaProperties;
 import org.talend.components.processing.definition.filterrow.FilterRowProperties;
 import org.talend.components.processing.definition.filterrow.LogicalOpType;
 import org.talend.daikon.avro.AvroRegistry;
 import org.talend.daikon.avro.converter.IndexedRecordConverter;
-import org.talend.daikon.exception.TalendRuntimeException;
 
 import scala.collection.JavaConversions;
 import scala.util.Try;
 import wandou.avpath.Evaluator;
+import wandou.avpath.Parser;
 
 public class FilterRowDoFn extends DoFn<Object, IndexedRecord> {
 
@@ -166,10 +167,15 @@ public class FilterRowDoFn extends DoFn<Object, IndexedRecord> {
                 values.add(ctx.value());
             }
         } else {
-            throw TalendRuntimeException.createUnexpectedException(result.failed().get());
+            // Evaluating the expression failed, and we can handle the exception.
+            Throwable t = result.failed().get();
+            if (t instanceof Parser.AvroPathException)
+                // TODO: should be able to get the invalid position from the position.
+                throw ProcessingErrorCode.createAvpathSyntaxError(t, columnName, -1);
+            else
+                throw ProcessingErrorCode.createAvpathSyntaxError(t, columnName, -1);
         }
         return values;
-
     }
 
     public FilterRowDoFn withOutputSchema(boolean hasSchema) {

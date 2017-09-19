@@ -12,10 +12,8 @@
 // ============================================================================
 package org.talend.components.processing.runtime.filterrow;
 
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
@@ -34,7 +32,6 @@ import org.talend.components.processing.definition.filterrow.ConditionsRowConsta
 import org.talend.components.processing.definition.filterrow.FilterRowCriteriaProperties;
 import org.talend.components.processing.definition.filterrow.FilterRowProperties;
 import org.talend.components.processing.definition.filterrow.LogicalOpType;
-import org.talend.components.processing.runtime.SampleAvpathSchemas;
 import org.talend.daikon.exception.TalendRuntimeException;
 
 public class FilterRowDoFnTest {
@@ -97,7 +94,7 @@ public class FilterRowDoFnTest {
      * @param value If non-null, sets the value of the criteria.
      * @return a properties with the specified criteria added.
      */
-    private static FilterRowProperties addCriteria(FilterRowProperties frp, String columnName, String function, String operator,
+    protected static FilterRowProperties addCriteria(FilterRowProperties frp, String columnName, String function, String operator,
             String value) {
         // Create a new properties if one wasn't passed in.
         if (frp == null) {
@@ -940,30 +937,4 @@ public class FilterRowDoFnTest {
     // TODO test function and operator on every single type
 
     // TODO need to test invalid columnName => waiting for the definition of the columnName path
-
-    @Test
-    public void test_hierarchical() throws Exception {
-        FilterRowProperties properties = addCriteria(null, ".automobiles{.maker === \"Toyota\"}.year", null,
-                ConditionsRowConstant.Operator.GREATER, "2015");
-
-        IndexedRecord input = SampleAvpathSchemas.getDefaultVehicleCollection();
-        // All of the Toyota automobiles were made after 2015, so record accepted.
-        {
-            DoFnTester<Object, IndexedRecord> fnTester = DoFnTester.of(new FilterRowDoFn().withProperties(properties) //
-                    .withOutputSchema(true));
-            assertThat(fnTester.processBundle(input), contains(input));
-        }
-
-        // Not all of the Honda automobiles were made after 2009, so record rejected.
-        {
-            FilterRowCriteriaProperties criteria = properties.filters.subProperties.get(0);
-            criteria.columnName.setValue(".automobiles{.maker === \"Honda\"}.year");
-            criteria.operator.setValue(ConditionsRowConstant.Operator.GREATER);
-            criteria.value.setValue("2009");
-            DoFnTester<Object, IndexedRecord> fnTester = DoFnTester.of(new FilterRowDoFn().withProperties(properties) //
-                    .withOutputSchema(true));
-            assertThat(fnTester.processBundle(input), not(contains(input)));
-        }
-    }
-
 }
