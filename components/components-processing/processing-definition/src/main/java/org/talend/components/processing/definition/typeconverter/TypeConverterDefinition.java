@@ -10,11 +10,10 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.processing.typeconverter;
+package org.talend.components.processing.definition.typeconverter;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.EnumSet;
 import java.util.Set;
 
 import org.talend.components.api.component.AbstractComponentDefinition;
@@ -24,7 +23,7 @@ import org.talend.components.api.component.runtime.ExecutionEngine;
 import org.talend.components.api.component.runtime.JarRuntimeInfo;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.api.properties.ComponentProperties;
-import org.talend.components.processing.ProcessingFamilyDefinition;
+import org.talend.components.processing.definition.ProcessingFamilyDefinition;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.runtime.RuntimeInfo;
 

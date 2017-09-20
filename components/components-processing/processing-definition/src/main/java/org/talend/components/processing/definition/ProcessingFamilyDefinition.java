@@ -21,7 +21,7 @@ import org.talend.components.processing.definition.normalize.NormalizeDefinition
 import org.talend.components.processing.definition.pythonrow.PythonRowDefinition;
 import org.talend.components.processing.definition.replicate.ReplicateDefinition;
 import org.talend.components.processing.definition.window.WindowDefinition;
-import org.talend.components.processing.typeconverter.TypeConverterDefinition;
+import org.talend.components.processing.definition.typeconverter.TypeConverterDefinition;
 
 import com.google.auto.service.AutoService;
 

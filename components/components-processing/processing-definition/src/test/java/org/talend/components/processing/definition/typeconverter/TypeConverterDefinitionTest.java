@@ -1,14 +1,10 @@
-package org.talend.components.processing.typeconverter;
+package org.talend.components.processing.definition.typeconverter;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
-import org.talend.components.api.ComponentInstaller;
 import org.talend.components.api.component.ComponentDefinition;
-import org.talend.components.api.component.ComponentImageType;
 import org.talend.components.api.component.ConnectorTopology;
 import org.talend.components.api.component.runtime.ExecutionEngine;
 import org.talend.components.api.exception.error.ComponentsErrorCode;
@@ -17,15 +13,12 @@ import org.talend.daikon.definition.DefinitionImageType;
 import org.talend.daikon.exception.TalendRuntimeException;
 import org.talend.daikon.runtime.RuntimeInfo;
 
-import java.util.Set;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
 
 public class TypeConverterDefinitionTest {
 

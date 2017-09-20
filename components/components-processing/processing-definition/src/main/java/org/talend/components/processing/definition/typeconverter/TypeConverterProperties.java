@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.processing.typeconverter;
+package org.talend.components.processing.definition.typeconverter;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -18,7 +18,6 @@ import java.util.Set;
 
 import org.talend.components.api.component.Connector;
 import org.talend.components.api.component.PropertyPathConnector;
-import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.common.FixedConnectorsComponentProperties;
 import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.PropertiesImpl;
@@ -60,8 +59,8 @@ public class TypeConverterProperties extends FixedConnectorsComponentProperties 
             new PropertiesList.NestedPropertiesFactory() {
 
                 @Override
-                public Properties create(String name) {
-                    return new TypeConverterPropertiesInner(name);
+                public Properties createAndInit(String name) {
+                    return new TypeConverterPropertiesInner(name).init();
                 }
             });
 
