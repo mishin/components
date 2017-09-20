@@ -92,4 +92,9 @@ public class AssertResultWriter implements WriterWithFeedback<Result, IndexedRec
     public Iterable<IndexedRecord> getRejectedWrites() {
         return null;
     }
+    
+    @Override
+    public void cleanWrites() {
+        //do nothing
+    }
 }
