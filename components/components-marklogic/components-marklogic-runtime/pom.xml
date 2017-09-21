@@ -28,10 +28,15 @@
 			<id>releases</id>
 			<url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
 		</repository>
+
+		<repository>
+			<id>jcenter</id>
+			<url>http://jcenter.bintray.com</url>
+		</repository>
 	</repositories>
 
 	<dependencies>
-	
+
 		<dependency>
 			<groupId>org.talend.components</groupId>
 			<artifactId>components-marklogic-definition</artifactId>
@@ -60,8 +65,24 @@
 			<version>${project.parent.version}</version>
 			<scope>test</scope>
 		</dependency>
-		
+		<dependency>
+			<groupId>com.marklogic</groupId>
+			<artifactId>marklogic-client-api</artifactId>
+			<version>4.0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.marklogic</groupId>
+			<artifactId>mlcp</artifactId>
+			<version>9.0.2</version>
+			<exclusions>
+				<exclusion>
+					<groupId>ch.qos.logback</groupId>
+					<artifactId>logback-classic</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 	</dependencies>
+
 
 	<build>
 		<plugins>
