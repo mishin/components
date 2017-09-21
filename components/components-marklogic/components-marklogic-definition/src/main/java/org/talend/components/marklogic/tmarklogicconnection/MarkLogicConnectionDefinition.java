@@ -12,20 +12,16 @@
 // ============================================================================
 package org.talend.components.marklogic.tmarklogicconnection;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 import org.talend.components.api.component.AbstractComponentDefinition;
 import org.talend.components.api.component.ConnectorTopology;
-import org.talend.components.api.component.runtime.DependenciesReader;
 import org.talend.components.api.component.runtime.ExecutionEngine;
-import org.talend.components.api.component.runtime.JarRuntimeInfo;
-import org.talend.components.api.component.runtime.SimpleRuntimeInfo;
-import org.talend.components.api.component.runtime.SourceOrSink;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.marklogic.RuntimeInfoProvider;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.runtime.RuntimeInfo;
-
-import java.util.EnumSet;
-import java.util.Set;
 
 public class MarkLogicConnectionDefinition extends AbstractComponentDefinition {
 
@@ -56,7 +52,7 @@ public class MarkLogicConnectionDefinition extends AbstractComponentDefinition {
         assertEngineCompatibility(engine);
         if (connectorTopology == ConnectorTopology.NONE) {
             return RuntimeInfoProvider
-                    .getCommonRuntimeInfo("org.talend.components.marklogic.connection.TMarkLogicConnectionStandalone");
+                    .getCommonRuntimeInfo("org.talend.components.marklogic.runtime.TMarkLogicConnectionStandalone");
         } else {
             return null;
         }

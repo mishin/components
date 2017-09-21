@@ -12,19 +12,18 @@
 // ============================================================================
 package org.talend.components.marklogic.tmarklogicconnection;
 
+import static org.talend.daikon.properties.presentation.Widget.widget;
+import static org.talend.daikon.properties.property.PropertyFactory.newProperty;
+
+import java.util.EnumSet;
+
 import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.api.properties.ComponentReferenceProperties;
-import org.talend.components.common.UserPasswordProperties;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
 import org.talend.daikon.properties.property.StringProperty;
-
-import java.util.EnumSet;
-
-import static org.talend.daikon.properties.presentation.Widget.widget;
-import static org.talend.daikon.properties.property.PropertyFactory.newProperty;
 
 public class MarkLogicConnectionProperties extends ComponentPropertiesImpl {
 
@@ -104,5 +103,9 @@ public class MarkLogicConnectionProperties extends ComponentPropertiesImpl {
     public void afterReferencedComponent() {
         refreshLayout(getForm(Form.MAIN));
         refreshLayout(getForm(Form.REFERENCE));
+    }
+
+    public String getReferencedComponentId() {
+        return referencedComponent.componentInstanceId.getValue();
     }
 }
