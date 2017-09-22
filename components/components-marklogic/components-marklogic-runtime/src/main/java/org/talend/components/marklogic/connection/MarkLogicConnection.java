@@ -42,16 +42,12 @@ public abstract class MarkLogicConnection {
      */
     public DatabaseClient connect(RuntimeContainer container) throws IOException {
         MarkLogicConnectionProperties properties = getMarkLogicConnectionProperties();
-        if (properties.getReferencedComponentId() != null) {
-            if (container != null) {
-                DatabaseClient client = (DatabaseClient) container.getComponentData(container.getCurrentComponentId(),
-                        CONNECTION);
-                if (client != null) {
-                    return client;
-                }
-                throw new IOException("Referenced component: " + properties.getReferencedComponentId() + " not connected");
+        if (properties.getReferencedComponentId() != null && container != null) {
+            DatabaseClient client = (DatabaseClient) container.getComponentData(container.getCurrentComponentId(), CONNECTION);
+            if (client != null) {
+                return client;
             }
-            properties = properties.referencedComponent.getReference();
+            throw new IOException("Referenced component: " + properties.getReferencedComponentId() + " not connected");
         }
 
         SecurityContext context = "BASIC".equals(properties.authentication.getValue())
