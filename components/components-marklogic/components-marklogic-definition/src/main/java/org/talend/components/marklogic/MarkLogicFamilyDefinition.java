@@ -24,6 +24,7 @@ import aQute.bnd.annotation.component.Component;
 
 import com.google.auto.service.AutoService;
 import org.talend.components.marklogic.tmarklogicoutput.MarkLogicOutputDefinition;
+import org.talend.components.marklogic.wizard.MarkLogicWizardDefinition;
 
 /**
  * Install all of the definitions provided for the FileInput family of components.
@@ -37,7 +38,7 @@ public class MarkLogicFamilyDefinition
 
     public MarkLogicFamilyDefinition() {
         super(NAME, new MarkLogicInputDefinition(), new MarkLogicOutputDefinition(), new MarkLogicConnectionDefinition(),
-                new MarkLogicCloseDefinition(), new MarkLogicBulkLoadDefinition());
+                new MarkLogicCloseDefinition(), new MarkLogicBulkLoadDefinition(), new MarkLogicWizardDefinition());
 
     }
 
