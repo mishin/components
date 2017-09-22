@@ -8,17 +8,11 @@ import org.talend.components.api.component.ComponentDefinition;
 import org.talend.components.api.component.ConnectorTopology;
 import org.talend.components.api.component.runtime.ExecutionEngine;
 import org.talend.components.api.exception.error.ComponentsErrorCode;
-import org.talend.components.processing.ProcessingFamilyDefinition;
 import org.talend.daikon.definition.DefinitionImageType;
 import org.talend.daikon.exception.TalendRuntimeException;
 import org.talend.daikon.runtime.RuntimeInfo;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.arrayContaining;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 public class TypeConverterDefinitionTest {
 
