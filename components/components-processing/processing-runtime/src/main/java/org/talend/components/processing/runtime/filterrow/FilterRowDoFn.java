@@ -169,11 +169,7 @@ public class FilterRowDoFn extends DoFn<Object, IndexedRecord> {
         } else {
             // Evaluating the expression failed, and we can handle the exception.
             Throwable t = result.failed().get();
-            if (t instanceof Parser.AvroPathException)
-                // TODO: should be able to get the invalid position from the position.
-                throw ProcessingErrorCode.createAvpathSyntaxError(t, columnName, -1);
-            else
-                throw ProcessingErrorCode.createAvpathSyntaxError(t, columnName, -1);
+            throw ProcessingErrorCode.createAvpathSyntaxError(t, columnName, -1);
         }
         return values;
     }

@@ -933,8 +933,4 @@ public class FilterRowDoFnTest {
         assertEquals(2, rejects.size());
 
     }
-
-    // TODO test function and operator on every single type
-
-    // TODO need to test invalid columnName => waiting for the definition of the columnName path
 }
