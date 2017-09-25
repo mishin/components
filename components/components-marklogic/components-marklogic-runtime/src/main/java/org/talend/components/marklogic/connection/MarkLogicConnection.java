@@ -55,6 +55,10 @@ public abstract class MarkLogicConnection {
                 : new DatabaseClientFactory.DigestAuthContext(properties.username.getValue(), properties.password.getValue());
         DatabaseClient client = DatabaseClientFactory.newClient(properties.host.getValue(), properties.port.getValue(),
                 properties.database.getValue(), context);
+
+        // Since creating client is not enough for verifying established connection, need to make fake call:
+        client.openTransaction().commit();
+
         LOGGER.info("Connected to MarkLogic server");
         if (container != null) {
             container.setComponentData(container.getCurrentComponentId(), CONNECTION, client);

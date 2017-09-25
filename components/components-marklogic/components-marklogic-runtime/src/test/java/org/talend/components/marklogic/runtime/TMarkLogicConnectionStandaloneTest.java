@@ -26,6 +26,7 @@ import org.talend.components.marklogic.tmarklogicconnection.MarkLogicConnectionP
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.DatabaseClientFactory;
 import com.marklogic.client.DatabaseClientFactory.SecurityContext;
+import com.marklogic.client.Transaction;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(DatabaseClientFactory.class)
@@ -54,8 +55,12 @@ public class TMarkLogicConnectionStandaloneTest {
 
     @Test
     public void testConnectSuccess() {
+        Transaction transaction = Mockito.mock(Transaction.class);
+        Mockito.when(client.openTransaction()).thenReturn(transaction);
+
         connectionStandalone.runAtDriver(container);
 
+        Mockito.verify(transaction, Mockito.only()).commit();
         Mockito.verify(container).setComponentData("connectionComponent", MarkLogicConnection.CONNECTION, client);
     }
 }
