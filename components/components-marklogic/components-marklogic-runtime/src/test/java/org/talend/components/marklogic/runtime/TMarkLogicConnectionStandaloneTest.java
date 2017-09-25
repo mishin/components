@@ -43,20 +43,22 @@ public class TMarkLogicConnectionStandaloneTest {
     @Before
     public void setup() {
         connectionStandalone = new TMarkLogicConnectionStandalone();
+
         PowerMockito.mockStatic(DatabaseClientFactory.class);
         client = Mockito.mock(DatabaseClient.class);
-        Mockito.when(DatabaseClientFactory.newClient(Mockito.anyString(), Mockito.anyInt(), Mockito.anyString(), Mockito.any(SecurityContext.class))).thenReturn(client);
-        container = Mockito.mock(RuntimeContainer.class);
-        Mockito.when(container.getCurrentComponentId()).thenReturn("connectionComponent");
-        connectionProperties = new MarkLogicConnectionProperties("connection");
-        connectionProperties.authentication.setValue("BASIC");
-        connectionStandalone.initialize(container, connectionProperties);
+        Mockito.when(DatabaseClientFactory.newClient(Mockito.anyString(), Mockito.anyInt(), Mockito.anyString(),
+                Mockito.any(SecurityContext.class))).thenReturn(client);
     }
 
     @Test
     public void testConnectSuccess() {
         Transaction transaction = Mockito.mock(Transaction.class);
         Mockito.when(client.openTransaction()).thenReturn(transaction);
+        container = Mockito.mock(RuntimeContainer.class);
+        Mockito.when(container.getCurrentComponentId()).thenReturn("connectionComponent");
+        connectionProperties = new MarkLogicConnectionProperties("connection");
+        connectionProperties.authentication.setValue("BASIC");
+        connectionStandalone.initialize(container, connectionProperties);
 
         connectionStandalone.runAtDriver(container);
 

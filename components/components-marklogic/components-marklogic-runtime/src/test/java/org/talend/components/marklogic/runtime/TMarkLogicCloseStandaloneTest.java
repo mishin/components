@@ -25,24 +25,24 @@ public class TMarkLogicCloseStandaloneTest {
 
     private TMarkLogicCloseStandalone closeStandalone;
 
-    private RuntimeContainer container;
 
-    private MarkLogicCloseProperties closeProperties;
 
     @Before
     public void setup() {
         closeStandalone = new TMarkLogicCloseStandalone();
-        closeProperties = new MarkLogicCloseProperties("close");
-        closeProperties.referencedComponent.componentInstanceId.setValue("referenced1");
-        container = Mockito.mock(RuntimeContainer.class);
-        closeStandalone.initialize(container, closeProperties);
+
     }
 
     @Test
     public void testCloseSuccess() {
+        MarkLogicCloseProperties closeProperties = new MarkLogicCloseProperties("close");
+        closeProperties.referencedComponent.componentInstanceId.setValue("referenced1");
+        RuntimeContainer container = Mockito.mock(RuntimeContainer.class);
+        closeStandalone.initialize(container, closeProperties);
         DatabaseClient client = Mockito.mock(DatabaseClient.class);
         Mockito.when(container.getComponentData(closeProperties.getReferencedComponentId(),
                 MarkLogicConnection.CONNECTION)).thenReturn(client);
+
         closeStandalone.runAtDriver(container);
 
         Mockito.verify(container, Mockito.only()).getComponentData(closeProperties.getReferencedComponentId(),
