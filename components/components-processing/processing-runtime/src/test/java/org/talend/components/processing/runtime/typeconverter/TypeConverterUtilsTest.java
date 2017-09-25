@@ -2,15 +2,18 @@ package org.talend.components.processing.runtime.typeconverter;
 
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
+import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.generic.GenericRecordBuilder;
 import org.junit.Assert;
 import org.junit.Test;
-import org.talend.components.processing.runtime.normalize.NormalizeUtils;
+import org.talend.components.processing.definition.typeconverter.TypeConverterProperties;
 import org.talend.components.processing.runtime.normalize.NormalizeUtilsTest;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Stack;
 
 public class TypeConverterUtilsTest {
 
@@ -49,7 +52,7 @@ public class TypeConverterUtilsTest {
 
     private final Schema inputSchemaXY = SchemaBuilder.record("inputRowXY") //
             .fields() //
-            .name("x").type().optional().stringType() //
+            .name("x").type().stringType().noDefault() //
             .name("y").type(inputSchemaDE).noDefault() //
             .endRecord();
 
@@ -57,7 +60,7 @@ public class TypeConverterUtilsTest {
 
     private final Schema inputParentSchema = SchemaBuilder.record("inputParentRow") //
             .fields() //
-            .name("a").type().optional().stringType() //
+            .name("a").type().stringType().noDefault() //
             .name("b").type(inputSchemaXY).noDefault() //
             .name("c").type(inputSchemaFG).noDefault() //
             .name("m").type(inputSchemaListM).noDefault() //
@@ -166,31 +169,87 @@ public class TypeConverterUtilsTest {
 
     /**
      * Input schema: {@link NormalizeUtilsTest#inputParentSchema}
-     *
+     * <p>
      * The field `a` is a string.
-     *
+     * <p>
      * Expected schema: the schema of the field `a` should be modified to an int
      */
     @Test
     public void testTransformSchema() {
 
-        String[] path = { "a"};
-        Schema newSchema = TypeConverterUtils.transformSchema(inputParentSchema, path, 0);
+        // String to int
+        String[] path1 = {"a"};
+        Stack<String> stackPath1 = new Stack<String>();
+        stackPath1.addAll(Arrays.asList(path1));
+        Schema newSchema1 = TypeConverterUtils.convertSchema(inputParentSchema, stackPath1, TypeConverterProperties.TypeConverterOutputTypes.Integer);
 
-        Schema expectedSchemaFG = SchemaBuilder.record("inputRowFG") //
+        Schema expectedParentSchema1 = SchemaBuilder.record("inputParentRow") //
                 .fields() //
-                .name("f").type().optional().stringType() //
-                .name("g").type(inputSchemaHI).noDefault() //
-                .endRecord();
-        Schema expectedParentSchema = SchemaBuilder.record("inputParentRow") //
-                .fields() //
-                .name("a").type().optional().intType() //
+                .name("a").type().intType().noDefault() //
                 .name("b").type(inputSchemaXY).noDefault() //
                 .name("c").type(inputSchemaFG).noDefault() //
                 .name("m").type(inputSchemaListM).noDefault() //
                 .endRecord();
 
-        Assert.assertEquals(newSchema.toString(), expectedParentSchema.toString());
+        Assert.assertEquals(expectedParentSchema1.toString(), newSchema1.toString());
+
+        // String to float
+        String[] path2 = {"b", "x"};
+        Stack<String> stackPath2 = new Stack<String>();
+        List<String> pathSteps2 = Arrays.asList(path2);
+        Collections.reverse(pathSteps2);
+        stackPath2.addAll(pathSteps2);
+        Schema newSchema2 = TypeConverterUtils.convertSchema(inputParentSchema, stackPath2, TypeConverterProperties.TypeConverterOutputTypes.Float);
+
+        Schema expectedSchemaXY = SchemaBuilder.record("inputRowXY") //
+                .fields() //
+                .name("x").type().floatType().noDefault() //
+                .name("y").type(inputSchemaDE).noDefault() //
+                .endRecord();
+
+        Schema expectedParentSchema2 = SchemaBuilder.record("inputParentRow") //
+                .fields() //
+                .name("a").type().stringType().noDefault() //
+                .name("b").type(expectedSchemaXY).noDefault() //
+                .name("c").type(inputSchemaFG).noDefault() //
+                .name("m").type(inputSchemaListM).noDefault() //
+                .endRecord();
+
+        Assert.assertEquals(expectedParentSchema2.toString(), newSchema2.toString());
     }
 
+    @Test
+    public void testCopyFieldsValues(){
+        Schema intSchema = SchemaBuilder.record("intSchema")
+                .fields()
+                .name("a").type().intType().noDefault()
+                .endRecord();
+        GenericRecord intRecord = new GenericRecordBuilder(intSchema)
+                .set("a", 1)
+                .build();
+
+        Schema stringSchema = SchemaBuilder.record("intSchema")
+                .fields()
+                .name("a").type().stringType().noDefault()
+                .endRecord();
+        GenericRecordBuilder stringRecordBuilder = new GenericRecordBuilder(stringSchema)
+                .set("a", "s")
+                ;
+        TypeConverterUtils.copyFieldsValues(intRecord,stringRecordBuilder);
+        GenericRecord stringRecord = stringRecordBuilder.build();
+        Assert.assertEquals(intRecord.get("a"), stringRecord.get("a"));
+    }
+
+    @Test
+    public void testConvertValue(){
+        GenericRecordBuilder outputRecordBuilder = new GenericRecordBuilder(inputSchemaL) //
+                .set("l", "false");
+        String outputFormat = null;
+        TypeConverterProperties.TypeConverterOutputTypes outputType = TypeConverterProperties.TypeConverterOutputTypes.Boolean;
+        Stack<String> converterPath = new Stack<String>();
+        converterPath.add("l");
+        TypeConverterUtils.convertValue(outputRecordBuilder, converterPath, outputType, outputFormat);
+        GenericRecord outputRecord = outputRecordBuilder.build();
+        Assert.assertEquals(Boolean.class, outputRecord.get(0).getClass());
+    }
 }

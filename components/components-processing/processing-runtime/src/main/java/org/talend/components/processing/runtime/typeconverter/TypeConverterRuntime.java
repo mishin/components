@@ -9,9 +9,8 @@ import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.processing.definition.typeconverter.TypeConverterProperties;
 import org.talend.daikon.properties.ValidationResult;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Stack;
 
 public class TypeConverterRuntime extends DoFn<IndexedRecord, IndexedRecord>
         implements RuntimableRuntime<TypeConverterProperties> {
@@ -24,47 +23,38 @@ public class TypeConverterRuntime extends DoFn<IndexedRecord, IndexedRecord>
         return ValidationResult.OK;
     }
 
+    public TypeConverterRuntime withProperties(TypeConverterProperties properties){
+        this.properties = properties;
+        return this;
+    }
+
     @ProcessElement
     public void processElement(ProcessContext context) {
 
-        // TODO check if we have to convert to Avro
         IndexedRecord inputRecord = context.element();
         Schema inputSchema = inputRecord.getSchema();
 
         // Compute new schema
         Schema outputSchema = inputSchema;
-        List<Schema.Field> fieldList = new ArrayList<>();
-        Iterator<TypeConverterProperties.TypeConverterPropertiesInner> convertersIterator = properties.converters.subProperties.iterator();
-        TypeConverterProperties.TypeConverterPropertiesInner currentConverter = null;
-        while (convertersIterator.hasNext()) {
-            currentConverter = convertersIterator.next();
-            outputSchema = TypeConverterUtils.transformSchema(outputSchema, currentConverter.field.getValue().split("\\."),0);
+
+        for (TypeConverterProperties.TypeConverterPropertiesInner currentConverter : properties.converters.subProperties){
+            Stack<String> converterPath = new Stack<String>();
+            converterPath.addAll(Arrays.asList(currentConverter.field.getValue().split("\\.")));
+            outputSchema = TypeConverterUtils.convertSchema(outputSchema, converterPath, currentConverter.outputType.getValue());
         }
 
         // Compute new fields
-        GenericRecordBuilder outputRecord = new GenericRecordBuilder(outputSchema);
-        // Loop on fields
-        // outputRecord.set(field.name(), outputValue);
+        final GenericRecordBuilder outputRecordBuilder = new GenericRecordBuilder(outputSchema);
+        // Copy original values
+        TypeConverterUtils.copyFieldsValues(inputRecord, outputRecordBuilder);
+        // Convert values
+        for (TypeConverterProperties.TypeConverterPropertiesInner currentValueConverter : properties.converters.subProperties){
+            // Loop on converters
+            Stack<String> converterPath = new Stack<String>();
+            converterPath.addAll(Arrays.asList(currentValueConverter.field.getValue().split("\\.")));
+            TypeConverterUtils.convertValue(outputRecordBuilder, converterPath, currentValueConverter.outputType.getValue(), currentValueConverter.outputFormat.getValue());
+        }
 
-        //currentConverter.field;
-        //currentConverter.outputType;
-        //currentConverter.outputFormat;
-
-
-/*
-                    * Boolean
-                    * Double
-                    * Float
-                    * Integer
-                    * Long
-                    * String
-                    * Time
-                    * DateTime (ms & ss precision)
-                    * Decimal
-*/
-
-
-
-        context.output(outputRecord.build());
+        context.output(outputRecordBuilder.build());
     }
 }

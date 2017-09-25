@@ -12,33 +12,56 @@
 // ============================================================================
 package org.talend.components.processing.definition.typeconverter;
 
-import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
-
+import org.apache.avro.Schema;
 import org.talend.components.api.component.Connector;
 import org.talend.components.api.component.PropertyPathConnector;
 import org.talend.components.common.FixedConnectorsComponentProperties;
+import org.talend.daikon.converter.Converter;
 import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.PropertiesImpl;
 import org.talend.daikon.properties.PropertiesList;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
+import org.talend.daikon.converter.TypeConverter;
+
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 public class TypeConverterProperties extends FixedConnectorsComponentProperties implements Serializable {
 
     public enum TypeConverterOutputTypes {
-        Boolean,
-        Decimal,
-        Double,
-        Float,
-        Integer,
-        Long,
-        Short,
-        String,
-        Character,
-        Date
+        Boolean(Schema.Type.BOOLEAN, Boolean.class),
+        Decimal(Schema.Type.FLOAT, Float.class),
+        Double(Schema.Type.DOUBLE, Double.class),
+        Float(Schema.Type.FLOAT, Float.class),
+        Integer(Schema.Type.INT, Integer.class),
+        Long(Schema.Type.LONG, Long.class),
+        Short(Schema.Type.LONG, Long.class),
+        String(Schema.Type.STRING, String.class),
+        Character(Schema.Type.STRING, String.class),
+        Date(Schema.Type.STRING, String.class);
+
+        // Avro schema output type
+        private Schema.Type targetType;
+
+        private Class targetClass;
+
+        private TypeConverterOutputTypes(Schema.Type targetType, Class targetClass) {
+
+            this.targetType = targetType;
+            this.targetClass = targetClass;
+        }
+
+        public Schema.Type getTargetType() {
+
+            return this.targetType;
+        }
+
+        public Converter getConverter(){
+            return TypeConverter.as(this.targetClass);
+        }
     }
 
     public static class TypeConverterPropertiesInner extends PropertiesImpl {
