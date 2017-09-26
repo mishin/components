@@ -19,7 +19,9 @@ import org.talend.components.api.component.AbstractComponentDefinition;
 import org.talend.components.api.component.ConnectorTopology;
 import org.talend.components.api.component.runtime.ExecutionEngine;
 import org.talend.components.api.properties.ComponentProperties;
+import org.talend.components.marklogic.AbstractMarkLogicComponentDefinition;
 import org.talend.components.marklogic.RuntimeInfoProvider;
+import org.talend.components.marklogic.tmarklogicconnection.MarkLogicConnectionProperties;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.runtime.RuntimeInfo;
 
@@ -28,9 +30,9 @@ import org.talend.daikon.runtime.RuntimeInfo;
  * a component provides to integrate with the Runtime Platform (at design-time) and other
  * components (at run-time).
  */
-public class MarkLogicInputDefinition extends AbstractComponentDefinition {
+public class MarkLogicInputDefinition extends AbstractMarkLogicComponentDefinition {
 
-    public static final String COMPONENT_NAME = "tMarkLogicInputNEW"; //$NON-NLS-1$
+    public static final String COMPONENT_NAME = "tMarkLogicNEWInput"; //$NON-NLS-1$
 
     public MarkLogicInputDefinition() {
         super(COMPONENT_NAME, ExecutionEngine.DI, ExecutionEngine.BEAM);
@@ -75,5 +77,4 @@ public class MarkLogicInputDefinition extends AbstractComponentDefinition {
     public Set<ConnectorTopology> getSupportedConnectorTopologies() {
         return EnumSet.of(ConnectorTopology.OUTGOING);
     }
-
 }
