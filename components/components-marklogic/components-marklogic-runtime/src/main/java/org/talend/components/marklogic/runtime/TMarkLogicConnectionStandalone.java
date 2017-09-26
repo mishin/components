@@ -14,13 +14,17 @@ package org.talend.components.marklogic.runtime;
 
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.ComponentDriverInitialization;
 import org.talend.components.api.container.RuntimeContainer;
+import org.talend.components.api.exception.ComponentException;
 import org.talend.components.marklogic.connection.MarkLogicConnection;
 import org.talend.components.marklogic.tmarklogicconnection.MarkLogicConnectionProperties;
+import org.talend.daikon.exception.ExceptionContext.ExceptionContextBuilder;
+import org.talend.daikon.exception.error.DefaultErrorCode;
+import org.talend.daikon.exception.error.ErrorCode;
 import org.talend.daikon.properties.ValidationResult;
+
+import com.marklogic.client.FailedRequestException;
 
 /**
  * Implementation of runtime part for tMarkLogicConnection component.
@@ -31,7 +35,7 @@ public class TMarkLogicConnectionStandalone extends MarkLogicConnection
 
     private static final long serialVersionUID = -40535886003777462L;
 
-    private transient static final Logger LOGGER = LoggerFactory.getLogger(TMarkLogicConnectionStandalone.class);
+    private static final String ERROR_KEY = "message";
 
     private MarkLogicConnectionProperties properties;
 
@@ -41,7 +45,16 @@ public class TMarkLogicConnectionStandalone extends MarkLogicConnection
         try {
             connect(container);
         } catch (IOException e) {
-            LOGGER.error("Coudln't connect to MarkLogic", e);
+            ErrorCode errorCode;
+            String message;
+            if (e.getCause() instanceof FailedRequestException) {
+                errorCode = new DefaultErrorCode(403, ERROR_KEY);
+                message = "Invalid credentials.";
+            } else {
+                errorCode = new DefaultErrorCode(400,ERROR_KEY);
+                message = "Cannot connect to MarkLogic database. Check your database connectivity.";
+            }
+            throw new ComponentException(errorCode, e, new ExceptionContextBuilder().put(ERROR_KEY, message).build());
         }
     }
 

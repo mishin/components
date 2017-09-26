@@ -41,8 +41,8 @@ public class TMarkLogicCloseStandalone implements ComponentDriverInitialization<
                     MarkLogicConnection.CONNECTION);
             if (containerClient != null) {
                 containerClient.release();
+                LOGGER.info("Connection released");
             }
-            LOGGER.info("Connection released");
         }
     }
 

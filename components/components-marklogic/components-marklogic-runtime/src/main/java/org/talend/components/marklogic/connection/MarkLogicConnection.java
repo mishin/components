@@ -56,8 +56,7 @@ public abstract class MarkLogicConnection {
         DatabaseClient client = DatabaseClientFactory.newClient(properties.host.getValue(), properties.port.getValue(),
                 properties.database.getValue(), context);
 
-        // Since creating client is not enough for verifying established connection, need to make fake call:
-        client.openTransaction().commit();
+        testConnection(client);
 
         LOGGER.info("Connected to MarkLogic server");
         if (container != null) {
@@ -65,6 +64,15 @@ public abstract class MarkLogicConnection {
             LOGGER.info("Connection stored in container");
         }
         return client;
+    }
+
+    private void testConnection(DatabaseClient client) throws IOException {
+        try {
+         // Since creating client is not enough for verifying established connection, need to make fake call:
+            client.openTransaction().commit();
+        } catch (Exception e) {
+            throw new IOException("Failed connect to MarkLogic database. Original error - ", e);
+        }
     }
 
     protected abstract MarkLogicConnectionProperties getMarkLogicConnectionProperties();
