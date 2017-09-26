@@ -25,7 +25,7 @@ import org.talend.daikon.runtime.RuntimeInfo;
 
 public class MarkLogicConnectionDefinition extends AbstractComponentDefinition {
 
-    public static final String COMPONENT_NAME = "tMarkLogicConnectionNEW"; //$NON-NLS-1$
+    public static final String COMPONENT_NAME = "tMarkLogicNEWConnection"; //$NON-NLS-1$
 
     public MarkLogicConnectionDefinition() {
         super(COMPONENT_NAME, ExecutionEngine.DI, ExecutionEngine.BEAM);
