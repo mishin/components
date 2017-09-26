@@ -16,6 +16,7 @@ import org.talend.components.api.component.AbstractComponentDefinition;
 import org.talend.components.api.component.ConnectorTopology;
 import org.talend.components.api.component.runtime.ExecutionEngine;
 import org.talend.components.api.properties.ComponentProperties;
+import org.talend.components.marklogic.AbstractMarkLogicComponentDefinition;
 import org.talend.components.marklogic.RuntimeInfoProvider;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.runtime.RuntimeInfo;
@@ -23,9 +24,9 @@ import org.talend.daikon.runtime.RuntimeInfo;
 import java.util.EnumSet;
 import java.util.Set;
 
-public class MarkLogicBulkLoadDefinition extends AbstractComponentDefinition {
+public class MarkLogicBulkLoadDefinition extends AbstractMarkLogicComponentDefinition {
 
-    public static final String COMPONENT_NAME = "tMarkLogicBulkLoadNEW";
+    public static final String COMPONENT_NAME = "tMarkLogicNEWBulkLoad";
 
     public MarkLogicBulkLoadDefinition() {
         super(COMPONENT_NAME, ExecutionEngine.DI, ExecutionEngine.BEAM);

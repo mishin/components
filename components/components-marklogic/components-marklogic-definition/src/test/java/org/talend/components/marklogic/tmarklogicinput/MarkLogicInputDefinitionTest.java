@@ -79,7 +79,7 @@ public class MarkLogicInputDefinitionTest {
         MarkLogicInputDefinition definition = new MarkLogicInputDefinition();
         thrown.expect(TalendRuntimeException.class);
         thrown.expectMessage(
-                "WRONG_EXECUTION_ENGINE:{component=tMarkLogicInputNEW, requested=DI_SPARK_STREAMING, available=[DI, BEAM]}");
+                "WRONG_EXECUTION_ENGINE:{component=tMarkLogicNEWInput, requested=DI_SPARK_STREAMING, available=[DI, BEAM]}");
         definition.getRuntimeInfo(ExecutionEngine.DI_SPARK_STREAMING, null, ConnectorTopology.OUTGOING);
     }
 
@@ -87,7 +87,7 @@ public class MarkLogicInputDefinitionTest {
     public void testGetRuntimeInfoWrongTopology() {
         MarkLogicInputDefinition definition = new MarkLogicInputDefinition();
         thrown.expect(TalendRuntimeException.class);
-        thrown.expectMessage("WRONG_CONNECTOR:{component=tMarkLogicInputNEW}");
+        thrown.expectMessage("WRONG_CONNECTOR:{component=tMarkLogicNEWInput}");
         definition.getRuntimeInfo(ExecutionEngine.DI, null, ConnectorTopology.INCOMING);
     }
 

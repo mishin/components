@@ -14,18 +14,21 @@ package org.talend.components.marklogic.tmarklogicconnection;
 
 import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.api.properties.ComponentReferenceProperties;
-import org.talend.components.common.UserPasswordProperties;
 import org.talend.components.marklogic.MarkLogicProvideConnectionProperties;
+import org.talend.daikon.properties.Properties;
+import org.talend.daikon.properties.ValidationResult;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
 import org.talend.daikon.properties.property.StringProperty;
+import org.talend.daikon.properties.service.Repository;
 
 import java.util.EnumSet;
 
 import static org.talend.daikon.properties.presentation.Widget.widget;
 import static org.talend.daikon.properties.property.PropertyFactory.newProperty;
+import static org.talend.daikon.properties.property.PropertyFactory.newString;
 
 public class MarkLogicConnectionProperties extends ComponentPropertiesImpl implements MarkLogicProvideConnectionProperties {
 
@@ -44,6 +47,11 @@ public class MarkLogicConnectionProperties extends ComponentPropertiesImpl imple
             .setFlags(EnumSet.of(Property.Flags.ENCRYPT, Property.Flags.SUPPRESS_LOGGING));
 
     public Property<String> authentication = PropertyFactory.newString("authentication");
+
+    //for wizzard usage
+    public Property<String> name = newString("name").setRequired();
+    private String repositoryLocation;
+    public final String WIZARD = "wizardForm";
 
     public MarkLogicConnectionProperties(String name) {
         super(name);
@@ -68,6 +76,16 @@ public class MarkLogicConnectionProperties extends ComponentPropertiesImpl imple
     @Override
     public void setupLayout() {
         super.setupLayout();
+        Form wizardForm = Form.create(this, WIZARD);
+        wizardForm.addRow(name);
+        wizardForm.addRow(host);
+        wizardForm.addRow(port);
+        wizardForm.addRow(database);
+        wizardForm.addRow(username);
+        wizardForm.addColumn(password);
+        wizardForm.addColumn(widget(authentication).setWidgetType(Widget.ENUMERATION_WIDGET_TYPE));
+        refreshLayout(wizardForm);
+
         Form mainForm = new Form(this, Form.MAIN);
 
         mainForm.addRow(host);
@@ -98,7 +116,11 @@ public class MarkLogicConnectionProperties extends ComponentPropertiesImpl imple
             form.getWidget(username).setHidden(refConnectionUsed);
             form.getWidget(password).setHidden(refConnectionUsed);
             form.getWidget(authentication).setHidden(refConnectionUsed);
+        }
 
+        if (form.getName().equals(WIZARD)) {
+            getForm(WIZARD).setAllowFinish(
+                    true);
         }
     }
 
@@ -109,6 +131,26 @@ public class MarkLogicConnectionProperties extends ComponentPropertiesImpl imple
 
     @Override
     public MarkLogicConnectionProperties getConnectionProperties() {
+        return this;
+    }
+
+    public void beforeFormPresentWizardForm() throws Exception {
+        setupLayout();
+    }
+
+
+    public ValidationResult afterFormFinishWizardForm(Repository<Properties> repo) throws Exception {
+        repo.storeProperties(this, name.getStringValue(), repositoryLocation, null);
+        return ValidationResult.OK;
+    }
+
+
+    public String getRepositoryLocation() {
+        return repositoryLocation;
+    }
+
+    public MarkLogicConnectionProperties setRepositoryLocation(String location) {
+        repositoryLocation = location;
         return this;
     }
 }

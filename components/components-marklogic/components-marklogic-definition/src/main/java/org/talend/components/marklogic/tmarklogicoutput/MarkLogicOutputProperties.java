@@ -95,6 +95,7 @@ public class MarkLogicOutputProperties extends FixedConnectorsComponentPropertie
             form.getWidget(docType).setVisible(!action.getStringValue().equals("DELETE"));
             if (action.getStringValue().equals("PATCH")) {
                 docType.setPossibleValues("JSON", "XML");
+                docType.setValue("JSON");
             }
             else {
                 docType.setPossibleValues("MIXED", "PLAIN TEXT", "JSON", "XML", "BINARY");

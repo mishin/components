@@ -9,7 +9,7 @@ import org.talend.daikon.definition.DefinitionImageType;
 
 public class MarkLogicWizardDefinition extends AbstractComponentWizardDefintion {
 
-    public static final String COMPONENT_WIZARD_NAME = "marklogic"; //$NON-NLS-1$
+    public static final String COMPONENT_WIZARD_NAME = "marklogicNEW"; //$NON-NLS-1$
 
     @Override
     public ComponentWizard createWizard(String location) {
@@ -19,7 +19,10 @@ public class MarkLogicWizardDefinition extends AbstractComponentWizardDefintion 
     @Override
     public ComponentWizard createWizard(ComponentProperties properties, String location) {
         MarkLogicWizard markLogicWizard = new MarkLogicWizard(this, location);
-        markLogicWizard.setupProperties((MarkLogicWizardConnectionProperties)properties);
+
+        MarkLogicConnectionProperties connectionProperties = (MarkLogicConnectionProperties) properties;
+
+        markLogicWizard.setupProperties(connectionProperties);
         return markLogicWizard;
     }
 
@@ -64,6 +67,9 @@ public class MarkLogicWizardDefinition extends AbstractComponentWizardDefintion 
         return propertiesClass.isAssignableFrom(MarkLogicConnectionProperties.class);
     }
 
+    public static void main(String[] args) {
+        System.out.println(new MarkLogicWizardDefinition().supportsProperties(new MarkLogicConnectionProperties("a").getClass()));
+    }
     @Override
     public boolean isTopLevel() {
         return true;
