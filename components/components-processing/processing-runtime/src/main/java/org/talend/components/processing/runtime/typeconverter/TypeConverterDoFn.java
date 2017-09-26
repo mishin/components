@@ -24,7 +24,7 @@ public class TypeConverterDoFn extends DoFn<IndexedRecord, IndexedRecord>
 
         for (TypeConverterProperties.TypeConverterPropertiesInner currentPathConverter : properties.converters.subProperties) {
             Stack<String> pathSteps = TypeConverterUtils.getPathSteps(currentPathConverter.field.getValue());
-            outputSchema = TypeConverterUtils.convertSchema(outputSchema, pathSteps, currentPathConverter.outputType.getValue());
+            outputSchema = TypeConverterUtils.convertSchema(outputSchema, pathSteps, currentPathConverter.outputType.getValue(), currentPathConverter.outputFormat.getValue());
         }
 
         // Compute new fields

@@ -1,6 +1,7 @@
 package org.talend.components.processing.runtime.typeconverter;
 
 import avro.shaded.com.google.common.collect.Lists;
+import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecordBuilder;
 import org.apache.avro.generic.IndexedRecord;
@@ -28,7 +29,7 @@ public class TypeConverterUtils {
      * <p>
      * The schema of the array field `pathToConvert` will be modified to the schema of its fields.
      */
-    public static Schema convertSchema(Schema inputSchema, Stack<String> converterPath, TypeConverterProperties.TypeConverterOutputTypes targetType) {
+    public static Schema convertSchema(Schema inputSchema, Stack<String> converterPath, TypeConverterProperties.TypeConverterOutputTypes outputType, String outputFormat) {
         List<Schema.Field> fieldList = new ArrayList<>();
         String currentStep = converterPath.pop();
         for (Schema.Field field : inputSchema.getFields()) {
@@ -37,10 +38,10 @@ public class TypeConverterUtils {
                 // We are on the path to be converted
                 if (converterPath.size() == 0) {
                     // We are on the exact element to convert
-                    fieldList.add(new Schema.Field(field.name(), Schema.create(targetType.getTargetType()), field.doc(), field.defaultVal()));
+                    fieldList.add(new Schema.Field(field.name(), TypeConverterUtils.getSchema(outputType, outputFormat), field.doc(), field.defaultVal()));
                 } else {
                     // Going down in the hierarchy
-                    fieldList.add(new Schema.Field(field.name(), TypeConverterUtils.convertSchema(unwrappedSchema, converterPath, targetType), field.doc(), field.defaultVal()));
+                    fieldList.add(new Schema.Field(field.name(), TypeConverterUtils.convertSchema(unwrappedSchema, converterPath, outputType, outputFormat), field.doc(), field.defaultVal()));
                 }
             } else {
                 // We are not on the path to convert, just recopying schema
@@ -76,8 +77,9 @@ public class TypeConverterUtils {
     public static void convertValue(GenericRecordBuilder outputRecordBuilder, Stack<String> pathSteps, TypeConverterProperties.TypeConverterOutputTypes outputType, String outputFormat) {
         String fieldName = pathSteps.pop();
         Object value = outputRecordBuilder.get(fieldName);
-        if (pathSteps.size() == 0){
+        if (pathSteps.size() == 0) {
             Converter converter = outputType.getConverter();
+            // TODO Configure converter according to output format for Decimal and DateTime
             outputRecordBuilder.set(fieldName, converter.convert(value));
         } else {
             TypeConverterUtils.convertValue((GenericRecordBuilder) value, pathSteps, outputType, outputFormat);
@@ -86,16 +88,42 @@ public class TypeConverterUtils {
 
     /**
      * Get the step from the hierachical string path
+     *
      * @param path
      * @return
      */
-    public static Stack<String> getPathSteps(String path){
-        if (path.startsWith(".")){
+    public static Stack<String> getPathSteps(String path) {
+        if (path.startsWith(".")) {
             path = path.substring(1);
         }
         Stack<String> pathSteps = new Stack<String>();
         List<String> stepsList = Arrays.asList(path.split("\\."));
         pathSteps.addAll(Lists.reverse(stepsList));
         return pathSteps;
+    }
+
+    /**
+     * Generate a schema from output type and format
+     * @param outputType
+     * @param outputFormat
+     * @return
+     */
+    public static Schema getSchema(TypeConverterProperties.TypeConverterOutputTypes outputType, String outputFormat) {
+        Schema result = Schema.create(outputType.getTargetType());
+        switch (outputType) {
+            case Decimal:
+                // TODO Handle scale an precision
+                result = LogicalTypes.decimal(1, 1).addToSchema(result);
+                break;
+            case Time:
+                // TODO Handle date format
+                result = LogicalTypes.timeMillis().addToSchema(result);
+                break;
+            case DateTime:
+                // TODO Handle date format
+                result = LogicalTypes.timestampMillis().addToSchema(result);
+                break;
+        }
+        return result;
     }
 }

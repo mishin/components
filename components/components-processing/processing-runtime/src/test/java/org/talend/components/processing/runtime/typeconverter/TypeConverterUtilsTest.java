@@ -172,13 +172,13 @@ public class TypeConverterUtilsTest {
      * Expected schema: the schema of the field `a` should be modified to an int
      */
     @Test
-    public void testTransformSchema() {
+    public void testConvertSchema() {
 
         // String to int
         String[] path1 = {"a"};
         Stack<String> stackPath1 = new Stack<String>();
         stackPath1.addAll(Arrays.asList(path1));
-        Schema newSchema1 = TypeConverterUtils.convertSchema(inputParentSchema, stackPath1, TypeConverterProperties.TypeConverterOutputTypes.Integer);
+        Schema newSchema1 = TypeConverterUtils.convertSchema(inputParentSchema, stackPath1, TypeConverterProperties.TypeConverterOutputTypes.Integer, null);
 
         Schema expectedParentSchema1 = SchemaBuilder.record("inputParentRow") //
                 .fields() //
@@ -196,7 +196,7 @@ public class TypeConverterUtilsTest {
         List<String> pathSteps2 = Arrays.asList(path2);
         Collections.reverse(pathSteps2);
         stackPath2.addAll(pathSteps2);
-        Schema newSchema2 = TypeConverterUtils.convertSchema(inputParentSchema, stackPath2, TypeConverterProperties.TypeConverterOutputTypes.Float);
+        Schema newSchema2 = TypeConverterUtils.convertSchema(inputParentSchema, stackPath2, TypeConverterProperties.TypeConverterOutputTypes.Float, null);
 
         Schema expectedSchemaXY = SchemaBuilder.record("inputRowXY") //
                 .fields() //
@@ -274,12 +274,7 @@ public class TypeConverterUtilsTest {
 
     @Test
     public void testConvertValueToLong() {
-        testConvertValue("2", TypeConverterProperties.TypeConverterOutputTypes.Long, null, Long.class );
-    }
-
-    @Test
-    public void testConvertValueToShort() {
-        testConvertValue("3", TypeConverterProperties.TypeConverterOutputTypes.Short, null, Short.class );
+        testConvertValue("2", TypeConverterProperties.TypeConverterOutputTypes.Long, null, Long.class);
     }
 
     @Test
@@ -288,13 +283,13 @@ public class TypeConverterUtilsTest {
     }
 
     // @Test
-    public void testConvertValueToChar() {
-        testConvertValue("a", TypeConverterProperties.TypeConverterOutputTypes.Character, null, String.class );
+    public void testConvertValueToDateTime() {
+        testConvertValue("2017/01/15", TypeConverterProperties.TypeConverterOutputTypes.DateTime, null, Date.class);
     }
 
     // @Test
-    public void testConvertValueToDate() {
-        testConvertValue("2017/01/15", TypeConverterProperties.TypeConverterOutputTypes.Date, null, Date.class );
+    public void testConvertValueToTime() {
+        testConvertValue("2017/01/15", TypeConverterProperties.TypeConverterOutputTypes.Time, null, Date.class);
     }
 
     @Test

@@ -29,6 +29,8 @@ import org.talend.daikon.properties.property.PropertyFactory;
 import org.talend.daikon.converter.TypeConverter;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -39,15 +41,14 @@ public class TypeConverterProperties extends FixedConnectorsComponentProperties 
      */
     public enum TypeConverterOutputTypes {
         Boolean(Schema.Type.BOOLEAN, Boolean.class),
-        Decimal(Schema.Type.FLOAT, Float.class),
+        Decimal(Schema.Type.BYTES, BigDecimal.class),
         Double(Schema.Type.DOUBLE, Double.class),
         Float(Schema.Type.FLOAT, Float.class),
         Integer(Schema.Type.INT, Integer.class),
         Long(Schema.Type.LONG, Long.class),
-        Short(Schema.Type.LONG, Short.class),
         String(Schema.Type.STRING, String.class),
-        Character(Schema.Type.STRING, String.class),
-        Date(Schema.Type.STRING, String.class);
+        Time(Schema.Type.INT, Date.class),
+        DateTime(Schema.Type.LONG, Date.class);
 
         // Avro schema output type
         private Schema.Type targetType;
@@ -72,6 +73,7 @@ public class TypeConverterProperties extends FixedConnectorsComponentProperties 
         public Converter getConverter(){
             return TypeConverter.as(this.targetClass);
         }
+
     }
 
     /**
