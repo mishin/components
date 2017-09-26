@@ -14,7 +14,7 @@ import org.talend.components.processing.definition.typeconverter.TypeConverterPr
 
 import java.util.List;
 
-public class TypeConverterRuntimeTest {
+public class TypeConverterDoFnTest {
 
     @Test
     public void testDoFn() throws Exception {
@@ -42,7 +42,7 @@ public class TypeConverterRuntimeTest {
         converter2.outputType.setValue(TypeConverterProperties.TypeConverterOutputTypes.Boolean);
         properties.converters.addRow(converter2);
 
-        TypeConverterRuntime runtime = new TypeConverterRuntime().withProperties(properties);
+        TypeConverterDoFn runtime = new TypeConverterDoFn().withProperties(properties);
         DoFnTester<IndexedRecord, IndexedRecord> fnTester = DoFnTester.of(runtime);
 
         List<IndexedRecord> outputs = fnTester.processBundle(recordBuilder1.build());
