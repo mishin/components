@@ -67,9 +67,6 @@ public class MarkLogicWizardDefinition extends AbstractComponentWizardDefintion 
         return propertiesClass.isAssignableFrom(MarkLogicConnectionProperties.class);
     }
 
-    public static void main(String[] args) {
-        System.out.println(new MarkLogicWizardDefinition().supportsProperties(new MarkLogicConnectionProperties("a").getClass()));
-    }
     @Override
     public boolean isTopLevel() {
         return true;

@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.components.marklogic.tmarklogicoutput;
 
-import org.talend.components.api.component.AbstractComponentDefinition;
 import org.talend.components.api.component.ConnectorTopology;
 import org.talend.components.api.component.runtime.ExecutionEngine;
 import org.talend.components.api.properties.ComponentProperties;
