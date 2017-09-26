@@ -39,7 +39,8 @@ public class TypeConverterRuntime extends DoFn<IndexedRecord, IndexedRecord>
 
         for (TypeConverterProperties.TypeConverterPropertiesInner currentConverter : properties.converters.subProperties){
             Stack<String> converterPath = new Stack<String>();
-            converterPath.addAll(Arrays.asList(currentConverter.field.getValue().split("\\.")));
+            //converterPath.addAll(Arrays.asList(currentConverter.field.getValue().split("\\.")));
+            converterPath.add(currentConverter.field.getValue());
             outputSchema = TypeConverterUtils.convertSchema(outputSchema, converterPath, currentConverter.outputType.getValue());
         }
 
@@ -51,7 +52,8 @@ public class TypeConverterRuntime extends DoFn<IndexedRecord, IndexedRecord>
         for (TypeConverterProperties.TypeConverterPropertiesInner currentValueConverter : properties.converters.subProperties){
             // Loop on converters
             Stack<String> converterPath = new Stack<String>();
-            converterPath.addAll(Arrays.asList(currentValueConverter.field.getValue().split("\\.")));
+            //converterPath.addAll(Arrays.asList(currentValueConverter.field.getValue().split("\\.")));
+            converterPath.add(currentValueConverter.field.getValue());
             TypeConverterUtils.convertValue(outputRecordBuilder, converterPath, currentValueConverter.outputType.getValue(), currentValueConverter.outputFormat.getValue());
         }
 

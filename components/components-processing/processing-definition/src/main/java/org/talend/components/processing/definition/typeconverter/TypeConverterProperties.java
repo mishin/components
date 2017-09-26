@@ -14,13 +14,16 @@ package org.talend.components.processing.definition.typeconverter;
 
 import org.apache.avro.Schema;
 import org.talend.components.api.component.Connector;
+import org.talend.components.api.component.ISchemaListener;
 import org.talend.components.api.component.PropertyPathConnector;
 import org.talend.components.common.FixedConnectorsComponentProperties;
+import org.talend.components.processing.definition.filterrow.LogicalOpType;
 import org.talend.daikon.converter.Converter;
 import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.PropertiesImpl;
 import org.talend.daikon.properties.PropertiesList;
 import org.talend.daikon.properties.presentation.Form;
+import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
 import org.talend.daikon.converter.TypeConverter;
@@ -31,6 +34,9 @@ import java.util.Set;
 
 public class TypeConverterProperties extends FixedConnectorsComponentProperties implements Serializable {
 
+    /**
+     * Output types enum
+     */
     public enum TypeConverterOutputTypes {
         Boolean(Schema.Type.BOOLEAN, Boolean.class),
         Decimal(Schema.Type.FLOAT, Float.class),
@@ -64,6 +70,9 @@ public class TypeConverterProperties extends FixedConnectorsComponentProperties 
         }
     }
 
+    /**
+     * Nested properties
+     */
     public static class TypeConverterPropertiesInner extends PropertiesImpl {
 
         public Property<String> field = PropertyFactory.newString("field").setRequired().setValue("");
@@ -76,6 +85,16 @@ public class TypeConverterProperties extends FixedConnectorsComponentProperties 
         public TypeConverterPropertiesInner(String name) {
             super(name);
         }
+
+        @Override
+        public void setupLayout() {
+            super.setupLayout();
+            Form mainForm = new Form(this, Form.MAIN);
+            mainForm.addRow(Widget.widget(field).setWidgetType(Widget.DATALIST_WIDGET_TYPE));
+            mainForm.addColumn(Widget.widget(outputType).setWidgetType(Widget.ENUMERATION_WIDGET_TYPE));
+            mainForm.addColumn(outputFormat);
+        }
+
     }
 
     public PropertiesList<TypeConverterPropertiesInner> converters = new PropertiesList<>("converters",
@@ -93,6 +112,7 @@ public class TypeConverterProperties extends FixedConnectorsComponentProperties 
 
     public TypeConverterProperties(String name) {
         super(name);
+        converters.init();
     }
 
     @Override
@@ -111,6 +131,15 @@ public class TypeConverterProperties extends FixedConnectorsComponentProperties 
     public void setupLayout() {
         super.setupLayout();
         Form mainForm = new Form(this, Form.MAIN);
-        mainForm.addRow(converters);
+        mainForm.addRow(Widget.widget(converters).setWidgetType(Widget.NESTED_PROPERTIES)
+                .setConfigurationValue(Widget.NESTED_PROPERTIES_TYPE_OPTION, "converter"));
+    }
+
+    @Override
+    public void setupProperties() {
+        super.setupProperties();
+        setupLayout();
+        // Add a default converter
+        converters.createAndAddRow();
     }
 }
