@@ -92,7 +92,7 @@ public class MarkLogicOutputProperties extends FixedConnectorsComponentPropertie
                 connection.refreshLayout(childForm);
             }
         } else if (form.getName().equals(Form.ADVANCED)) {
-            form.getWidget(docType).setVisible(!action.getStringValue().equals("DELETE"));
+            form.getWidget(docType).setHidden(action.getStringValue().equals("DELETE"));
             if (action.getStringValue().equals("PATCH")) {
                 docType.setPossibleValues("JSON", "XML");
                 docType.setValue("JSON");
