@@ -252,4 +252,12 @@ public class TypeConverterUtilsTest {
         GenericRecord outputRecord = outputRecordBuilder.build();
         Assert.assertEquals(Boolean.class, outputRecord.get(0).getClass());
     }
+
+    @Test
+    public void testGetPathSteps(){
+        String pathSteps = ".a.b";
+        Stack<String> result = TypeConverterUtils.getPathSteps(pathSteps);
+        Assert.assertEquals(2, result.size());
+        Assert.assertEquals("a", result.pop());
+    }
 }

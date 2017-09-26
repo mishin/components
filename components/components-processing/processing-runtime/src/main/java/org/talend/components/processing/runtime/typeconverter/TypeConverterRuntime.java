@@ -37,11 +37,9 @@ public class TypeConverterRuntime extends DoFn<IndexedRecord, IndexedRecord>
         // Compute new schema
         Schema outputSchema = inputSchema;
 
-        for (TypeConverterProperties.TypeConverterPropertiesInner currentConverter : properties.converters.subProperties){
-            Stack<String> converterPath = new Stack<String>();
-            //converterPath.addAll(Arrays.asList(currentConverter.field.getValue().split("\\.")));
-            converterPath.add(currentConverter.field.getValue());
-            outputSchema = TypeConverterUtils.convertSchema(outputSchema, converterPath, currentConverter.outputType.getValue());
+        for (TypeConverterProperties.TypeConverterPropertiesInner currentPathConverter : properties.converters.subProperties){
+            Stack<String> pathSteps = TypeConverterUtils.getPathSteps(currentPathConverter.field.getValue());
+            outputSchema = TypeConverterUtils.convertSchema(outputSchema, pathSteps, currentPathConverter.outputType.getValue());
         }
 
         // Compute new fields
@@ -51,10 +49,8 @@ public class TypeConverterRuntime extends DoFn<IndexedRecord, IndexedRecord>
         // Convert values
         for (TypeConverterProperties.TypeConverterPropertiesInner currentValueConverter : properties.converters.subProperties){
             // Loop on converters
-            Stack<String> converterPath = new Stack<String>();
-            //converterPath.addAll(Arrays.asList(currentValueConverter.field.getValue().split("\\.")));
-            converterPath.add(currentValueConverter.field.getValue());
-            TypeConverterUtils.convertValue(outputRecordBuilder, converterPath, currentValueConverter.outputType.getValue(), currentValueConverter.outputFormat.getValue());
+            Stack<String> pathSteps = TypeConverterUtils.getPathSteps(currentValueConverter.field.getValue());
+            TypeConverterUtils.convertValue(outputRecordBuilder, pathSteps, currentValueConverter.outputType.getValue(), currentValueConverter.outputFormat.getValue());
         }
 
         context.output(outputRecordBuilder.build());

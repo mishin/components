@@ -1,5 +1,6 @@
 package org.talend.components.processing.runtime.typeconverter;
 
+import avro.shaded.com.google.common.collect.Lists;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecordBuilder;
 import org.apache.avro.generic.IndexedRecord;
@@ -9,6 +10,7 @@ import org.talend.daikon.converter.Converter;
 import org.talend.daikon.properties.property.Property;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
@@ -64,21 +66,36 @@ public class TypeConverterUtils {
     }
 
     /**
-     * Convert value of outputRecordBuilder according to converterPath, outputType and outputFormat
+     * Convert value of outputRecordBuilder according to pathSteps, outputType and outputFormat
      *
      * @param outputRecordBuilder
-     * @param converterPath
+     * @param pathSteps
      * @param outputType
      * @param outputFormat
      */
-    public static void convertValue(GenericRecordBuilder outputRecordBuilder, Stack<String> converterPath, TypeConverterProperties.TypeConverterOutputTypes outputType, String outputFormat) {
-        String fieldName = converterPath.pop();
+    public static void convertValue(GenericRecordBuilder outputRecordBuilder, Stack<String> pathSteps, TypeConverterProperties.TypeConverterOutputTypes outputType, String outputFormat) {
+        String fieldName = pathSteps.pop();
         Object value = outputRecordBuilder.get(fieldName);
-        if (converterPath.size() == 0){
+        if (pathSteps.size() == 0){
             Converter converter = outputType.getConverter();
             outputRecordBuilder.set(fieldName, converter.convert(value));
         } else {
-            TypeConverterUtils.convertValue((GenericRecordBuilder) value, converterPath, outputType, outputFormat);
+            TypeConverterUtils.convertValue((GenericRecordBuilder) value, pathSteps, outputType, outputFormat);
         }
+    }
+
+    /**
+     * Get the step from the hierachical string path
+     * @param path
+     * @return
+     */
+    public static Stack<String> getPathSteps(String path){
+        if (path.startsWith(".")){
+            path = path.substring(1);
+        }
+        Stack<String> pathSteps = new Stack<String>();
+        List<String> stepsList = Arrays.asList(path.split("\\."));
+        pathSteps.addAll(Lists.reverse(stepsList));
+        return pathSteps;
     }
 }
