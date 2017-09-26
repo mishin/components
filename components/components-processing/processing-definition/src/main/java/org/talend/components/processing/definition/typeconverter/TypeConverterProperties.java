@@ -44,7 +44,7 @@ public class TypeConverterProperties extends FixedConnectorsComponentProperties 
         Float(Schema.Type.FLOAT, Float.class),
         Integer(Schema.Type.INT, Integer.class),
         Long(Schema.Type.LONG, Long.class),
-        Short(Schema.Type.LONG, Long.class),
+        Short(Schema.Type.LONG, Short.class),
         String(Schema.Type.STRING, String.class),
         Character(Schema.Type.STRING, String.class),
         Date(Schema.Type.STRING, String.class);
@@ -63,6 +63,10 @@ public class TypeConverterProperties extends FixedConnectorsComponentProperties 
         public Schema.Type getTargetType() {
 
             return this.targetType;
+        }
+
+        public Class getTargetClass(){
+            return this.targetClass;
         }
 
         public Converter getConverter(){

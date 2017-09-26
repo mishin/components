@@ -2,7 +2,6 @@ package org.talend.components.processing.runtime.typeconverter;
 
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
-import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.generic.GenericRecordBuilder;
 import org.junit.Assert;
@@ -10,10 +9,8 @@ import org.junit.Test;
 import org.talend.components.processing.definition.typeconverter.TypeConverterProperties;
 import org.talend.components.processing.runtime.normalize.NormalizeUtilsTest;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Stack;
+import java.math.BigDecimal;
+import java.util.*;
 
 public class TypeConverterUtilsTest {
 
@@ -219,7 +216,7 @@ public class TypeConverterUtilsTest {
     }
 
     @Test
-    public void testCopyFieldsValues(){
+    public void testCopyFieldsValues() {
         Schema intSchema = SchemaBuilder.record("intSchema")
                 .fields()
                 .name("a").type().intType().noDefault()
@@ -233,28 +230,75 @@ public class TypeConverterUtilsTest {
                 .name("a").type().stringType().noDefault()
                 .endRecord();
         GenericRecordBuilder stringRecordBuilder = new GenericRecordBuilder(stringSchema)
-                .set("a", "s")
-                ;
-        TypeConverterUtils.copyFieldsValues(intRecord,stringRecordBuilder);
+                .set("a", "s");
+        TypeConverterUtils.copyFieldsValues(intRecord, stringRecordBuilder);
         GenericRecord stringRecord = stringRecordBuilder.build();
         Assert.assertEquals(intRecord.get("a"), stringRecord.get("a"));
     }
 
-    @Test
-    public void testConvertValue(){
-        GenericRecordBuilder outputRecordBuilder = new GenericRecordBuilder(inputSchemaL) //
-                .set("l", "false");
-        String outputFormat = null;
-        TypeConverterProperties.TypeConverterOutputTypes outputType = TypeConverterProperties.TypeConverterOutputTypes.Boolean;
+
+    public void testConvertValue(Object input, TypeConverterProperties.TypeConverterOutputTypes outputType, String outputFormat, Class outputClass) {
+        GenericRecordBuilder outputRecordBuilder = new GenericRecordBuilder(inputSchemaL).set("l", input);
         Stack<String> converterPath = new Stack<String>();
         converterPath.add("l");
         TypeConverterUtils.convertValue(outputRecordBuilder, converterPath, outputType, outputFormat);
         GenericRecord outputRecord = outputRecordBuilder.build();
-        Assert.assertEquals(Boolean.class, outputRecord.get(0).getClass());
+        Assert.assertEquals(outputClass, outputRecord.get(0).getClass());
+    }
+
+
+    @Test
+    public void testConvertValueToBoolean() {
+        testConvertValue("false", TypeConverterProperties.TypeConverterOutputTypes.Boolean, null, Boolean.class);
+    }
+
+    // @Test
+    public void testConvertValueToDecimal() {
+        testConvertValue("1.5", TypeConverterProperties.TypeConverterOutputTypes.Decimal, null, BigDecimal.class);
     }
 
     @Test
-    public void testGetPathSteps(){
+    public void testConvertValueToDouble() {
+        testConvertValue("2.5", TypeConverterProperties.TypeConverterOutputTypes.Double, null, Double.class);
+    }
+
+    @Test
+    public void testConvertValueToFloat() {
+        testConvertValue("3.5", TypeConverterProperties.TypeConverterOutputTypes.Float, null, Float.class);
+    }
+
+    @Test
+    public void testConvertValueToInteger() {
+        testConvertValue("1", TypeConverterProperties.TypeConverterOutputTypes.Integer, null, Integer.class);
+    }
+
+    @Test
+    public void testConvertValueToLong() {
+        testConvertValue("2", TypeConverterProperties.TypeConverterOutputTypes.Long, null, Long.class );
+    }
+
+    @Test
+    public void testConvertValueToShort() {
+        testConvertValue("3", TypeConverterProperties.TypeConverterOutputTypes.Short, null, Short.class );
+    }
+
+    @Test
+    public void testConvertValueToString() {
+        testConvertValue(1, TypeConverterProperties.TypeConverterOutputTypes.String, null, String.class);
+    }
+
+    // @Test
+    public void testConvertValueToChar() {
+        testConvertValue("a", TypeConverterProperties.TypeConverterOutputTypes.Character, null, String.class );
+    }
+
+    // @Test
+    public void testConvertValueToDate() {
+        testConvertValue("2017/01/15", TypeConverterProperties.TypeConverterOutputTypes.Date, null, Date.class );
+    }
+
+    @Test
+    public void testGetPathSteps() {
         String pathSteps = ".a.b";
         Stack<String> result = TypeConverterUtils.getPathSteps(pathSteps);
         Assert.assertEquals(2, result.size());
