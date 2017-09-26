@@ -90,7 +90,7 @@ public class MarkLogicConnectionProperties extends ComponentPropertiesImpl imple
 
         mainForm.addRow(host);
         mainForm.addColumn(port);
-        mainForm.addColumn(database);
+        mainForm.addRow(database);
         mainForm.addRow(username);
         mainForm.addColumn(password);
 
