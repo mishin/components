@@ -21,6 +21,7 @@ import org.talend.components.marklogic.tmarklogicclose.MarkLogicCloseDefinition;
 import org.talend.components.marklogic.tmarklogicconnection.MarkLogicConnectionDefinition;
 import org.talend.components.marklogic.tmarklogicinput.MarkLogicInputDefinition;
 import org.talend.components.marklogic.tmarklogicoutput.MarkLogicOutputDefinition;
+import org.talend.components.marklogic.wizard.MarkLogicWizardDefinition;
 import org.talend.daikon.definition.Definition;
 
 import java.util.ArrayList;
@@ -45,6 +46,7 @@ public class MarkLogicFamilyDefinitionTest {
         expectedDefinitions.add(MarkLogicConnectionDefinition.class);
         expectedDefinitions.add(MarkLogicCloseDefinition.class);
         expectedDefinitions.add(MarkLogicBulkLoadDefinition.class);
+        expectedDefinitions.add(MarkLogicWizardDefinition.class);
 
         List<Class> actualDefinitionsNames = new ArrayList<>();
 

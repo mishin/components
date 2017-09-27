@@ -24,7 +24,7 @@ import java.util.Set;
 
 public class MarkLogicCloseDefinition extends AbstractComponentDefinition {
 
-    public static final String COMPONENT_NAME = "tMarkLogicCloseNEW";
+    public static final String COMPONENT_NAME = "tMarkLogicNEWClose";
 
     public MarkLogicCloseDefinition() {
         super(COMPONENT_NAME, ExecutionEngine.DI, ExecutionEngine.BEAM);
