@@ -20,6 +20,7 @@ import org.talend.components.marklogic.tmarklogicconnection.MarkLogicConnectionP
 import org.talend.components.marklogic.tmarklogicconnection.MarkLogicConnectionPropertiesTest;
 import org.talend.daikon.properties.presentation.Form;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -206,8 +207,7 @@ public class MarkLogicOutputPropertiesTest {
     public void testDocTypePossibleValuesIsCorrectForActionPatch() {
         testOutputProperties.init();
         testOutputProperties.action.setValue(MarkLogicOutputProperties.Action.PATCH);
-        testOutputProperties.refreshLayout(testOutputProperties.getForm(Form.MAIN));
-        testOutputProperties.refreshLayout(testOutputProperties.getForm(Form.ADVANCED));
+        testOutputProperties.afterAction();
         List<MarkLogicOutputProperties.DocType> actualDocTypes = (List<MarkLogicOutputProperties.DocType>)testOutputProperties.docType.getPossibleValues();
 
         assertTrue(actualDocTypes.contains(MarkLogicOutputProperties.DocType.JSON));
@@ -215,6 +215,21 @@ public class MarkLogicOutputPropertiesTest {
         assertFalse(actualDocTypes.contains(MarkLogicOutputProperties.DocType.PLAIN_TEXT));
         assertFalse(actualDocTypes.contains(MarkLogicOutputProperties.DocType.BINARY));
         assertFalse(actualDocTypes.contains(MarkLogicOutputProperties.DocType.MIXED));
+    }
+
+    @Test
+    public void testDocTypePossibleValuesForActionReturnedToUpsert() {
+        testOutputProperties.init();
+        testOutputProperties.action.setValue(MarkLogicOutputProperties.Action.PATCH);
+        testOutputProperties.afterAction();
+        //turn in back to upsert
+        testOutputProperties.action.setValue(MarkLogicOutputProperties.Action.UPSERT);
+        testOutputProperties.afterAction();
+
+        List<MarkLogicOutputProperties.DocType> expectedAllowedDocTypes = Arrays.asList(MarkLogicOutputProperties.DocType.values());
+        List<MarkLogicOutputProperties.DocType> actualAllowedDocTypes = (List<MarkLogicOutputProperties.DocType>)testOutputProperties.docType.getPossibleValues();
+
+        assertEquals(expectedAllowedDocTypes, actualAllowedDocTypes);
     }
 
 }
