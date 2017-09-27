@@ -20,6 +20,7 @@ import org.talend.components.marklogic.tmarklogicconnection.MarkLogicConnectionP
 import org.talend.components.marklogic.tmarklogicconnection.MarkLogicConnectionPropertiesTest;
 import org.talend.daikon.properties.presentation.Form;
 
+import java.util.List;
 import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -199,6 +200,21 @@ public class MarkLogicOutputPropertiesTest {
         Set<PropertyPathConnector> actualConnectors = testOutputProperties.getAllSchemaPropertiesConnectors(true);
 
         assertThat(actualConnectors, contains(testOutputProperties.FLOW_CONNECTOR, testOutputProperties.REJECT_CONNECTOR));
+    }
+
+    @Test
+    public void testDocTypePossibleValuesIsCorrectForActionPatch() {
+        testOutputProperties.init();
+        testOutputProperties.action.setValue(MarkLogicOutputProperties.Action.PATCH);
+        testOutputProperties.refreshLayout(testOutputProperties.getForm(Form.MAIN));
+        testOutputProperties.refreshLayout(testOutputProperties.getForm(Form.ADVANCED));
+        List<MarkLogicOutputProperties.DocType> actualDocTypes = (List<MarkLogicOutputProperties.DocType>)testOutputProperties.docType.getPossibleValues();
+
+        assertTrue(actualDocTypes.contains(MarkLogicOutputProperties.DocType.JSON));
+        assertTrue(actualDocTypes.contains(MarkLogicOutputProperties.DocType.XML));
+        assertFalse(actualDocTypes.contains(MarkLogicOutputProperties.DocType.PLAIN_TEXT));
+        assertFalse(actualDocTypes.contains(MarkLogicOutputProperties.DocType.BINARY));
+        assertFalse(actualDocTypes.contains(MarkLogicOutputProperties.DocType.MIXED));
     }
 
 }
