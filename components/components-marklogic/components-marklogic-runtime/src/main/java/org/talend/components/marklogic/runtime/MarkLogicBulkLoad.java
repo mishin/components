@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.components.marklogic.runtime;
 
-import com.marklogic.contentpump.ContentPump;
 import org.talend.components.api.component.runtime.ComponentDriverInitialization;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.marklogic.tmarklogicbulkload.MarkLogicBulkLoadProperties;
@@ -22,12 +21,6 @@ import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.ValidationResult;
 import org.talend.daikon.properties.ValidationResultMutable;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-
 public class MarkLogicBulkLoad implements ComponentDriverInitialization {
     private static final I18nMessages i18nMessages = GlobalI18N.getI18nMessageProvider()
             .getI18nMessages(MarkLogicBulkLoad.class);
@@ -36,31 +29,31 @@ public class MarkLogicBulkLoad implements ComponentDriverInitialization {
     @Override
     public void runAtDriver(RuntimeContainer container) {
         try {
-            ContentPump.runCommand(new String[] {"import",
-                    "-username", bulkLoadProperties.connection.username.getStringValue(),
-                    "-password", bulkLoadProperties.connection.password.getStringValue(),
-                    "-host", bulkLoadProperties.connection.host.getStringValue(),
-                    "-port", String.valueOf(bulkLoadProperties.connection.port.getValue()),
-                    "-database", bulkLoadProperties.connection.database.getStringValue(),
-                    "-output_uri_replace", "\"D:/data/bulk_test/,'" + bulkLoadProperties.docidPrefix.getStringValue() + "'\"",
-                    "-input_file_path", bulkLoadProperties.loadFolder.getStringValue()});
         } catch (Exception e) {
-            e.printStackTrace();
-            //TODO do here smth
         }
     }
 
     @Override
     public ValidationResult initialize(RuntimeContainer container, Properties properties) {
         ValidationResultMutable validationResult = new ValidationResultMutable();
+        validationResult.setStatus(ValidationResult.Result.OK);
         if (properties instanceof MarkLogicBulkLoadProperties) {
             bulkLoadProperties = (MarkLogicBulkLoadProperties) properties;
-            validationResult.setStatus(ValidationResult.Result.OK);
+            boolean isRequiredPropertiesSet = !bulkLoadProperties.connection.host.getStringValue().isEmpty()
+                    && bulkLoadProperties.connection.port.getValue() != null
+                    && !bulkLoadProperties.connection.database.getStringValue().isEmpty()
+                    && !bulkLoadProperties.connection.username.getStringValue().isEmpty()
+                    && !bulkLoadProperties.connection.password.getStringValue().isEmpty()
+                    && !bulkLoadProperties.loadFolder.getStringValue().isEmpty();
+            if (!isRequiredPropertiesSet) {
+                validationResult.setStatus(ValidationResult.Result.ERROR);
+                validationResult.setMessage(i18nMessages.getMessage("error.missedProperties"));
+            }
         } else {
             validationResult.setStatus(ValidationResult.Result.ERROR);
             validationResult.setMessage(i18nMessages.getMessage("error.wrongProperties"));
-
         }
+
         return validationResult;
     }
 }
