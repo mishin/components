@@ -12,6 +12,12 @@
 // ============================================================================
 package org.talend.components.marklogic.tmarklogicconnection;
 
+import static org.talend.daikon.properties.presentation.Widget.widget;
+import static org.talend.daikon.properties.property.PropertyFactory.newProperty;
+import static org.talend.daikon.properties.property.PropertyFactory.newString;
+
+import java.util.EnumSet;
+
 import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.api.properties.ComponentReferenceProperties;
 import org.talend.components.marklogic.MarkLogicProvideConnectionProperties;
@@ -23,12 +29,6 @@ import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
 import org.talend.daikon.properties.property.StringProperty;
 import org.talend.daikon.properties.service.Repository;
-
-import java.util.EnumSet;
-
-import static org.talend.daikon.properties.presentation.Widget.widget;
-import static org.talend.daikon.properties.property.PropertyFactory.newProperty;
-import static org.talend.daikon.properties.property.PropertyFactory.newString;
 
 public class MarkLogicConnectionProperties extends ComponentPropertiesImpl implements MarkLogicProvideConnectionProperties {
 
@@ -129,6 +129,10 @@ public class MarkLogicConnectionProperties extends ComponentPropertiesImpl imple
         refreshLayout(getForm(Form.REFERENCE));
     }
 
+    public String getReferencedComponentId() {
+        return referencedComponent.componentInstanceId.getValue();
+    }
+
     @Override
     public MarkLogicConnectionProperties getConnectionProperties() {
         return this;
@@ -137,7 +141,6 @@ public class MarkLogicConnectionProperties extends ComponentPropertiesImpl imple
     public void beforeFormPresentWizardForm() throws Exception {
         setupLayout();
     }
-
 
     public ValidationResult afterFormFinishWizardForm(Repository<Properties> repo) throws Exception {
         repo.storeProperties(this, name.getStringValue(), repositoryLocation, null);
