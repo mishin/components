@@ -206,14 +206,6 @@ public class RuntimeControllerImpl implements RuntimesController {
             DatasetProperties datasetProperties, //
             Function<DatasetRuntime<DatasetProperties<DatastoreProperties>>, T> consumer) {
 
-        // // 1) get dataset properties from supplied data
-        // DatasetProperties datasetProperties = propertiesHelpers.propertiesFromDto(formData);
-
-        // // 2) Retrieve data set definition to be able to create the runtime
-        // final DatasetDefinition<DatasetProperties<DatastoreProperties>> datasetDefinition = //
-        // propertiesHelpers.getDataSetDefinition(datasetDefinitionName);
-
-        // 3) create the runtime
         try (SandboxedInstance instance = RuntimeUtil.createRuntimeClass(datasetDefinition.getRuntimeInfo(datasetProperties),
                 datasetProperties.getClass().getClassLoader())) {
             DatasetRuntime<DatasetProperties<DatastoreProperties>> datasetRuntimeInstance = (DatasetRuntime<DatasetProperties<DatastoreProperties>>) instance
@@ -221,7 +213,6 @@ public class RuntimeControllerImpl implements RuntimesController {
 
             datasetRuntimeInstance.initialize(null, datasetProperties);
 
-            // 4) Consume the data set runtime
             return consumer.apply(datasetRuntimeInstance);
         }
     }

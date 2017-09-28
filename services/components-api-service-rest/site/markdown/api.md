@@ -7,7 +7,7 @@ The following endpoints have been implemented:
 | GET |  [/v0/definitions/{definitionType}](#list-definitions) | List definitions |
 | GET |  [/v0/definitions/components](#list-component-definitions) | List component definitions |
 | GET |  [/v0/properties/{definitionName}?formName=MAIN](#get-properties) | Get properties |
-| POST |  [/v0/properties/serialize](#serialize-to-persitable) | convert uispecs properties into persitable json |
+| POST |  [/v0/properties/serialize](#serialize-to-persistable) | convert uispecs properties into persistable json |
 | POST |  [/v0/properties/uispecs?formName=MAIN](#get-properties-from-existing-data) | Get properties from existing data |
 | GET |  [/v0/properties/{definitionName}/icon/{type}](#get-properties-icon) | Get properties icon |
 | GET |  [/v0/properties/{definitionName}/connectors](#get-properties-connectors) | Get properties connectors |
@@ -17,15 +17,15 @@ The following endpoints have been implemented:
 | POST |  [/v0/runtimes/check](#check-datastore-connection) | Check datastore connection |
 | POST |  [/v0/runtimes/schema](#get-dataset-schema) | Get dataset schema |
 | POST |  [/v0/runtimes/data?limit=100](#get-dataset-data) | Get dataset data |
-| PUT |  [/v0/runtimes/data?limit=100](#write-dataset-data) | writer dataset data |
+| PUT |  [/v0/runtimes/data?limit=100](#write-dataset-data) | write dataset data |
 
 
 :warning: _Definition names must be unique_
 # whats new in V0 ;)
 1. all routes are prefixed with V0.
 2. a New route (/properties/serialize) has been added to be called before persisting any Properties. This will provide a way to encrypt sensitive data and offer a migration path when deserialized.
-3. All the POST routes taking a definition name as parameter have had this parameter removed so avoid duplication. 
-4. Almos all POST routes taking [multiple ui-specs](#multiple-ui-spec-properties-format) also take [multiple JsonIo](#multiple-json-io-properties-format) properties.
+3. All the POST routes taking a definition name as parameter have had this parameter removed to avoid duplication. 
+4. Almost all POST routes taking [multiple ui-specs](#multiple-ui-spec-properties-format) also take [multiple JsonIo](#multiple-json-io-properties-format) properties.
 5. ui specs and json-io input and output payload have specific content types that you must use when querying the service see [here](#multiple-ui-spec-properties-format) and below.
 6. some routes have changed their url for more clarity
    * `/properties/{definitionName}?formName=MAIN` became `v0/properties/uispecs?formName=MAIN`
@@ -87,14 +87,16 @@ Parameters:
 
 Returns the [ui specs](#ui-spec-format)
 
-# Serialize to persitable
+# Serialize to persistable
 
 ## Signature
 
 ```
 POST /properties/serialize
 ```
+
 This converts ui-spec properties into a json form to be persisted that can be migrated and encrypted 
+
 Parameters:
 
 - `request body` : the form properties with its dependencies in the form of [multiple ui-spec properties](#multiple-ui-spec-properties-format)
@@ -184,7 +186,7 @@ _TODO Vincent manage error stacktrace to ease debugging et print understandable 
 ## Signature
 
 ```
-POST /properties/dataset?fornName=XXX
+POST /properties/dataset?formName=XXX
 ```
 
 Parameters:
@@ -289,7 +291,7 @@ When posting uispec properties to TComp API, the structure is always in the form
         ]
     }
 ```
-ui-spec properties payload is associated with the following content header(with an s at the end of uispec) :`application/uispecs+json;charset=UTF-8";`
+ui-spec properties payload is associated with the following content header(with an 's' at the end of uispec) :`application/uispecs+json;charset=UTF-8";`
 
 # UI-spec format
 
@@ -317,7 +319,7 @@ When posting jsonio properties to TComp API, the structure is always in the form
         ]
     }
 ```
-jsonio properties payload are associated with the following content header (with an s at the end of jsonio) :`application/jsonios+json;charset=UTF-8";`
+jsonio properties payload are associated with the following content header (with an 's' at the end of jsonio) :`application/jsonios+json;charset=UTF-8";`
 
 # Json-IO Properties format
 

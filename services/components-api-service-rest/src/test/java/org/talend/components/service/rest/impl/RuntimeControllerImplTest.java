@@ -14,8 +14,9 @@
 package org.talend.components.service.rest.impl;
 
 import static com.jayway.restassured.RestAssured.given;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 
 import org.junit.Test;
@@ -26,8 +27,6 @@ import org.talend.components.service.rest.dto.SerPropertiesDto;
 import org.talend.components.service.rest.dto.UiSpecsPropertiesDto;
 import org.talend.components.service.rest.mock.MockDatasetRuntime;
 
-import com.jayway.restassured.response.Response;
-
 public class RuntimeControllerImplTest extends AbstractSpringIntegrationTests {
 
     protected String getVersionPrefix() {
@@ -37,35 +36,30 @@ public class RuntimeControllerImplTest extends AbstractSpringIntegrationTests {
     @Test
     public void validateConnectionUiSpecs() throws Exception {
         UiSpecsPropertiesDto propertiesDto = buildTestDataStoreFormData();
-        // when
-        Response response = given().accept(APPLICATION_JSON_UTF8_VALUE) //
-                .expect() //
-                .statusCode(HttpStatus.OK.value()).log().ifError() //
+        given().accept(APPLICATION_JSON_UTF8_VALUE) //
                 .with().content(propertiesDto) //
                 .contentType(ServiceConstants.MLTPL_UI_SPEC_CONTENT_TYPE) //
-                .post(getVersionPrefix() + "/runtimes/check");
-
-        // then
-        assertNotNull(response);
-        String content = response.asString();
-        assertNotNull(content);
+                .when()//
+                .post(getVersionPrefix() + "/runtimes/check")//
+                .then()//
+                .statusCode(HttpStatus.OK.value()).log().ifError()//
+                .assertThat().body(notNullValue())//
+                .assertThat().body(instanceOf(String.class));
     }
 
     @Test
     public void validateConnectionJsonio() throws Exception {
         SerPropertiesDto propertiesDto = buildTestDataStoreSerProps();
-        // when
-        Response response = given().accept(APPLICATION_JSON_UTF8_VALUE) //
-                .expect() //
-                .statusCode(HttpStatus.OK.value()).log().ifError() //
+
+        given().accept(APPLICATION_JSON_UTF8_VALUE) //
                 .with().content(propertiesDto) //
                 .contentType(ServiceConstants.MULTPL_JSONIO_CONTENT_TYPE) //
-                .post(getVersionPrefix() + "/runtimes/check");
-
-        // then
-        assertNotNull(response);
-        String content = response.asString();
-        assertNotNull(content);
+                .when()//
+                .post(getVersionPrefix() + "/runtimes/check")//
+                .then()//
+                .statusCode(HttpStatus.OK.value()).log().ifError() //
+                .assertThat().body(notNullValue())//
+                .assertThat().body(instanceOf(String.class));
     }
 
     @Test
@@ -73,19 +67,15 @@ public class RuntimeControllerImplTest extends AbstractSpringIntegrationTests {
         // given
         UiSpecsPropertiesDto formDataContainer = buildTestDataSetFormData();
 
-        // when
-        Response response = given().accept(APPLICATION_JSON_UTF8_VALUE) //
-                .expect() //
-                .statusCode(200).log().ifError() //
+        given().accept(APPLICATION_JSON_UTF8_VALUE) //
                 .with().content(formDataContainer) //
                 .contentType(ServiceConstants.MLTPL_UI_SPEC_CONTENT_TYPE) //
-                .post(getVersionPrefix() + "/runtimes/schema");
+                .when()//
+                .post(getVersionPrefix() + "/runtimes/schema")//
+                .then()//
+                .statusCode(200).log().ifError() //
+                .assertThat().body(equalTo(MockDatasetRuntime.getSchemaJsonRepresentation()));
 
-        // then
-        assertNotNull(response);
-        String content = response.asString();
-        assertNotNull(content);
-        assertEquals(MockDatasetRuntime.getSchemaJsonRepresentation(), content);
     }
 
     @Test
@@ -93,19 +83,14 @@ public class RuntimeControllerImplTest extends AbstractSpringIntegrationTests {
         // given
         SerPropertiesDto formDataContainer = buildTestDataSetSerProps();
 
-        // when
-        Response response = given().accept(APPLICATION_JSON_UTF8_VALUE) //
-                .expect() //
-                .statusCode(200).log().ifError() //
+        given().accept(APPLICATION_JSON_UTF8_VALUE) //
                 .with().content(formDataContainer) //
                 .contentType(ServiceConstants.MULTPL_JSONIO_CONTENT_TYPE) //
-                .post(getVersionPrefix() + "/runtimes/schema");
-
-        // then
-        assertNotNull(response);
-        String content = response.asString();
-        assertNotNull(content);
-        assertEquals(MockDatasetRuntime.getSchemaJsonRepresentation(), content);
+                .when()//
+                .post(getVersionPrefix() + "/runtimes/schema")//
+                .then()//
+                .statusCode(200).log().ifError() //
+                .assertThat().body(equalTo(MockDatasetRuntime.getSchemaJsonRepresentation()));
     }
 
     @Test
@@ -113,20 +98,14 @@ public class RuntimeControllerImplTest extends AbstractSpringIntegrationTests {
         // given
         UiSpecsPropertiesDto formDataContainer = buildTestDataSetFormData();
 
-        // when
-        Response response = given().accept(APPLICATION_JSON_UTF8_VALUE) //
-                .expect() //
-                .statusCode(200).log().ifError() //
+        given().accept(APPLICATION_JSON_UTF8_VALUE) //
                 .with().content(formDataContainer) //
                 .contentType(ServiceConstants.MLTPL_UI_SPEC_CONTENT_TYPE) //
-                .post(getVersionPrefix() + "/runtimes/data");
-
-        // then
-        assertNotNull(response);
-        String content = response.asString();
-        assertNotNull(content);
-
-        assertEquals(MockDatasetRuntime.getRecordJsonRepresentation(), content);
+                .when()//
+                .post(getVersionPrefix() + "/runtimes/data")//
+                .then()//
+                .statusCode(200).log().ifError() //
+                .assertThat().body(equalTo(MockDatasetRuntime.getRecordJsonRepresentation()));
     }
 
     @Test
@@ -134,19 +113,13 @@ public class RuntimeControllerImplTest extends AbstractSpringIntegrationTests {
         // given
         SerPropertiesDto formDataContainer = buildTestDataSetSerProps();
 
-        // when
-        Response response = given().accept(APPLICATION_JSON_UTF8_VALUE) //
-                .expect() //
-                .statusCode(200).log().ifError() //
+        given().accept(APPLICATION_JSON_UTF8_VALUE) //
                 .with().content(formDataContainer) //
                 .contentType(ServiceConstants.MULTPL_JSONIO_CONTENT_TYPE) //
-                .post(getVersionPrefix() + "/runtimes/data");
-
-        // then
-        assertNotNull(response);
-        String content = response.asString();
-        assertNotNull(content);
-
-        assertEquals(MockDatasetRuntime.getRecordJsonRepresentation(), content);
+                .when()//
+                .post(getVersionPrefix() + "/runtimes/data")//
+                .then()//
+                .statusCode(200).log().ifError() //
+                .assertThat().body(equalTo(MockDatasetRuntime.getRecordJsonRepresentation()));
     }
 }
