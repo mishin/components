@@ -12,15 +12,6 @@
 // ============================================================================
 package org.talend.components.marklogic.tmarklogicconnection;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.talend.components.api.component.ConnectorTopology;
-import org.talend.components.api.component.runtime.ExecutionEngine;
-import org.talend.daikon.properties.property.Property;
-import org.talend.daikon.runtime.RuntimeInfo;
-
-import java.util.Set;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.not;
@@ -29,6 +20,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.talend.components.api.component.ComponentDefinition.RETURN_ERROR_MESSAGE_PROP;
+
+import java.util.Set;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.talend.components.api.component.ConnectorTopology;
+import org.talend.components.api.component.runtime.ExecutionEngine;
+import org.talend.daikon.properties.property.Property;
+import org.talend.daikon.runtime.RuntimeInfo;
 
 public class MarkLogicConnectionDefinitionTest {
 
@@ -52,7 +52,7 @@ public class MarkLogicConnectionDefinitionTest {
     public void testGetRuntimeInfo() {
         RuntimeInfo runtimeInfo = definition.getRuntimeInfo(ExecutionEngine.DI, null, ConnectorTopology.NONE);
 
-        assertEquals("org.talend.components.marklogic.connection.TMarkLogicConnectionStandalone",
+        assertEquals("org.talend.components.marklogic.runtime.TMarkLogicConnectionStandalone",
                 runtimeInfo.getRuntimeClassName());
     }
 
