@@ -13,6 +13,7 @@
 package org.talend.components.marklogic.tmarklogicconnection;
 
 import static org.talend.daikon.properties.presentation.Widget.widget;
+import static org.talend.daikon.properties.property.PropertyFactory.newInteger;
 import static org.talend.daikon.properties.property.PropertyFactory.newProperty;
 import static org.talend.daikon.properties.property.PropertyFactory.newString;
 
@@ -35,18 +36,18 @@ public class MarkLogicConnectionProperties extends ComponentPropertiesImpl imple
     public final ComponentReferenceProperties<MarkLogicConnectionProperties> referencedComponent = new ComponentReferenceProperties<>(
             "referencedComponent", MarkLogicConnectionDefinition.COMPONENT_NAME);
 
-    public StringProperty host = PropertyFactory.newString("host");
+    public StringProperty host = newString("host");
 
-    public Property<Integer> port = PropertyFactory.newInteger("port", 8000);
+    public Property<Integer> port = newInteger("port", 8000);
 
-    public StringProperty database = PropertyFactory.newString("database");
+    public StringProperty database = newString("database");
 
-    public Property<String> username = newProperty("username");
+    public Property<String> username = newString("username");
 
-    public Property<String> password = newProperty("password")
+    public Property<String> password = newString("password")
             .setFlags(EnumSet.of(Property.Flags.ENCRYPT, Property.Flags.SUPPRESS_LOGGING));
 
-    public Property<String> authentication = PropertyFactory.newString("authentication");
+    public Property<String> authentication = newString("authentication");
 
     //for wizzard usage
     public Property<String> name = newString("name").setRequired();
@@ -105,9 +106,7 @@ public class MarkLogicConnectionProperties extends ComponentPropertiesImpl imple
     @Override
     public void refreshLayout(Form form) {
         super.refreshLayout(form);
-        String refComponentId = referencedComponent.componentInstanceId.getStringValue();
-        boolean refConnectionUsed =
-                refComponentId != null && refComponentId.startsWith(MarkLogicConnectionDefinition.COMPONENT_NAME);
+        boolean refConnectionUsed = isReferenceConnectionUsed();
 
         if (form.getName().equals(Form.MAIN)) {
             form.getWidget(host).setHidden(refConnectionUsed);
@@ -122,6 +121,11 @@ public class MarkLogicConnectionProperties extends ComponentPropertiesImpl imple
             getForm(WIZARD).setAllowFinish(
                     true);
         }
+    }
+
+    public boolean isReferenceConnectionUsed() {
+        String refComponentId = referencedComponent.componentInstanceId.getStringValue();
+        return refComponentId != null && refComponentId.startsWith(MarkLogicConnectionDefinition.COMPONENT_NAME);
     }
 
     public void afterReferencedComponent() {
