@@ -30,6 +30,7 @@ import org.talend.daikon.properties.ValidationResultMutable;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class MarkLogicBulkLoad implements ComponentDriverInitialization {
 
@@ -47,23 +48,45 @@ public class MarkLogicBulkLoad implements ComponentDriverInitialization {
         LOGGER.info(MESSAGES.getMessage("messages.info.startBulkLoad"));
         try {
             Process mlcpProcess = CommandExecutor.executeCommand(mlcpCommand);
-            mlcpProcess.waitFor();
-            try (InputStream normalInput = mlcpProcess.getInputStream();
-                    BufferedReader reader = new BufferedReader(new java.io.InputStreamReader(normalInput));
-                    InputStream errorInput = mlcpProcess.getErrorStream();
-                    BufferedReader errorReader = new BufferedReader(new java.io.InputStreamReader(errorInput))) {
 
-                while (reader.ready()) {
-                    System.out.println(reader.readLine());
-                }
-                while (errorReader.ready()) {
-                    System.err.println(errorReader.readLine());
-                }
+            try (InputStream normalInput = mlcpProcess.getInputStream();
+                    InputStream errorInput = mlcpProcess.getErrorStream()) {
+
+                Thread normalInputReadProcess = new Thread() {
+                    public void run() {
+                        try(BufferedReader reader = new BufferedReader(new InputStreamReader(normalInput))) {
+                            String line;
+                            while((line = reader.readLine()) != null) {
+                                System.out.println(line);
+                            }
+                        } catch(IOException ioe) {
+                            LOGGER.error(MESSAGES.getMessage("messages.error.ioexception", ioe.getMessage()));
+                            ioe.printStackTrace();
+                        }
+                    }
+                };
+                normalInputReadProcess.start();
+
+                Thread errorInputReadProcess = new Thread() {
+                    public void run() {
+                        try(BufferedReader reader = new BufferedReader(new InputStreamReader(errorInput))) {
+                            String line;
+                            while((line = reader.readLine()) != null) {
+                                System.err.println(line);
+                            }
+                        } catch(IOException ioe) {
+                            LOGGER.error(MESSAGES.getMessage("messages.error.ioexception", ioe.getMessage()));
+                            ioe.printStackTrace();
+                        }
+                    }
+                };
+                errorInputReadProcess.start();
+
+                mlcpProcess.waitFor();
+                normalInputReadProcess.interrupt();
+                errorInputReadProcess.interrupt();
 
                 LOGGER.info(MESSAGES.getMessage("messages.info.finishBulkLoad"));
-            } catch (IOException e) {
-                LOGGER.error(MESSAGES.getMessage("messages.error.ioexception", e.getMessage()));
-                throw new ComponentException(e);
             }
 
         } catch (Exception e) {
@@ -78,8 +101,7 @@ public class MarkLogicBulkLoad implements ComponentDriverInitialization {
         if (properties instanceof MarkLogicBulkLoadProperties) {
             bulkLoadProperties = (MarkLogicBulkLoadProperties) properties;
 
-            boolean isRequiredPropertiesMissed = isRequiredPropertiesMissed();
-            if (isRequiredPropertiesMissed) {
+            if (isRequiredPropertiesMissed()) {
                 validationResult.setStatus(ValidationResult.Result.ERROR);
                 validationResult.setMessage(MESSAGES.getMessage("error.missedProperties"));
             }
@@ -94,20 +116,15 @@ public class MarkLogicBulkLoad implements ComponentDriverInitialization {
 
     private boolean isRequiredPropertiesMissed() {
         MarkLogicConnectionProperties connection = bulkLoadProperties.connection;
-        boolean isRequiredPropertiesMissed = false;
         if (connection.isReferencedConnectionUsed()) {
-            MarkLogicConnectionProperties referencedConnection = bulkLoadProperties.connection.referencedComponent.getReference();
-
-            isRequiredPropertiesMissed = referencedConnection.host.getStringValue().isEmpty()
-                    || referencedConnection.port.getValue() == null || referencedConnection.database.getStringValue().isEmpty()
-                    || referencedConnection.username.getStringValue().isEmpty() || referencedConnection.password.getStringValue().isEmpty();
-        } else {
-            isRequiredPropertiesMissed = connection.host.getStringValue().isEmpty()
-                    || connection.port.getValue() == null || connection.database.getStringValue().isEmpty()
-                    || connection.username.getStringValue().isEmpty() || connection.password.getStringValue().isEmpty();
+            connection = bulkLoadProperties.connection.referencedComponent.getReference();
         }
-
-        return isRequiredPropertiesMissed || bulkLoadProperties.loadFolder.getStringValue().isEmpty();
+        return connection.host.getStringValue().isEmpty()
+                || connection.port.getValue() == null
+                || connection.database.getStringValue().isEmpty()
+                || connection.username.getStringValue().isEmpty()
+                || connection.password.getStringValue().isEmpty()
+                || bulkLoadProperties.loadFolder.getStringValue().isEmpty();
     }
 
 
@@ -157,7 +174,7 @@ public class MarkLogicBulkLoad implements ComponentDriverInitialization {
         }
         mlcpCommand.append("-input_file_path ").append(loadPath)
                 .append(" ");
-        if (!StringUtils.isEmpty(prefix)) {
+        if (StringUtils.isNotEmpty(prefix)) {
             mlcpCommand.append("-output_uri_replace \"")
                     .append(loadPath)
                     .append(",'")

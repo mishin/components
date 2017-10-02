@@ -18,6 +18,7 @@ package org.talend.components.marklogic.util;
 public class CommandExecutor {
 
     /**
+     * Creates and execute system command line process
      *
      * @param command String to execute in console
      * @return Process which was executed

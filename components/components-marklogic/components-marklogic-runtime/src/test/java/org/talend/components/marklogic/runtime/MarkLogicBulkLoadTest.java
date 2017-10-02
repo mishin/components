@@ -24,7 +24,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 
 @RunWith(PowerMockRunner.class)
@@ -188,7 +187,7 @@ public class MarkLogicBulkLoadTest {
         Mockito.verify(process).waitFor();
     }
 
-    @Test(expected = ComponentException.class)
+    @Test
     public void testRunAtDriverWithIOException() throws Exception {
         initConnectionParameters();
 
@@ -201,6 +200,7 @@ public class MarkLogicBulkLoadTest {
         Mockito.when(process.getInputStream()).thenReturn(mockedInputStream);
         Mockito.when(process.getErrorStream()).thenReturn(mockedInputStream);
         bulkLoadRuntime.runAtDriver(null);
+
         Mockito.verify(process).waitFor();
     }
 
