@@ -17,8 +17,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.ComponentDriverInitialization;
 import org.talend.components.api.container.RuntimeContainer;
+import org.talend.components.api.exception.ComponentException;
 import org.talend.components.marklogic.tmarklogicbulkload.MarkLogicBulkLoadProperties;
 import org.talend.components.marklogic.tmarklogicconnection.MarkLogicConnectionProperties;
+import org.talend.components.marklogic.util.CommandExecutor;
+import org.talend.daikon.exception.error.ErrorCode;
 import org.talend.daikon.i18n.GlobalI18N;
 import org.talend.daikon.i18n.I18nMessages;
 import org.talend.daikon.properties.Properties;
@@ -31,7 +34,7 @@ import java.io.InputStream;
 
 public class MarkLogicBulkLoad implements ComponentDriverInitialization {
 
-    private static final I18nMessages i18nMessages = GlobalI18N.getI18nMessageProvider().getI18nMessages(MarkLogicBulkLoad.class);
+    private static final I18nMessages MESSAGES = GlobalI18N.getI18nMessageProvider().getI18nMessages(MarkLogicBulkLoad.class);
 
     private transient static final Logger LOGGER = LoggerFactory.getLogger(MarkLogicBulkLoad.class);
 
@@ -41,11 +44,10 @@ public class MarkLogicBulkLoad implements ComponentDriverInitialization {
     public void runAtDriver(RuntimeContainer container) {
         String mlcpCommand = prepareMlcpCommand();
 
-        LOGGER.debug(i18nMessages.getMessage("messages.debug.command", mlcpCommand));
-        Runtime currentRuntime = Runtime.getRuntime();
-        LOGGER.info(i18nMessages.getMessage("messages.info.startBulkLoad"));
+        LOGGER.debug(MESSAGES.getMessage("messages.debug.command", mlcpCommand));
+        LOGGER.info(MESSAGES.getMessage("messages.info.startBulkLoad"));
         try {
-            Process mlcpProcess = currentRuntime.exec(mlcpCommand);
+            Process mlcpProcess = CommandExecutor.executeCommand(mlcpCommand);
             mlcpProcess.waitFor();
             try (InputStream normalInput = mlcpProcess.getInputStream();
                     BufferedReader reader = new BufferedReader(new java.io.InputStreamReader(normalInput));
@@ -59,20 +61,21 @@ public class MarkLogicBulkLoad implements ComponentDriverInitialization {
                     System.err.println(errorReader.readLine());
                 }
 
-                LOGGER.info(i18nMessages.getMessage("messages.info.finishBulkLoad"));
+                LOGGER.info(MESSAGES.getMessage("messages.info.finishBulkLoad"));
             } catch (IOException e) {
-                LOGGER.error(i18nMessages.getMessage("messages.error.ioexception", e.getMessage()));
+                LOGGER.error(MESSAGES.getMessage("messages.error.ioexception", e.getMessage()));
+                throw new ComponentException(e);
             }
 
         } catch (Exception e) {
-            LOGGER.error(i18nMessages.getMessage("messages.error.exception", e.getMessage()));
+            LOGGER.error(MESSAGES.getMessage("messages.error.exception", e.getMessage()));
+            throw new ComponentException(e);
         }
     }
 
     @Override
     public ValidationResult initialize(RuntimeContainer container, Properties properties) {
         ValidationResultMutable validationResult = new ValidationResultMutable();
-        validationResult.setStatus(ValidationResult.Result.OK);
         if (properties instanceof MarkLogicBulkLoadProperties) {
             bulkLoadProperties = (MarkLogicBulkLoadProperties) properties;
             MarkLogicConnectionProperties connection = bulkLoadProperties.connection;
@@ -83,20 +86,20 @@ public class MarkLogicBulkLoad implements ComponentDriverInitialization {
                         && !bulkLoadProperties.loadFolder.getStringValue().isEmpty();
                 if (!isRequiredPropertiesSet) {
                     validationResult.setStatus(ValidationResult.Result.ERROR);
-                    validationResult.setMessage(i18nMessages.getMessage("error.missedProperties"));
+                    validationResult.setMessage(MESSAGES.getMessage("error.missedProperties"));
                 }
             } //else properties should have been already checked in the connection component
         } else {
             validationResult.setStatus(ValidationResult.Result.ERROR);
-            validationResult.setMessage(i18nMessages.getMessage("error.wrongProperties"));
+            validationResult.setMessage(MESSAGES.getMessage("error.wrongProperties"));
         }
 
         return validationResult;
     }
 
-    private String prepareMlcpCommand() {
+    String prepareMlcpCommand() {
         StringBuilder mlcpCommand = new StringBuilder();
-        boolean runOnWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
+
         MarkLogicConnectionProperties connection = bulkLoadProperties.connection;
         boolean useExistingConnection = connection.isReferenceConnectionUsed();
         //connection properties could be also taken from referencedComponent
@@ -124,21 +127,18 @@ public class MarkLogicBulkLoad implements ComponentDriverInitialization {
         loadPath = (loadPath.replaceAll("\\\\","/"));
 
         String prefix = bulkLoadProperties.docidPrefix.getStringValue();
-        if(prefix.endsWith("/") || prefix.endsWith("\\")){
+        if(prefix != null && (prefix.endsWith("/") || prefix.endsWith("\\"))){
             prefix = prefix.substring(0, prefix.length() - 1);
         }
         String additionalMLCPParameters = bulkLoadProperties.mlcpParams.getStringValue();
-        if (runOnWindows) {
-            mlcpCommand.append("cmd /c mlcp.bat ");
-        } else {
-            mlcpCommand.append("mlcp.sh ");
-        }
+
+        mlcpCommand.append(prepareMlcpCommandStart(System.getProperty("os.name")));
         mlcpCommand.append("import ");
         mlcpCommand.append("-username ").append(userName).append(" ");
         mlcpCommand.append("-password ").append(password).append(" ");
         mlcpCommand.append("-host ").append(host).append(" ");
         mlcpCommand.append("-port ").append(port).append(" ");
-        if (!StringUtils.isEmpty(database) && !("\"\"".equals(database))) {
+        if (StringUtils.isNotEmpty(database) && !("\"\"".equals(database))) {
             mlcpCommand.append("-database ").append(database).append(" ");
         }
         mlcpCommand.append("-input_file_path ").append(loadPath)
@@ -150,11 +150,19 @@ public class MarkLogicBulkLoad implements ComponentDriverInitialization {
                     .append(prefix)
                     .append("'\"");
         }
-        if (!StringUtils.isEmpty(additionalMLCPParameters) && !(("\"\"".equals(additionalMLCPParameters)))) {
+        if (StringUtils.isNotEmpty(additionalMLCPParameters) && !(("\"\"".equals(additionalMLCPParameters)))) {
             mlcpCommand.append(" ");
             mlcpCommand.append(additionalMLCPParameters);
         }
 
         return mlcpCommand.toString();
+    }
+
+    String prepareMlcpCommandStart(String osName) {
+        if (osName.toLowerCase().startsWith("windows")) {
+            return "cmd /c mlcp.bat ";
+        } else {
+            return "mlcp.sh ";
+        }
     }
 }
