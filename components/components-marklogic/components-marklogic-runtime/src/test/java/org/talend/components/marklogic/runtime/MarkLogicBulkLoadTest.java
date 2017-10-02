@@ -10,6 +10,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.marklogic.tmarklogicbulkload.MarkLogicBulkLoadProperties;
+import org.talend.components.marklogic.tmarklogicconnection.MarkLogicConnectionDefinition;
 import org.talend.components.marklogic.tmarklogicconnection.MarkLogicConnectionProperties;
 import org.talend.components.marklogic.util.CommandExecutor;
 import org.talend.daikon.i18n.GlobalI18N;
@@ -23,6 +24,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 
 @RunWith(PowerMockRunner.class)
@@ -104,6 +106,23 @@ public class MarkLogicBulkLoadTest {
         assertThat(mlcpCommand, containsString("-database " + bulkLoadProperties.connection.database.getStringValue()));
         assertThat(mlcpCommand, containsString("-username " + bulkLoadProperties.connection.username.getStringValue()));
         assertThat(mlcpCommand, containsString("-password " + bulkLoadProperties.connection.password.getStringValue()));
+        assertThat(mlcpCommand, containsString("-input_file_path " + "/" + bulkLoadProperties.loadFolder.getStringValue()));
+    }
+
+    @Test
+    public void testPrepareMlcpCommandWithReferencedConnection() {
+        initConnectionParameters();
+        bulkLoadProperties.connection.referencedComponent.setReference(connectionProperties);
+        bulkLoadProperties.connection.referencedComponent.componentInstanceId.setValue(MarkLogicConnectionDefinition.COMPONENT_NAME + "_1");
+
+        bulkLoadRuntime.initialize(null, bulkLoadProperties);
+        String mlcpCommand = bulkLoadRuntime.prepareMlcpCommand();
+
+        assertThat(mlcpCommand, containsString("-host " + bulkLoadProperties.connection.referencedComponent.getReference().host.getStringValue()));
+        assertThat(mlcpCommand, containsString("-port " + bulkLoadProperties.connection.referencedComponent.getReference().port.getValue()));
+        assertThat(mlcpCommand, containsString("-database " + bulkLoadProperties.connection.referencedComponent.getReference().database.getStringValue()));
+        assertThat(mlcpCommand, containsString("-username " +bulkLoadProperties.connection.referencedComponent.getReference().username.getStringValue()));
+        assertThat(mlcpCommand, containsString("-password " + bulkLoadProperties.connection.referencedComponent.getReference().password.getStringValue()));
         assertThat(mlcpCommand, containsString("-input_file_path " + "/" + bulkLoadProperties.loadFolder.getStringValue()));
     }
 

@@ -27,7 +27,6 @@ import org.talend.daikon.properties.ValidationResult;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
-import org.talend.daikon.properties.property.PropertyFactory;
 import org.talend.daikon.properties.property.StringProperty;
 import org.talend.daikon.properties.service.Repository;
 
@@ -106,7 +105,7 @@ public class MarkLogicConnectionProperties extends ComponentPropertiesImpl imple
     @Override
     public void refreshLayout(Form form) {
         super.refreshLayout(form);
-        boolean refConnectionUsed = isReferenceConnectionUsed();
+        boolean refConnectionUsed = isReferencedConnectionUsed();
 
         if (form.getName().equals(Form.MAIN)) {
             form.getWidget(host).setHidden(refConnectionUsed);
@@ -123,7 +122,7 @@ public class MarkLogicConnectionProperties extends ComponentPropertiesImpl imple
         }
     }
 
-    public boolean isReferenceConnectionUsed() {
+    public boolean isReferencedConnectionUsed() {
         String refComponentId = referencedComponent.componentInstanceId.getStringValue();
         return refComponentId != null && refComponentId.startsWith(MarkLogicConnectionDefinition.COMPONENT_NAME);
     }

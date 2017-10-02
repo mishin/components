@@ -21,7 +21,6 @@ import org.talend.components.api.exception.ComponentException;
 import org.talend.components.marklogic.tmarklogicbulkload.MarkLogicBulkLoadProperties;
 import org.talend.components.marklogic.tmarklogicconnection.MarkLogicConnectionProperties;
 import org.talend.components.marklogic.util.CommandExecutor;
-import org.talend.daikon.exception.error.ErrorCode;
 import org.talend.daikon.i18n.GlobalI18N;
 import org.talend.daikon.i18n.I18nMessages;
 import org.talend.daikon.properties.Properties;
@@ -78,17 +77,13 @@ public class MarkLogicBulkLoad implements ComponentDriverInitialization {
         ValidationResultMutable validationResult = new ValidationResultMutable();
         if (properties instanceof MarkLogicBulkLoadProperties) {
             bulkLoadProperties = (MarkLogicBulkLoadProperties) properties;
-            MarkLogicConnectionProperties connection = bulkLoadProperties.connection;
-            if (!connection.isReferenceConnectionUsed()) {
-                boolean isRequiredPropertiesSet = !connection.host.getStringValue().isEmpty()
-                        && connection.port.getValue() != null && !connection.database.getStringValue().isEmpty()
-                        && !connection.username.getStringValue().isEmpty() && !connection.password.getStringValue().isEmpty()
-                        && !bulkLoadProperties.loadFolder.getStringValue().isEmpty();
-                if (!isRequiredPropertiesSet) {
-                    validationResult.setStatus(ValidationResult.Result.ERROR);
-                    validationResult.setMessage(MESSAGES.getMessage("error.missedProperties"));
-                }
-            } //else properties should have been already checked in the connection component
+
+            boolean isRequiredPropertiesMissed = isRequiredPropertiesMissed();
+            if (isRequiredPropertiesMissed) {
+                validationResult.setStatus(ValidationResult.Result.ERROR);
+                validationResult.setMessage(MESSAGES.getMessage("error.missedProperties"));
+            }
+
         } else {
             validationResult.setStatus(ValidationResult.Result.ERROR);
             validationResult.setMessage(MESSAGES.getMessage("error.wrongProperties"));
@@ -97,11 +92,30 @@ public class MarkLogicBulkLoad implements ComponentDriverInitialization {
         return validationResult;
     }
 
+    private boolean isRequiredPropertiesMissed() {
+        MarkLogicConnectionProperties connection = bulkLoadProperties.connection;
+        boolean isRequiredPropertiesMissed = false;
+        if (connection.isReferencedConnectionUsed()) {
+            MarkLogicConnectionProperties referencedConnection = bulkLoadProperties.connection.referencedComponent.getReference();
+
+            isRequiredPropertiesMissed = referencedConnection.host.getStringValue().isEmpty()
+                    || referencedConnection.port.getValue() == null || referencedConnection.database.getStringValue().isEmpty()
+                    || referencedConnection.username.getStringValue().isEmpty() || referencedConnection.password.getStringValue().isEmpty();
+        } else {
+            isRequiredPropertiesMissed = connection.host.getStringValue().isEmpty()
+                    || connection.port.getValue() == null || connection.database.getStringValue().isEmpty()
+                    || connection.username.getStringValue().isEmpty() || connection.password.getStringValue().isEmpty();
+        }
+
+        return isRequiredPropertiesMissed || bulkLoadProperties.loadFolder.getStringValue().isEmpty();
+    }
+
+
     String prepareMlcpCommand() {
         StringBuilder mlcpCommand = new StringBuilder();
 
         MarkLogicConnectionProperties connection = bulkLoadProperties.connection;
-        boolean useExistingConnection = connection.isReferenceConnectionUsed();
+        boolean useExistingConnection = connection.isReferencedConnectionUsed();
         //connection properties could be also taken from referencedComponent
         String userName = useExistingConnection ?
                 connection.referencedComponent.getReference().username.getStringValue() :
@@ -143,7 +157,7 @@ public class MarkLogicBulkLoad implements ComponentDriverInitialization {
         }
         mlcpCommand.append("-input_file_path ").append(loadPath)
                 .append(" ");
-        if (prefix != null && !prefix.isEmpty()) {
+        if (!StringUtils.isEmpty(prefix)) {
             mlcpCommand.append("-output_uri_replace \"")
                     .append(loadPath)
                     .append(",'")
