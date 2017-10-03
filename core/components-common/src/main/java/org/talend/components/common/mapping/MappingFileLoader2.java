@@ -85,7 +85,7 @@ public class MappingFileLoader2 {
 
         NodeList dbTypes = dbTypesNode.getElementsByTagName("dbType");
         for (int i = 0; i < dbTypes.getLength(); i++) {
-            constructDbType((Element) dbTypes.item(i));
+            System.out.println(constructDbType((Element) dbTypes.item(i)));
         }
         // List<Node> childrenOfDbmsNode = getChildElementNodes(dbmsNode);
 
@@ -97,20 +97,47 @@ public class MappingFileLoader2 {
      * 
      * @param dbTypeNode
      */
-    private void constructDbType(Element dbTypeNode) {
+    private DbType constructDbType(Element dbTypeNode) {
         NamedNodeMap dbTypeAttributes = dbTypeNode.getAttributes();
         String typeName = dbTypeAttributes.getNamedItem("type").getNodeValue();
+        
+        boolean isDefault = false;
+        Node isDefaultAttribute = dbTypeAttributes.getNamedItem("default");
+        if (isDefaultAttribute != null) {
+            isDefault = Boolean.parseBoolean(isDefaultAttribute.getNodeValue());
+        }
+        
+        int defaultLength = DbType.UNDEFINED;
+        Node defaultLengthAttribute = dbTypeAttributes.getNamedItem("defaultLength");
+        if (defaultLengthAttribute != null) {
+            defaultLength = Integer.parseInt(defaultLengthAttribute.getNodeValue());
+        }
+        
+        int defaultPrecision = DbType.UNDEFINED;
+        Node defaultPrecisionAttribute = dbTypeAttributes.getNamedItem("defaultPrecision");
+        if (defaultPrecisionAttribute != null) {
+            defaultPrecision = Integer.parseInt(defaultPrecisionAttribute.getNodeValue());
+        }
+        
+        boolean ignoreLen = false;
+        Node ignoreLenAttribute = dbTypeAttributes.getNamedItem("ignoreLen");
+        if (ignoreLenAttribute != null) {
+            ignoreLen = Boolean.parseBoolean(ignoreLenAttribute.getNodeValue());
+        }
+        
         boolean ignorePre = false;
         Node ignorePreAttribute = dbTypeAttributes.getNamedItem("ignorePre");
         if (ignorePreAttribute != null) {
             ignorePre = Boolean.parseBoolean(ignorePreAttribute.getNodeValue());
         }
         
+        boolean preBeforeLen = false;
+        Node preBeforeLenAttribute = dbTypeAttributes.getNamedItem("preBeforeLen");
+        if (preBeforeLenAttribute != null) {
+            preBeforeLen = Boolean.parseBoolean(preBeforeLenAttribute.getNodeValue());
+        }
         
-        boolean ignoreLen;
-        int defaultLength;
-        int defaultPrecision;
-        boolean preBeforelen;
+        return new DbType(typeName, isDefault, defaultLength, defaultPrecision, ignoreLen, ignorePre, preBeforeLen);
     }
     
     /**

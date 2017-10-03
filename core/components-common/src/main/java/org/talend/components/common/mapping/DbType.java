@@ -12,26 +12,102 @@
 // ============================================================================
 package org.talend.components.common.mapping;
 
-
 /**
  * Represents database type
  */
 public class DbType extends DataType {
-
-    private int defaultLength;
-    
-    private int defaultPrecision;
-    
-    private boolean ignoreLength;
-    
-    private boolean ignorePrecision;
-    
-    private boolean preBeforeLength;
     
     /**
-     * @param typeName name of this type
+     * Special value to specify that value wansn't defined. Can be used for positive integer variables
      */
-    public DbType(String typeName) {
+    static final int UNDEFINED = -1;
+
+    private final boolean isDefault;
+
+    private final int defaultLength;
+
+    private final int defaultPrecision;
+
+    private final boolean ignoreLength;
+
+    private final boolean ignorePrecision;
+
+    private final boolean preBeforeLength;
+
+    /**
+     * 
+     * 
+     * @param typeName
+     * @param isDefault
+     * @param defaultLength
+     * @param defaultPrecision
+     * @param ignoreLength
+     * @param ignorePrecision
+     * @param preBeforeLength
+     */
+    public DbType(String typeName, boolean isDefault, int defaultLength, int defaultPrecision, boolean ignoreLength,
+            boolean ignorePrecision, boolean preBeforeLength) {
         super(typeName);
+        this.isDefault = isDefault;
+        this.defaultLength = defaultLength;
+        this.defaultPrecision = defaultPrecision;
+        this.ignoreLength = ignoreLength;
+        this.ignorePrecision = ignorePrecision;
+        this.preBeforeLength = preBeforeLength;
+    }
+
+    /**
+     * @return the isDefault
+     */
+    public boolean isDefault() {
+        return isDefault;
+    }
+
+    /**
+     * @return the defaultLength
+     */
+    public int getDefaultLength() {
+        return defaultLength;
+    }
+
+    /**
+     * @return the defaultPrecision
+     */
+    public int getDefaultPrecision() {
+        return defaultPrecision;
+    }
+
+    /**
+     * @return the ignoreLength
+     */
+    public boolean isIgnoreLength() {
+        return ignoreLength;
+    }
+
+    /**
+     * @return the ignorePrecision
+     */
+    public boolean isIgnorePrecision() {
+        return ignorePrecision;
+    }
+
+    /**
+     * @return the preBeforeLength
+     */
+    public boolean isPreBeforeLength() {
+        return preBeforeLength;
+    }
+    
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("dbType type=").append(getName()).append(" ");
+        sb.append("defaut=").append(isDefault()).append(" ");
+        sb.append("defaultLength=").append(getDefaultLength()).append(" ");
+        sb.append("defautPrecision=").append(getDefaultPrecision()).append(" ");
+        sb.append("ignoreLength=").append(isIgnoreLength()).append(" ");
+        sb.append("ignorePrecision=").append(isIgnorePrecision()).append(" ");
+        sb.append("preBeforeLength=").append(isPreBeforeLength()).append(" ");
+        return sb.toString();
     }
 }

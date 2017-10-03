@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.components.common.mapping;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -22,17 +23,26 @@ import java.util.Set;
  * $Id$
  * 
  */
-public class Dbms {
+public class Dbms implements IDbms {
 
+    /**
+     * Following 4 fields are Dbms attributes
+     * TODO make them final
+     */
 	private String id;
 
 	private String product;
 
 	private String label;
+	
+	private boolean defaultDbms;
+	
+	
+	private List<DbType> types = new ArrayList<>();
+	
+	
 
 	private String defaultDbType;
-
-	private boolean defaultDbms;
 
 	private List<String> dbmsTypes;
 
@@ -317,6 +327,15 @@ public class Dbms {
 	public void setIgnoreLengthPrecision(
 			List<DbIgnoreLengthAndPrecision> ignoreLengthPrecision) {
 		this.ignoreLengthPrecision = ignoreLengthPrecision;
+	}
+	
+	/**
+	 * Add database type. It is used by configuration parser to fill this Dbms object
+	 * 
+	 * @param type
+	 */
+	protected void addType(DbType type) {
+	    types.add(type);
 	}
 
 }
