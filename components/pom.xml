@@ -31,10 +31,10 @@
         <module>components-marketo</module>
         <module>components-netsuite</module>
         <module>components-hadoopcluster</module>
+        <module>components-marklogic</module>
 
         <!-- Slow-building components are built last. -->
         <module>components-salesforce</module>
         <module>components-snowflake</module>
-        <module>components-marklogic</module>
     </modules>
 </project>

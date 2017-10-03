@@ -40,7 +40,7 @@ public class MarkLogicBulkLoadProperties extends ComponentPropertiesImpl {
         Form mainForm = new Form(this, Form.MAIN);
         mainForm.addRow(connection.getForm(Form.REFERENCE));
         connection.getForm(Form.MAIN).getWidget(connection.authentication).setHidden();
-        mainForm.addRow(Widget.widget(loadFolder).setWidgetType(Widget.FILE_WIDGET_TYPE));
+        mainForm.addRow(Widget.widget(loadFolder).setWidgetType(Widget.DIRECTORY_WIDGET_TYPE));
         mainForm.addRow(docidPrefix);
 
         Form advancedForm = new Form(this, Form.ADVANCED);
