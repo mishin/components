@@ -146,6 +146,7 @@
 							<goal>bundle</goal>
 						</goals>
 						<configuration>
+							<classifier>bundle</classifier>
 							<instructions>
 								<Bundle-SymbolicName>org.talend.components.marklogic.definition.lib</Bundle-SymbolicName>
 								<Service-Component>*</Service-Component>
