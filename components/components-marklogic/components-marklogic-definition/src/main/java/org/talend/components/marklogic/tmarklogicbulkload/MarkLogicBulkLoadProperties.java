@@ -39,7 +39,8 @@ public class MarkLogicBulkLoadProperties extends ComponentPropertiesImpl {
         super.setupLayout();
         Form mainForm = new Form(this, Form.MAIN);
         mainForm.addRow(connection.getForm(Form.REFERENCE));
-        mainForm.addRow(Widget.widget(loadFolder).setWidgetType(Widget.FILE_WIDGET_TYPE));
+        connection.getForm(Form.MAIN).getWidget(connection.authentication).setHidden();
+        mainForm.addRow(Widget.widget(loadFolder).setWidgetType(Widget.DIRECTORY_WIDGET_TYPE));
         mainForm.addRow(docidPrefix);
 
         Form advancedForm = new Form(this, Form.ADVANCED);
@@ -62,6 +63,7 @@ public class MarkLogicBulkLoadProperties extends ComponentPropertiesImpl {
             for (Form childForm : connection.getForms()) {
                 connection.refreshLayout(childForm);
             }
+            connection.getForm(Form.MAIN).getWidget(connection.authentication).setHidden();
         }
     }
 }

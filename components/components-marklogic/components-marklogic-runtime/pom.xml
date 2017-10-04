@@ -31,7 +31,7 @@
 	</repositories>
 
 	<dependencies>
-	
+
 		<dependency>
 			<groupId>org.talend.components</groupId>
 			<artifactId>components-marklogic-definition</artifactId>
@@ -60,14 +60,13 @@
 			<version>${project.parent.version}</version>
 			<scope>test</scope>
 		</dependency>
-		
 		<!-- Java client API for MarkLogic -->
 		<dependency>
-		    <groupId>com.marklogic</groupId>
-		    <artifactId>marklogic-client-api</artifactId>
-		    <version>4.0.1</version>
+			<groupId>com.marklogic</groupId>
+			<artifactId>marklogic-client-api</artifactId>
+			<version>4.0.2</version>
 		</dependency>
-		
+
 		<dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-api-mockito</artifactId>
@@ -80,8 +79,8 @@
             <version>1.6.5</version>
             <scope>test</scope>
         </dependency>
-		
 	</dependencies>
+
 
 	<build>
 		<plugins>
