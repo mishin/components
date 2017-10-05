@@ -66,7 +66,7 @@
 			<artifactId>marklogic-client-api</artifactId>
 			<version>4.0.2</version>
 		</dependency>
-		
+
 		<dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-api-mockito</artifactId>

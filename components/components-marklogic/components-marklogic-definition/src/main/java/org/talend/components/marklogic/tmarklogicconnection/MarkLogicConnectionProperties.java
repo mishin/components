@@ -14,7 +14,6 @@ package org.talend.components.marklogic.tmarklogicconnection;
 
 import static org.talend.daikon.properties.presentation.Widget.widget;
 import static org.talend.daikon.properties.property.PropertyFactory.newInteger;
-import static org.talend.daikon.properties.property.PropertyFactory.newProperty;
 import static org.talend.daikon.properties.property.PropertyFactory.newString;
 
 import java.util.EnumSet;
