@@ -22,6 +22,8 @@ import org.talend.components.marklogic.tmarklogicconnection.MarkLogicConnectionP
 import org.talend.daikon.exception.ExceptionContext.ExceptionContextBuilder;
 import org.talend.daikon.exception.error.DefaultErrorCode;
 import org.talend.daikon.exception.error.ErrorCode;
+import org.talend.daikon.i18n.GlobalI18N;
+import org.talend.daikon.i18n.I18nMessages;
 
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.DatabaseClientFactory;
@@ -35,6 +37,9 @@ import com.marklogic.client.FailedRequestException;
 public abstract class MarkLogicConnection {
 
     private transient static final Logger LOGGER = LoggerFactory.getLogger(MarkLogicConnection.class);
+
+    private static final I18nMessages MESSAGES = GlobalI18N.getI18nMessageProvider()
+            .getI18nMessages(MarkLogicConnection.class);
 
     public static final String CONNECTION = "connection";
 
@@ -54,8 +59,11 @@ public abstract class MarkLogicConnection {
             if (client != null) {
                 return client;
             }
-            throw new ComponentException(new DefaultErrorCode(400, ERROR_KEY), new ExceptionContextBuilder()
-                    .put(ERROR_KEY, "Referenced component: " + properties.getReferencedComponentId() + " not connected").build());
+
+            throw new ComponentException(new DefaultErrorCode(400, ERROR_KEY),
+                    new ExceptionContextBuilder().put(ERROR_KEY,
+                            MESSAGES.getMessage("error.invalid.referenceConnection", properties.getReferencedComponentId()))
+                            .build());
         }
 
         SecurityContext context = "BASIC".equals(properties.authentication.getValue())
@@ -76,17 +84,17 @@ public abstract class MarkLogicConnection {
 
     private void testConnection(DatabaseClient client) {
         try {
-            // Since creating client is not enough for verifying established connection, need to make fake call:
+            // Since creating client is not enough for verifying established connection, need to make fake call.
             client.openTransaction().commit();
         } catch (Exception e) {
             ErrorCode errorCode;
             String message;
             if (e instanceof FailedRequestException) {
                 errorCode = new DefaultErrorCode(403, ERROR_KEY);
-                message = "Invalid credentials.";
+                message = MESSAGES.getMessage("error.invalid.credentials");
             } else {
                 errorCode = new DefaultErrorCode(400, ERROR_KEY);
-                message = "Cannot connect to MarkLogic database. Check your database connectivity.";
+                message = MESSAGES.getMessage("error.server.notReachable");
             }
             throw new ComponentException(errorCode, e, new ExceptionContextBuilder().put(ERROR_KEY, message).build());
         }
