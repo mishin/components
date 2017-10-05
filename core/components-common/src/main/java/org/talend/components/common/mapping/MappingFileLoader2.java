@@ -73,23 +73,41 @@ public class MappingFileLoader2 {
      * @return
      */
     private Dbms constructDbms(Element dbmsNode) {
-        NamedNodeMap dbmsAttributes = dbmsNode.getAttributes();
-        String productName = dbmsAttributes.getNamedItem("product").getNodeValue(); //$NON-NLS-1$
-        String id = dbmsAttributes.getNamedItem("id").getNodeValue(); //$NON-NLS-1$
-        String label = dbmsAttributes.getNamedItem("label").getNodeValue(); //$NON-NLS-1$
-        boolean isDefault = Boolean.parseBoolean(dbmsAttributes.getNamedItem("default").getNodeValue()); //$NON-NLS-1$
-
+        String productName = dbmsNode.getAttribute("product");
+        String id = dbmsNode.getAttribute("id");
+        String label = dbmsNode.getAttribute("label");
+        boolean isDefault = Boolean.parseBoolean(dbmsNode.getAttribute("default"));
         Dbms dbms = new Dbms(id, productName, label, isDefault);
-        NodeList dbTypesNodeList = dbmsNode.getElementsByTagName("dbTypes");
-        Element dbTypesNode = (Element) dbTypesNodeList.item(0);
 
+        // parse db types
+        Element dbTypesNode = getChildElement(dbmsNode, "dbTypes");
         NodeList dbTypes = dbTypesNode.getElementsByTagName("dbType");
         for (int i = 0; i < dbTypes.getLength(); i++) {
-            System.out.println(constructDbType((Element) dbTypes.item(i)));
+            dbms.addType(constructDbType((Element) dbTypes.item(i)));
         }
-        // List<Node> childrenOfDbmsNode = getChildElementNodes(dbmsNode);
+        
+        // parse type mappings
+        Element javaLanguageNode = findJavaLanguage(dbmsNode.getElementsByTagName("language"));
+        // process talend to db mappings
+        Element talendToDbTypes = getChildElement(javaLanguageNode, "talendToDbTypes");
+        List<Element> talendMappings = getChildren(talendToDbTypes);
+        int i = 0;
+        for (Element el : talendMappings) {
+            System.out.println(el.getTagName());
+            constructTalendMapping(el);
+        }
 
         return dbms;
+    }
+    
+    private Element findJavaLanguage(NodeList languagesNodeList) {
+        for (int i = 0; i < languagesNodeList.getLength(); i++) {
+            Element languageNode = (Element) languagesNodeList.item(0);
+            if (languageNode.getAttribute("name").equals("java")) {
+                return languageNode;
+            }
+        }
+        return null; // mapping file has no mapping for java
     }
     
     /**
@@ -98,46 +116,66 @@ public class MappingFileLoader2 {
      * @param dbTypeNode
      */
     private DbType constructDbType(Element dbTypeNode) {
-        NamedNodeMap dbTypeAttributes = dbTypeNode.getAttributes();
-        String typeName = dbTypeAttributes.getNamedItem("type").getNodeValue();
+        String typeName = dbTypeNode.getAttribute("type");
         
         boolean isDefault = false;
-        Node isDefaultAttribute = dbTypeAttributes.getNamedItem("default");
-        if (isDefaultAttribute != null) {
-            isDefault = Boolean.parseBoolean(isDefaultAttribute.getNodeValue());
+        String isDefaultAttribute = dbTypeNode.getAttribute("default");
+        if (!isDefaultAttribute.isEmpty()) {
+            isDefault = Boolean.parseBoolean(isDefaultAttribute);
         }
         
         int defaultLength = DbType.UNDEFINED;
-        Node defaultLengthAttribute = dbTypeAttributes.getNamedItem("defaultLength");
-        if (defaultLengthAttribute != null) {
-            defaultLength = Integer.parseInt(defaultLengthAttribute.getNodeValue());
+        String defaultLengthAttribute = dbTypeNode.getAttribute("defaultLength");
+        if (!defaultLengthAttribute.isEmpty()) {
+            defaultLength = Integer.parseInt(defaultLengthAttribute);
         }
         
         int defaultPrecision = DbType.UNDEFINED;
-        Node defaultPrecisionAttribute = dbTypeAttributes.getNamedItem("defaultPrecision");
-        if (defaultPrecisionAttribute != null) {
-            defaultPrecision = Integer.parseInt(defaultPrecisionAttribute.getNodeValue());
+        String defaultPrecisionAttribute = dbTypeNode.getAttribute("defaultPrecision");
+        if (!defaultPrecisionAttribute.isEmpty()) {
+            defaultPrecision = Integer.parseInt(defaultPrecisionAttribute);
         }
         
         boolean ignoreLen = false;
-        Node ignoreLenAttribute = dbTypeAttributes.getNamedItem("ignoreLen");
-        if (ignoreLenAttribute != null) {
-            ignoreLen = Boolean.parseBoolean(ignoreLenAttribute.getNodeValue());
+        String ignoreLenAttribute = dbTypeNode.getAttribute("ignoreLen");
+        if (!ignoreLenAttribute.isEmpty()) {
+            ignoreLen = Boolean.parseBoolean(ignoreLenAttribute);
         }
         
         boolean ignorePre = false;
-        Node ignorePreAttribute = dbTypeAttributes.getNamedItem("ignorePre");
-        if (ignorePreAttribute != null) {
-            ignorePre = Boolean.parseBoolean(ignorePreAttribute.getNodeValue());
+        String ignorePreAttribute = dbTypeNode.getAttribute("ignorePre");
+        if (!ignorePreAttribute.isEmpty()) {
+            ignorePre = Boolean.parseBoolean(ignorePreAttribute);
         }
         
         boolean preBeforeLen = false;
-        Node preBeforeLenAttribute = dbTypeAttributes.getNamedItem("preBeforeLen");
-        if (preBeforeLenAttribute != null) {
-            preBeforeLen = Boolean.parseBoolean(preBeforeLenAttribute.getNodeValue());
+        String preBeforeLenAttribute = dbTypeNode.getAttribute("preBeforeLen");
+        if (!preBeforeLenAttribute.isEmpty()) {
+            preBeforeLen = Boolean.parseBoolean(preBeforeLenAttribute);
         }
         
         return new DbType(typeName, isDefault, defaultLength, defaultPrecision, ignoreLen, ignorePre, preBeforeLen);
+    }
+    
+    private void constructTalendMapping(Element talendMapping) {
+        String talendType = talendMapping.getAttribute("type");
+        System.out.println(talendType);
+        // find corresponding Talend type object
+        
+        List<Element> correspondingDbTypes = getChildren(talendMapping);
+        for (Element dbTypeNode : correspondingDbTypes) {
+            String dbType = dbTypeNode.getAttribute("type");
+            System.out.println(dbType);
+            String defaultAttrValue = dbTypeNode.getAttribute("default");
+            boolean isDefault = defaultAttrValue.isEmpty() ? false : Boolean.parseBoolean(defaultAttrValue);
+            System.out.println(isDefault);
+        }
+        
+        
+    }
+    
+    private Element getChildElement(Element parent, String tagName) {
+        return (Element) parent.getElementsByTagName(tagName).item(0);
     }
     
     /**
@@ -146,12 +184,12 @@ public class MappingFileLoader2 {
      * @param parentNode
      * @return
      */
-    private List<Node> getChildElementNodes(Node parentNode) {
+    private List<Element> getChildren(Node parentNode) {
         Node childNode = parentNode.getFirstChild();
-        ArrayList<Node> list = new ArrayList<Node>();
+        ArrayList<Element> list = new ArrayList<>();
         while (childNode != null) {
             if (childNode.getNodeType() == Node.ELEMENT_NODE) {
-                list.add(childNode);
+                list.add((Element)childNode);
             }
             childNode = childNode.getNextSibling();
         }

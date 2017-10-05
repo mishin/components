@@ -16,18 +16,7 @@ package org.talend.components.common.mapping;
 /**
  * Describes specific data source type
  */
-public class DataType {
-    
-    private final String typeName;
+public interface DataType {
 
-    /**
-     * @param typeName name of this type
-     */
-    public DataType(String typeName) {
-        this.typeName = typeName;
-    }
-
-    public String getName() {
-        return typeName;
-    }
+    String getName();
 }

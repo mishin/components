@@ -50,24 +50,31 @@ public class Dbms implements IDbms {
 
 	private Set<MappingType> talendToDbTypes;
 
+	//TODO remove it
 	private List<DbDefaultLengthAndPrecision> defaultLengthPrecision;
 
+	//TODO remove it
 	private List<DbIgnoreLengthAndPrecision> ignoreLengthPrecision;
 
+	//TODO remove it
 	private List<DbPreBeforeLength> prebeforelength;
 
+	//TODO remove it
 	public List<DbPreBeforeLength> getPrebeforelength() {
 		return prebeforelength;
 	}
 
+	//TODO remove it
 	public void setPrebeforelength(List<DbPreBeforeLength> prebeforelength) {
 		this.prebeforelength = prebeforelength;
 	}
 
+	//TODO remove it
 	public List<DbDefaultLengthAndPrecision> getDefaultLengthPrecision() {
 		return defaultLengthPrecision;
 	}
 
+	//TODO remove it
 	public void setDefaultLengthPrecision(
 			List<DbDefaultLengthAndPrecision> defaultLengthPrecision) {
 		this.defaultLengthPrecision = defaultLengthPrecision;
@@ -81,6 +88,7 @@ public class Dbms implements IDbms {
 	 * @param dbmsTypes
 	 * @param mappingTypes
 	 */
+	// TODO remove it
 	public Dbms(String id, String label, boolean defaultDbms,
 			List<String> dbmsTypes) {
 		super();
@@ -110,6 +118,7 @@ public class Dbms implements IDbms {
 	 * 
 	 * @param dbmsIdValue
 	 */
+	// TODO remove it
 	protected Dbms(String id) {
 		this.id = id;
 	}
@@ -129,6 +138,7 @@ public class Dbms implements IDbms {
 	 * @param dbmsTypes
 	 *            the dbmsTypes to set
 	 */
+	// TODO remove it
 	protected void setDbmsTypes(List<String> dbmsTypes) {
 		this.dbmsTypes = dbmsTypes;
 	}
@@ -148,6 +158,7 @@ public class Dbms implements IDbms {
 	 * @param id
 	 *            the id to set
 	 */
+	// TODO remove it
 	protected void setId(String id) {
 		this.id = id;
 	}
@@ -167,6 +178,7 @@ public class Dbms implements IDbms {
 	 * @param label
 	 *            the label to set
 	 */
+	// TODO remove it
 	protected void setLabel(String label) {
 		this.label = label;
 	}
@@ -224,6 +236,7 @@ public class Dbms implements IDbms {
 	 * @param product
 	 *            the product to set
 	 */
+	// TODO remove it
 	protected void setProduct(String product) {
 		this.product = product;
 	}
@@ -243,6 +256,7 @@ public class Dbms implements IDbms {
 	 * @param defaultDbType
 	 *            the defaultDbType to set
 	 */
+	// TODO remove it
 	protected void setDefaultDbType(String defaultDbType) {
 		this.defaultDbType = defaultDbType;
 	}
@@ -320,10 +334,12 @@ public class Dbms implements IDbms {
 		this.defaultDbms = defaultDbms;
 	}
 
+	//TODO remove it
 	public List<DbIgnoreLengthAndPrecision> getIgnoreLengthPrecision() {
 		return ignoreLengthPrecision;
 	}
 
+	// TODO remove it
 	public void setIgnoreLengthPrecision(
 			List<DbIgnoreLengthAndPrecision> ignoreLengthPrecision) {
 		this.ignoreLengthPrecision = ignoreLengthPrecision;

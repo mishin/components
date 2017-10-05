@@ -12,16 +12,31 @@
 // ============================================================================
 package org.talend.components.common.mapping;
 
-
-/**
- *
- */
-public class TalendType extends DataType {
-
-    /**
-     * @param typeName name of this type
-     */
-    public TalendType(String typeName) {
-        super(typeName);
+public enum TalendType implements DataType {
+    LIST("id_List"),
+    BOOLEAN("id_Boolean"),
+    BYTE("id_Byte"),
+    BYTES("id_byte[]"),
+    CHARACTER("id_Character"),
+    DATE("id_Date"),
+    BIG_DECIMAL("id_BigDecimal"),
+    DOUBLE("id_Double"),
+    FLOAT("id_Float"),
+    INTEGER("id_Integer"),
+    LONG("id_Long"),
+    OBJECT("id_Object"),
+    SHORT("id_Short"),
+    STRING("id_String");    
+    
+    private final String typeName;
+    
+    private TalendType(String typeName) {
+        this.typeName = typeName;
     }
+    
+    @Override
+    public String getName() {
+        return typeName;
+    }
+
 }

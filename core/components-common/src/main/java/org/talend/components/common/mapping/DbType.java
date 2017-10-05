@@ -15,12 +15,14 @@ package org.talend.components.common.mapping;
 /**
  * Represents database type
  */
-public class DbType extends DataType {
+public class DbType implements DataType {
     
     /**
      * Special value to specify that value wansn't defined. Can be used for positive integer variables
      */
     static final int UNDEFINED = -1;
+    
+    private final String typeName;
 
     private final boolean isDefault;
 
@@ -47,13 +49,21 @@ public class DbType extends DataType {
      */
     public DbType(String typeName, boolean isDefault, int defaultLength, int defaultPrecision, boolean ignoreLength,
             boolean ignorePrecision, boolean preBeforeLength) {
-        super(typeName);
+        this.typeName = typeName;
         this.isDefault = isDefault;
         this.defaultLength = defaultLength;
         this.defaultPrecision = defaultPrecision;
         this.ignoreLength = ignoreLength;
         this.ignorePrecision = ignorePrecision;
         this.preBeforeLength = preBeforeLength;
+    }
+    
+    /**
+     * @return DB type name
+     */
+    @Override
+    public String getName() {
+        return typeName;
     }
 
     /**
@@ -110,4 +120,5 @@ public class DbType extends DataType {
         sb.append("preBeforeLength=").append(isPreBeforeLength()).append(" ");
         return sb.toString();
     }
+
 }
