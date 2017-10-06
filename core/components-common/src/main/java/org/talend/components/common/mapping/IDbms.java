@@ -20,62 +20,6 @@ import java.util.Set;
  */
 public interface IDbms {
 
-//        private String id;
-//
-//        private String product;
-//
-//        private String label;
-//
-//        private String defaultDbType;
-//
-//        private boolean defaultDbms;
-//
-//        private List<String> dbmsTypes;
-//
-//        private Set<MappingType> dbToTalendTypes;
-//
-//        private Set<MappingType> talendToDbTypes;
-//
-//        private List<DbDefaultLengthAndPrecision> defaultLengthPrecision;
-//
-//        private List<DbIgnoreLengthAndPrecision> ignoreLengthPrecision;
-//
-//        private List<DbPreBeforeLength> prebeforelength;
-
-        public List<DbPreBeforeLength> getPrebeforelength();
-
-        public void setPrebeforelength(List<DbPreBeforeLength> prebeforelength);
-
-        public List<DbDefaultLengthAndPrecision> getDefaultLengthPrecision() ;
-
-        public void setDefaultLengthPrecision(List<DbDefaultLengthAndPrecision> defaultLengthPrecision);
-
-//        /**
-//         * DOC amaumont Dbms constructor comment.
-//         * 
-//         * @param id
-//         * @param label
-//         * @param dbmsTypes
-//         * @param mappingTypes
-//         */
-//        public Dbms(String id, String label, boolean defaultDbms,
-//                List<String> dbmsTypes) {
-//            super();
-//            this.id = id;
-//            this.label = label;
-//            this.dbmsTypes = dbmsTypes;
-//            this.defaultDbms = defaultDbms;
-//        }
-
-//        /**
-//         * DOC amaumont Dbms constructor comment.
-//         * 
-//         * @param dbmsIdValue
-//         */
-//        protected Dbms(String id) {
-//            this.id = id;
-//        }
-
         /**
          * Getter for dbmsTypes.
          * 
@@ -114,36 +58,6 @@ public interface IDbms {
         public String getLabel();
 
 //        /**
-//         * Sets the label.
-//         * 
-//         * @param label
-//         *            the label to set
-//         */
-//        protected void setLabel(String label);
-
-        /**
-         * Getter for mappingTypes.
-         * 
-         * @return the mappingTypes
-         */
-        public Set<MappingType> getDbToTalendTypes();
-
-//        /**
-//         * Sets the mappingTypes.
-//         * 
-//         * @param mappingTypes
-//         *            the mappingTypes to set
-//         */
-//        protected void setDbToTalendTypes(Set<MappingType> mappingTypes);
-
-        /**
-         * Getter for talendToDbTypes.
-         * 
-         * @return the talendToDbTypes
-         */
-        public Set<MappingType> getTalendToDbTypes();
-
-//        /**
 //         * Sets the talendToDbTypes.
 //         * 
 //         * @param talendToDbTypes
@@ -157,35 +71,7 @@ public interface IDbms {
          * @return the product
          */
         public String getProduct();
-//
-//        /**
-//         * Sets the product.
-//         * 
-//         * @param product
-//         *            the product to set
-//         */
-//        protected void setProduct(String product);
 
-        /**
-         * Getter for defaultDbType.
-         * 
-         * @return the defaultDbType
-         */
-        public String getDefaultDbType();
-
-//        /**
-//         * Sets the defaultDbType.
-//         * 
-//         * @param defaultDbType
-//         *            the defaultDbType to set
-//         */
-//        protected void setDefaultDbType(String defaultDbType);
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see java.lang.Object#hashCode()
-         */
         @Override
         public int hashCode();
 
@@ -204,11 +90,5 @@ public interface IDbms {
          * @author
          */
         public String toString();
-
-        public List<DbIgnoreLengthAndPrecision> getIgnoreLengthPrecision();
-
-        public void setIgnoreLengthPrecision(List<DbIgnoreLengthAndPrecision> ignoreLengthPrecision);
-
-
 
 }

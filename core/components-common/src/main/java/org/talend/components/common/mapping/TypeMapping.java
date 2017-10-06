@@ -31,4 +31,16 @@ public class TypeMapping<SourceT extends DataType, TargetT extends DataType> {
         this.defaultTargetType = defaultTargetType;
         this.alternativeTargetTypes = new HashSet<>(alternativeTargetTypes);
     }
+    
+    public TargetT getDefaultType() {
+        return defaultTargetType;
+    }
+    
+    public Set<TargetT> getAdvisedTypes() {
+        return alternativeTargetTypes;
+    }
+    
+    public SourceT getSourceType() {
+        return sourceType;
+    }
 }

@@ -13,8 +13,9 @@
 package org.talend.components.common.mapping;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 /**
  * 
@@ -25,333 +26,173 @@ import java.util.Set;
  */
 public class Dbms implements IDbms {
 
+    private final String id;
+
+    private final String product;
+
+    private final String label;
+
+    private final boolean defaultDbms;
+
+    private final Map<String, DbType> types = new HashMap<>();
+
+    private final Map<String, TypeMapping<TalendType, DbType>> talend2DbTypes = new HashMap<>();
+
+    private final Map<String, TypeMapping<DbType, TalendType>> dbType2Talend = new HashMap<>();
+
+    private String defaultDbType;
+
     /**
-     * Following 4 fields are Dbms attributes
-     * TODO make them final
+     * Constructor sets id, product, label and whether DBMS is default
+     * 
+     * @param id
+     * @param product
+     * @param label
+     * @param isDefault
      */
-	private String id;
+    public Dbms(String id, String product, String label, boolean isDefault) {
+        this.id = id;
+        this.product = product;
+        this.label = label;
+        this.defaultDbms = isDefault;
+    }
 
-	private String product;
+    /**
+     * Getter for dbmsTypes.
+     * 
+     * @return the dbmsTypes
+     */
+    public List<String> getDbTypes() {
+        return new ArrayList<String>(types.keySet());
+    }
 
-	private String label;
-	
-	private boolean defaultDbms;
-	
-	
-	private List<DbType> types = new ArrayList<>();
-	
-	
+    /**
+     * Getter for id.
+     * 
+     * @return the id
+     */
+    public String getId() {
+        return this.id;
+    }
 
-	private String defaultDbType;
+    /**
+     * Getter for label.
+     * 
+     * @return the label
+     */
+    public String getLabel() {
+        return this.label;
+    }
 
-	private List<String> dbmsTypes;
+    /**
+     * Getter for product.
+     * 
+     * @return the product
+     */
+    public String getProduct() {
+        return this.product;
+    }
 
-	private Set<MappingType> dbToTalendTypes;
+    /**
+     * Getter for defaultDbType.
+     * 
+     * @return the defaultDbType
+     */
+    public String getDefaultDbType() {
+        return this.defaultDbType;
+    }
 
-	private Set<MappingType> talendToDbTypes;
+    public DbType getDbType(String dbTypeName) {
+        return types.get(dbTypeName);
+    }
 
-	//TODO remove it
-	private List<DbDefaultLengthAndPrecision> defaultLengthPrecision;
+    /**
+     * toString method: creates a String representation of the object
+     * 
+     * @return the String representation
+     * @author
+     */
+    public String toString() {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("Dbms["); //$NON-NLS-1$
+        buffer.append("product = ").append(product); //$NON-NLS-1$
+        buffer.append(", id = ").append(id); //$NON-NLS-1$
+        buffer.append(", label = ").append(label); //$NON-NLS-1$
+        buffer.append(", defaultDbType = ").append(defaultDbType); //$NON-NLS-1$
+        buffer.append(", dbmsTypes = ").append(getDbTypes()); //$NON-NLS-1$
+        buffer.append("]"); //$NON-NLS-1$
+        return buffer.toString();
+    }
 
-	//TODO remove it
-	private List<DbIgnoreLengthAndPrecision> ignoreLengthPrecision;
+    /**
+     * Add database type. It is used by configuration parser to fill this Dbms object
+     * 
+     * @param typeName name of required database type
+     * @param type
+     */
+    void addType(String typeName, DbType type) {
+        types.put(typeName, type);
+    }
 
-	//TODO remove it
-	private List<DbPreBeforeLength> prebeforelength;
+    /**
+     * Returns required database type
+     * 
+     * @param typeName name of required database type
+     * @return database type
+     */
+    public DbType getType(String typeName) {
+        return types.get(typeName);
+    }
+    
+    public TypeMapping<TalendType, DbType> getTalendMapping(String talendTypeName) {
+        return talend2DbTypes.get(talendTypeName);
+    }
+    
+    public TypeMapping<DbType, TalendType> getDbMapping(String dbTypeMapping) {
+        return dbType2Talend.get(dbTypeMapping);
+    }
 
-	//TODO remove it
-	public List<DbPreBeforeLength> getPrebeforelength() {
-		return prebeforelength;
-	}
+    public List<TalendType> getAdvisedTalendTypes(String dbTypeName) {
+        return null;
+    }
 
-	//TODO remove it
-	public void setPrebeforelength(List<DbPreBeforeLength> prebeforelength) {
-		this.prebeforelength = prebeforelength;
-	}
+    public List<DbType> getAdvisedDbTypes(String talendTypeName) {
+        return null;
+    }
 
-	//TODO remove it
-	public List<DbDefaultLengthAndPrecision> getDefaultLengthPrecision() {
-		return defaultLengthPrecision;
-	}
+    public boolean isAdvisedTalendType(String talendType, String dbType) {
+        return false;
+    }
 
-	//TODO remove it
-	public void setDefaultLengthPrecision(
-			List<DbDefaultLengthAndPrecision> defaultLengthPrecision) {
-		this.defaultLengthPrecision = defaultLengthPrecision;
-	}
+    public boolean isAdvisedDbType(String dbType, String talendType) {
+        return false;
+    }
 
-	/**
-	 * DOC amaumont Dbms constructor comment.
-	 * 
-	 * @param id
-	 * @param label
-	 * @param dbmsTypes
-	 * @param mappingTypes
-	 */
-	// TODO remove it
-	public Dbms(String id, String label, boolean defaultDbms,
-			List<String> dbmsTypes) {
-		super();
-		this.id = id;
-		this.label = label;
-		this.dbmsTypes = dbmsTypes;
-		this.defaultDbms = defaultDbms;
-	}
-	
-	/**
-	 * Constructor sets id, product, label and whether DBMS is default
-	 * 
-	 * @param id
-	 * @param product
-	 * @param label
-	 * @param isDefault
-	 */
-	public Dbms(String id, String product, String label, boolean isDefault) {
-	    this.id = id;
-	    this.product = product;
-	    this.label = label;
-	    this.defaultDbms = isDefault;
-	}
+    void addTalendMapping(String sourceTypeName, TypeMapping<TalendType, DbType> mapping) {
+        talend2DbTypes.put(sourceTypeName, mapping);
+    }
 
-	/**
-	 * DOC amaumont Dbms constructor comment.
-	 * 
-	 * @param dbmsIdValue
-	 */
-	// TODO remove it
-	protected Dbms(String id) {
-		this.id = id;
-	}
+    void addDbMapping(String sourceTypeName, TypeMapping<DbType, TalendType> mapping) {
+        dbType2Talend.put(sourceTypeName, mapping);
+    }
 
-	/**
-	 * Getter for dbmsTypes.
-	 * 
-	 * @return the dbmsTypes
-	 */
-	public List<String> getDbTypes() {
-		return this.dbmsTypes;
-	}
+    /**
+     * Getter for defaultDbms.
+     * 
+     * @return the defaultDbms
+     */
+    boolean isDefaultDbms() {
+        return defaultDbms;
+    }
 
-	/**
-	 * Sets the dbmsTypes.
-	 * 
-	 * @param dbmsTypes
-	 *            the dbmsTypes to set
-	 */
-	// TODO remove it
-	protected void setDbmsTypes(List<String> dbmsTypes) {
-		this.dbmsTypes = dbmsTypes;
-	}
-
-	/**
-	 * Getter for id.
-	 * 
-	 * @return the id
-	 */
-	public String getId() {
-		return this.id;
-	}
-
-	/**
-	 * Sets the id.
-	 * 
-	 * @param id
-	 *            the id to set
-	 */
-	// TODO remove it
-	protected void setId(String id) {
-		this.id = id;
-	}
-
-	/**
-	 * Getter for label.
-	 * 
-	 * @return the label
-	 */
-	public String getLabel() {
-		return this.label;
-	}
-
-	/**
-	 * Sets the label.
-	 * 
-	 * @param label
-	 *            the label to set
-	 */
-	// TODO remove it
-	protected void setLabel(String label) {
-		this.label = label;
-	}
-
-	/**
-	 * Getter for mappingTypes.
-	 * 
-	 * @return the mappingTypes
-	 */
-	public Set<MappingType> getDbToTalendTypes() {
-		return this.dbToTalendTypes;
-	}
-
-	/**
-	 * Sets the mappingTypes.
-	 * 
-	 * @param mappingTypes
-	 *            the mappingTypes to set
-	 */
-	protected void setDbToTalendTypes(Set<MappingType> mappingTypes) {
-		this.dbToTalendTypes = mappingTypes;
-	}
-
-	/**
-	 * Getter for talendToDbTypes.
-	 * 
-	 * @return the talendToDbTypes
-	 */
-	public Set<MappingType> getTalendToDbTypes() {
-		return this.talendToDbTypes;
-	}
-
-	/**
-	 * Sets the talendToDbTypes.
-	 * 
-	 * @param talendToDbTypes
-	 *            the talendToDbTypes to set
-	 */
-	protected void setTalendToDbTypes(Set<MappingType> talendToDbTypes) {
-		this.talendToDbTypes = talendToDbTypes;
-	}
-
-	/**
-	 * Getter for product.
-	 * 
-	 * @return the product
-	 */
-	public String getProduct() {
-		return this.product;
-	}
-
-	/**
-	 * Sets the product.
-	 * 
-	 * @param product
-	 *            the product to set
-	 */
-	// TODO remove it
-	protected void setProduct(String product) {
-		this.product = product;
-	}
-
-	/**
-	 * Getter for defaultDbType.
-	 * 
-	 * @return the defaultDbType
-	 */
-	public String getDefaultDbType() {
-		return this.defaultDbType;
-	}
-
-	/**
-	 * Sets the defaultDbType.
-	 * 
-	 * @param defaultDbType
-	 *            the defaultDbType to set
-	 */
-	// TODO remove it
-	protected void setDefaultDbType(String defaultDbType) {
-		this.defaultDbType = defaultDbType;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((this.id == null) ? 0 : this.id.hashCode());
-		return result;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		final Dbms other = (Dbms) obj;
-		if (this.id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!this.id.equals(other.id))
-			return false;
-		return true;
-	}
-
-	/**
-	 * toString method: creates a String representation of the object
-	 * 
-	 * @return the String representation
-	 * @author
-	 */
-	public String toString() {
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("Dbms["); //$NON-NLS-1$
-		buffer.append("product = ").append(product); //$NON-NLS-1$
-		buffer.append(", id = ").append(id); //$NON-NLS-1$
-		buffer.append(", label = ").append(label); //$NON-NLS-1$
-		buffer.append(", defaultDbType = ").append(defaultDbType); //$NON-NLS-1$
-		buffer.append(", dbmsTypes = ").append(dbmsTypes); //$NON-NLS-1$
-		buffer.append(", mappingTypes = ").append(dbToTalendTypes); //$NON-NLS-1$
-		buffer.append("]"); //$NON-NLS-1$
-		return buffer.toString();
-	}
-
-	/**
-	 * Getter for defaultDbms.
-	 * 
-	 * @return the defaultDbms
-	 */
-	protected boolean isDefaultDbms() {
-		return defaultDbms;
-	}
-
-	/**
-	 * Sets the defaultDbms.
-	 * 
-	 * @param defaultDbms
-	 *            the defaultDbms to set
-	 */
-	protected void setDefaultDbms(boolean defaultDbms) {
-		this.defaultDbms = defaultDbms;
-	}
-
-	//TODO remove it
-	public List<DbIgnoreLengthAndPrecision> getIgnoreLengthPrecision() {
-		return ignoreLengthPrecision;
-	}
-
-	// TODO remove it
-	public void setIgnoreLengthPrecision(
-			List<DbIgnoreLengthAndPrecision> ignoreLengthPrecision) {
-		this.ignoreLengthPrecision = ignoreLengthPrecision;
-	}
-	
-	/**
-	 * Add database type. It is used by configuration parser to fill this Dbms object
-	 * 
-	 * @param type
-	 */
-	protected void addType(DbType type) {
-	    types.add(type);
-	}
+    /**
+     * Sets the defaultDbms.
+     * 
+     * @param defaultDbms
+     * the defaultDbms to set
+     */
+    void setDefaultDbms(boolean defaultDbms) {
+        this.defaultDbms = defaultDbms;
+    }
 
 }

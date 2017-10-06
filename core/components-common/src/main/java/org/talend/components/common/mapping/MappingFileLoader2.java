@@ -15,7 +15,9 @@ package org.talend.components.common.mapping;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -23,7 +25,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -83,7 +84,7 @@ public class MappingFileLoader2 {
         Element dbTypesNode = getChildElement(dbmsNode, "dbTypes");
         NodeList dbTypes = dbTypesNode.getElementsByTagName("dbType");
         for (int i = 0; i < dbTypes.getLength(); i++) {
-            dbms.addType(constructDbType((Element) dbTypes.item(i)));
+            constructDbType((Element) dbTypes.item(i), dbms);
         }
         
         // parse type mappings
@@ -91,15 +92,39 @@ public class MappingFileLoader2 {
         // process talend to db mappings
         Element talendToDbTypes = getChildElement(javaLanguageNode, "talendToDbTypes");
         List<Element> talendMappings = getChildren(talendToDbTypes);
-        int i = 0;
         for (Element el : talendMappings) {
-            System.out.println(el.getTagName());
-            constructTalendMapping(el);
+            constructTalendMapping(el, dbms);
+        }
+        
+        Element dbTypesToTalend = getChildElement(javaLanguageNode, "dbToTalendTypes");
+        List<Element> dbMappings = getChildren(dbTypesToTalend);
+        for (Element el : dbMappings) {
+            constructDbMapping(el, dbms);
         }
 
         return dbms;
     }
     
+    private void constructDbMapping(Element dbMapping, Dbms dbms) {
+        String dbTypeName = dbMapping.getAttribute("type");
+        DbType dbType = dbms.getType(dbTypeName);
+        
+        List<Element> correspondingTalendTypes = getChildren(dbMapping);
+        Set<TalendType> targetTypes = new HashSet<>();
+        TalendType defaultType = null;
+        for(Element talendTypeNode : correspondingTalendTypes) {
+            String talendTypeName = talendTypeNode.getAttribute("type");
+            targetTypes.add(TalendType.get(talendTypeName));
+            String defaultAttrValue = talendTypeNode.getAttribute("default");
+            boolean isDefault = defaultAttrValue.isEmpty() ? false : Boolean.parseBoolean(defaultAttrValue);
+            if (isDefault) {
+                defaultType = TalendType.get(talendTypeName);
+            }
+        }
+        TypeMapping<DbType, TalendType> typeMapping = new TypeMapping<>(dbType, defaultType, targetTypes);
+        dbms.addDbMapping(dbTypeName, typeMapping);
+    }
+
     private Element findJavaLanguage(NodeList languagesNodeList) {
         for (int i = 0; i < languagesNodeList.getLength(); i++) {
             Element languageNode = (Element) languagesNodeList.item(0);
@@ -115,7 +140,7 @@ public class MappingFileLoader2 {
      * 
      * @param dbTypeNode
      */
-    private DbType constructDbType(Element dbTypeNode) {
+    private void constructDbType(Element dbTypeNode, Dbms dbms) {
         String typeName = dbTypeNode.getAttribute("type");
         
         boolean isDefault = false;
@@ -153,24 +178,28 @@ public class MappingFileLoader2 {
         if (!preBeforeLenAttribute.isEmpty()) {
             preBeforeLen = Boolean.parseBoolean(preBeforeLenAttribute);
         }
-        
-        return new DbType(typeName, isDefault, defaultLength, defaultPrecision, ignoreLen, ignorePre, preBeforeLen);
+        DbType dbType = new DbType(typeName, isDefault, defaultLength, defaultPrecision, ignoreLen, ignorePre, preBeforeLen);
+        dbms.addType(typeName, dbType);
     }
     
-    private void constructTalendMapping(Element talendMapping) {
-        String talendType = talendMapping.getAttribute("type");
-        System.out.println(talendType);
-        // find corresponding Talend type object
+    private void constructTalendMapping(Element talendMapping, Dbms dbms) {
+        String talendTypeName = talendMapping.getAttribute("type");
+        TalendType talendType = TalendType.get(talendTypeName);
         
         List<Element> correspondingDbTypes = getChildren(talendMapping);
+        Set<DbType> targetTypes = new HashSet<>();
+        DbType defaultType = null;
         for (Element dbTypeNode : correspondingDbTypes) {
             String dbType = dbTypeNode.getAttribute("type");
-            System.out.println(dbType);
+            targetTypes.add(dbms.getType(dbType));
             String defaultAttrValue = dbTypeNode.getAttribute("default");
             boolean isDefault = defaultAttrValue.isEmpty() ? false : Boolean.parseBoolean(defaultAttrValue);
-            System.out.println(isDefault);
+            if (isDefault) {
+                defaultType = dbms.getType(dbType);
+            }
         }
-        
+        TypeMapping<TalendType, DbType> typeMapping = new TypeMapping<>(talendType, defaultType, targetTypes);
+        dbms.addTalendMapping(talendTypeName, typeMapping);
         
     }
     

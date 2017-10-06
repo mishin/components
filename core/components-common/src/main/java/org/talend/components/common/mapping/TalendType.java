@@ -12,6 +12,9 @@
 // ============================================================================
 package org.talend.components.common.mapping;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public enum TalendType implements DataType {
     LIST("id_List"),
     BOOLEAN("id_Boolean"),
@@ -26,17 +29,33 @@ public enum TalendType implements DataType {
     LONG("id_Long"),
     OBJECT("id_Object"),
     SHORT("id_Short"),
-    STRING("id_String");    
-    
+    STRING("id_String");
+
+    private static final Map<String, TalendType> talendTypes = new HashMap<>();
+
+    static {
+        for (TalendType talendType : values()) {
+            talendTypes.put(talendType.typeName, talendType);
+        }
+    }
+
     private final String typeName;
-    
+
     private TalendType(String typeName) {
         this.typeName = typeName;
     }
-    
+
     @Override
     public String getName() {
         return typeName;
+    }
+
+    public static TalendType get(String typeName) {
+        TalendType talendType = talendTypes.get(typeName);
+        if (talendType == null) {
+            throw new IllegalArgumentException(String.format("Invalid value %s, it should be one of %s", typeName, talendTypes));
+        }
+        return talendType;
     }
 
 }
