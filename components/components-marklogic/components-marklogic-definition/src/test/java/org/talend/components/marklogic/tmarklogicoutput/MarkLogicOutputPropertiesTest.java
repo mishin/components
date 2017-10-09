@@ -84,13 +84,13 @@ public class MarkLogicOutputPropertiesTest {
 
     @Test
     public void testMainSchemaIsLocked() {
-        testOutputProperties.setupSchema();
+        testOutputProperties.setupSchemas();
         assertEquals("true", testOutputProperties.schema.schema.getValue().getProp(TALEND_IS_LOCKED));
     }
 
     @Test
     public void testRejectSchemaIsLocked() {
-        testOutputProperties.setupSchema();
+        testOutputProperties.setupSchemas();
         assertEquals("true", testOutputProperties.schemaReject.schema.getValue().getProp(TALEND_IS_LOCKED));
     }
 

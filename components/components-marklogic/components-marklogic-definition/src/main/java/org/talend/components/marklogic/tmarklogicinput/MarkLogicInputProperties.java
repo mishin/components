@@ -17,6 +17,7 @@ import org.talend.components.api.component.Connector;
 import org.talend.components.api.component.PropertyPathConnector;
 import org.talend.components.common.FixedConnectorsComponentProperties;
 import org.talend.components.common.SchemaProperties;
+import org.talend.components.marklogic.MarkLogicProvideConnectionProperties;
 import org.talend.components.marklogic.tmarklogicconnection.MarkLogicConnectionProperties;
 import org.talend.daikon.avro.AvroUtils;
 import org.talend.daikon.avro.SchemaConstants;
@@ -35,7 +36,7 @@ import java.util.Set;
 import static org.talend.daikon.avro.SchemaConstants.TALEND_IS_LOCKED;
 import static org.talend.daikon.properties.presentation.Widget.widget;
 
-public class MarkLogicInputProperties extends FixedConnectorsComponentProperties {
+public class MarkLogicInputProperties extends FixedConnectorsComponentProperties implements MarkLogicProvideConnectionProperties {
 
     public MarkLogicConnectionProperties connection = new MarkLogicConnectionProperties("connection");
 
@@ -132,5 +133,10 @@ public class MarkLogicInputProperties extends FixedConnectorsComponentProperties
             return Collections.singleton(MAIN_CONNECTOR);
         }
         return Collections.emptySet();
+    }
+
+    @Override
+    public MarkLogicConnectionProperties getConnectionProperties() {
+        return connection;
     }
 }
