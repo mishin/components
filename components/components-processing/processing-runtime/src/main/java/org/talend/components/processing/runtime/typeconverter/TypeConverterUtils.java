@@ -129,15 +129,12 @@ public class TypeConverterUtils {
         Schema result = Schema.create(outputType.getTargetType());
         switch (outputType) {
             case Decimal:
-                // TODO Handle scale an precision
                 result = LogicalTypes.decimal(1, 1).addToSchema(result);
                 break;
             case Time:
-                // TODO Handle date format
                 result = LogicalTypes.timeMillis().addToSchema(result);
                 break;
             case DateTime:
-                // TODO Handle date format
                 result = LogicalTypes.timestampMillis().addToSchema(result);
                 break;
         }
