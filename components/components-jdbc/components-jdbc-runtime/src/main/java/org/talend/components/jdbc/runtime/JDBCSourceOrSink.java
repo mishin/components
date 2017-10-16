@@ -65,6 +65,8 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
 
     private transient IndexedRecordConverter<ResultSet, IndexedRecord> converter;
 
+    private boolean work4dataprep = false;
+
     @Override
     public ValidationResult initialize(RuntimeContainer runtime, ComponentProperties properties) {
         this.properties = (RuntimeSettingProvider) properties;
@@ -86,6 +88,8 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
         avroRegistry = JDBCAvroRegistryString.get();
         converter = new ResultSetStringRecordConverter();
 
+        work4dataprep = true;
+
         return ValidationResult.OK;
     }
 
@@ -97,6 +101,8 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
 
         avroRegistry = JDBCAvroRegistryString.get();
         converter = new ResultSetStringRecordConverter();
+
+        work4dataprep = true;
 
         return ValidationResult.OK;
     }
@@ -164,9 +170,7 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
 
         AllSetting setting = properties.getRuntimeSetting();
 
-        // connection component
-        Connection conn = JdbcRuntimeUtils.createConnection(setting);
-        conn.setReadOnly(setting.isReadOnly());
+        Connection conn = JdbcRuntimeUtils.createConnectionOrGetFromSharedConnectionPoolOrDataSource(runtime, setting, work4dataprep);
 
         if (setting.getUseAutoCommit()) {
             conn.setAutoCommit(setting.getAutocommit());
