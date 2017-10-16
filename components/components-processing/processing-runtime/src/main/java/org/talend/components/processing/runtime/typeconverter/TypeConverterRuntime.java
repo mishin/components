@@ -1,9 +1,6 @@
 package org.talend.components.processing.runtime.typeconverter;
 
-import org.apache.avro.Schema;
-import org.apache.avro.generic.GenericRecordBuilder;
 import org.apache.avro.generic.IndexedRecord;
-import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
@@ -12,9 +9,6 @@ import org.talend.components.api.component.runtime.RuntimableRuntime;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.processing.definition.typeconverter.TypeConverterProperties;
 import org.talend.daikon.properties.ValidationResult;
-
-import java.util.Arrays;
-import java.util.Stack;
 
 public class TypeConverterRuntime extends PTransform<PCollection<IndexedRecord>, PCollection<IndexedRecord>>
         implements RuntimableRuntime<TypeConverterProperties> {

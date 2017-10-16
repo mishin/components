@@ -7,9 +7,6 @@ import org.apache.avro.generic.IndexedRecord;
 import org.apache.beam.sdk.transforms.DoFnTester;
 import org.junit.Assert;
 import org.junit.Test;
-import org.talend.components.processing.definition.filterrow.ConditionsRowConstant;
-import org.talend.components.processing.definition.filterrow.FilterRowCriteriaProperties;
-import org.talend.components.processing.definition.filterrow.LogicalOpType;
 import org.talend.components.processing.definition.typeconverter.TypeConverterProperties;
 
 import java.util.List;
