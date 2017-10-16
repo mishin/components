@@ -168,8 +168,62 @@ public class TypeConverterUtilsTest {
             .set("parentList", listRecords) //
             .build();
 
+
+    public void testConvertSchema(TypeConverterProperties.TypeConverterOutputTypes outputType, String expected){
+        String[] aPath = {"a"};
+        Stack<String> stackPath = new Stack<String>();
+        stackPath.addAll(Arrays.asList(aPath));
+        Schema newSchema = TypeConverterUtils.convertSchema(inputParentSchema, stackPath, outputType, null);
+        Assert.assertEquals(expected, newSchema.toString());
+    }
+
+    @Test
+    public void testConvertSchemaToBoolean() {
+        testConvertSchema(TypeConverterProperties.TypeConverterOutputTypes.Boolean,"{\"type\":\"record\",\"name\":\"inputParentRow\",\"fields\":[{\"name\":\"a\",\"type\":\"boolean\"},{\"name\":\"b\",\"type\":{\"type\":\"record\",\"name\":\"inputRowXY\",\"fields\":[{\"name\":\"x\",\"type\":\"string\"},{\"name\":\"y\",\"type\":{\"type\":\"record\",\"name\":\"inputRowDE\",\"fields\":[{\"name\":\"d\",\"type\":{\"type\":\"record\",\"name\":\"inputRowJK\",\"fields\":[{\"name\":\"j\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"inputRowL\",\"fields\":[{\"name\":\"l\",\"type\":[\"null\",\"string\"],\"default\":null}]}}},{\"name\":\"k\",\"type\":[\"null\",\"string\"],\"default\":null}]}},{\"name\":\"e\",\"type\":[\"null\",\"string\"],\"default\":null}]}}]}},{\"name\":\"c\",\"type\":{\"type\":\"record\",\"name\":\"inputRowFG\",\"fields\":[{\"name\":\"f\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"g\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"inputRowHI\",\"fields\":[{\"name\":\"h\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"i\",\"type\":[\"null\",\"string\"],\"default\":null}]}}}]}},{\"name\":\"m\",\"type\":{\"type\":\"array\",\"items\":\"string\"}}]}");
+    }
+
+    @Test
+    public void testConvertSchemaToDecimal() {
+        testConvertSchema(TypeConverterProperties.TypeConverterOutputTypes.Decimal,"{\"type\":\"record\",\"name\":\"inputParentRow\",\"fields\":[{\"name\":\"a\",\"type\":{\"type\":\"bytes\",\"logicalType\":\"decimal\",\"precision\":20,\"scale\":4}},{\"name\":\"b\",\"type\":{\"type\":\"record\",\"name\":\"inputRowXY\",\"fields\":[{\"name\":\"x\",\"type\":\"string\"},{\"name\":\"y\",\"type\":{\"type\":\"record\",\"name\":\"inputRowDE\",\"fields\":[{\"name\":\"d\",\"type\":{\"type\":\"record\",\"name\":\"inputRowJK\",\"fields\":[{\"name\":\"j\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"inputRowL\",\"fields\":[{\"name\":\"l\",\"type\":[\"null\",\"string\"],\"default\":null}]}}},{\"name\":\"k\",\"type\":[\"null\",\"string\"],\"default\":null}]}},{\"name\":\"e\",\"type\":[\"null\",\"string\"],\"default\":null}]}}]}},{\"name\":\"c\",\"type\":{\"type\":\"record\",\"name\":\"inputRowFG\",\"fields\":[{\"name\":\"f\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"g\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"inputRowHI\",\"fields\":[{\"name\":\"h\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"i\",\"type\":[\"null\",\"string\"],\"default\":null}]}}}]}},{\"name\":\"m\",\"type\":{\"type\":\"array\",\"items\":\"string\"}}]}");
+    }
+
+    @Test
+    public void testConvertSchemaToDouble() {
+        testConvertSchema(TypeConverterProperties.TypeConverterOutputTypes.Double,"{\"type\":\"record\",\"name\":\"inputParentRow\",\"fields\":[{\"name\":\"a\",\"type\":\"double\"},{\"name\":\"b\",\"type\":{\"type\":\"record\",\"name\":\"inputRowXY\",\"fields\":[{\"name\":\"x\",\"type\":\"string\"},{\"name\":\"y\",\"type\":{\"type\":\"record\",\"name\":\"inputRowDE\",\"fields\":[{\"name\":\"d\",\"type\":{\"type\":\"record\",\"name\":\"inputRowJK\",\"fields\":[{\"name\":\"j\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"inputRowL\",\"fields\":[{\"name\":\"l\",\"type\":[\"null\",\"string\"],\"default\":null}]}}},{\"name\":\"k\",\"type\":[\"null\",\"string\"],\"default\":null}]}},{\"name\":\"e\",\"type\":[\"null\",\"string\"],\"default\":null}]}}]}},{\"name\":\"c\",\"type\":{\"type\":\"record\",\"name\":\"inputRowFG\",\"fields\":[{\"name\":\"f\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"g\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"inputRowHI\",\"fields\":[{\"name\":\"h\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"i\",\"type\":[\"null\",\"string\"],\"default\":null}]}}}]}},{\"name\":\"m\",\"type\":{\"type\":\"array\",\"items\":\"string\"}}]}");
+    }
+
+    @Test
+    public void testConvertSchemaToFloat() {
+        testConvertSchema(TypeConverterProperties.TypeConverterOutputTypes.Float,"{\"type\":\"record\",\"name\":\"inputParentRow\",\"fields\":[{\"name\":\"a\",\"type\":\"float\"},{\"name\":\"b\",\"type\":{\"type\":\"record\",\"name\":\"inputRowXY\",\"fields\":[{\"name\":\"x\",\"type\":\"string\"},{\"name\":\"y\",\"type\":{\"type\":\"record\",\"name\":\"inputRowDE\",\"fields\":[{\"name\":\"d\",\"type\":{\"type\":\"record\",\"name\":\"inputRowJK\",\"fields\":[{\"name\":\"j\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"inputRowL\",\"fields\":[{\"name\":\"l\",\"type\":[\"null\",\"string\"],\"default\":null}]}}},{\"name\":\"k\",\"type\":[\"null\",\"string\"],\"default\":null}]}},{\"name\":\"e\",\"type\":[\"null\",\"string\"],\"default\":null}]}}]}},{\"name\":\"c\",\"type\":{\"type\":\"record\",\"name\":\"inputRowFG\",\"fields\":[{\"name\":\"f\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"g\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"inputRowHI\",\"fields\":[{\"name\":\"h\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"i\",\"type\":[\"null\",\"string\"],\"default\":null}]}}}]}},{\"name\":\"m\",\"type\":{\"type\":\"array\",\"items\":\"string\"}}]}");
+    }
+
+    @Test
+    public void testConvertSchemaToInteger() {
+        testConvertSchema(TypeConverterProperties.TypeConverterOutputTypes.Integer,"{\"type\":\"record\",\"name\":\"inputParentRow\",\"fields\":[{\"name\":\"a\",\"type\":\"int\"},{\"name\":\"b\",\"type\":{\"type\":\"record\",\"name\":\"inputRowXY\",\"fields\":[{\"name\":\"x\",\"type\":\"string\"},{\"name\":\"y\",\"type\":{\"type\":\"record\",\"name\":\"inputRowDE\",\"fields\":[{\"name\":\"d\",\"type\":{\"type\":\"record\",\"name\":\"inputRowJK\",\"fields\":[{\"name\":\"j\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"inputRowL\",\"fields\":[{\"name\":\"l\",\"type\":[\"null\",\"string\"],\"default\":null}]}}},{\"name\":\"k\",\"type\":[\"null\",\"string\"],\"default\":null}]}},{\"name\":\"e\",\"type\":[\"null\",\"string\"],\"default\":null}]}}]}},{\"name\":\"c\",\"type\":{\"type\":\"record\",\"name\":\"inputRowFG\",\"fields\":[{\"name\":\"f\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"g\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"inputRowHI\",\"fields\":[{\"name\":\"h\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"i\",\"type\":[\"null\",\"string\"],\"default\":null}]}}}]}},{\"name\":\"m\",\"type\":{\"type\":\"array\",\"items\":\"string\"}}]}");
+    }
+
+    @Test
+    public void testConvertSchemaToLong() {
+        testConvertSchema(TypeConverterProperties.TypeConverterOutputTypes.Long,"{\"type\":\"record\",\"name\":\"inputParentRow\",\"fields\":[{\"name\":\"a\",\"type\":\"long\"},{\"name\":\"b\",\"type\":{\"type\":\"record\",\"name\":\"inputRowXY\",\"fields\":[{\"name\":\"x\",\"type\":\"string\"},{\"name\":\"y\",\"type\":{\"type\":\"record\",\"name\":\"inputRowDE\",\"fields\":[{\"name\":\"d\",\"type\":{\"type\":\"record\",\"name\":\"inputRowJK\",\"fields\":[{\"name\":\"j\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"inputRowL\",\"fields\":[{\"name\":\"l\",\"type\":[\"null\",\"string\"],\"default\":null}]}}},{\"name\":\"k\",\"type\":[\"null\",\"string\"],\"default\":null}]}},{\"name\":\"e\",\"type\":[\"null\",\"string\"],\"default\":null}]}}]}},{\"name\":\"c\",\"type\":{\"type\":\"record\",\"name\":\"inputRowFG\",\"fields\":[{\"name\":\"f\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"g\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"inputRowHI\",\"fields\":[{\"name\":\"h\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"i\",\"type\":[\"null\",\"string\"],\"default\":null}]}}}]}},{\"name\":\"m\",\"type\":{\"type\":\"array\",\"items\":\"string\"}}]}");
+    }
+
+    @Test
+    public void testConvertSchemaToTime() {
+        testConvertSchema(TypeConverterProperties.TypeConverterOutputTypes.Time,"{\"type\":\"record\",\"name\":\"inputParentRow\",\"fields\":[{\"name\":\"a\",\"type\":{\"type\":\"int\",\"logicalType\":\"time-millis\"}},{\"name\":\"b\",\"type\":{\"type\":\"record\",\"name\":\"inputRowXY\",\"fields\":[{\"name\":\"x\",\"type\":\"string\"},{\"name\":\"y\",\"type\":{\"type\":\"record\",\"name\":\"inputRowDE\",\"fields\":[{\"name\":\"d\",\"type\":{\"type\":\"record\",\"name\":\"inputRowJK\",\"fields\":[{\"name\":\"j\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"inputRowL\",\"fields\":[{\"name\":\"l\",\"type\":[\"null\",\"string\"],\"default\":null}]}}},{\"name\":\"k\",\"type\":[\"null\",\"string\"],\"default\":null}]}},{\"name\":\"e\",\"type\":[\"null\",\"string\"],\"default\":null}]}}]}},{\"name\":\"c\",\"type\":{\"type\":\"record\",\"name\":\"inputRowFG\",\"fields\":[{\"name\":\"f\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"g\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"inputRowHI\",\"fields\":[{\"name\":\"h\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"i\",\"type\":[\"null\",\"string\"],\"default\":null}]}}}]}},{\"name\":\"m\",\"type\":{\"type\":\"array\",\"items\":\"string\"}}]}");
+    }
+
+    @Test
+    public void testConvertSchemaToDateTime() {
+        testConvertSchema(TypeConverterProperties.TypeConverterOutputTypes.DateTime,"{\"type\":\"record\",\"name\":\"inputParentRow\",\"fields\":[{\"name\":\"a\",\"type\":{\"type\":\"long\",\"logicalType\":\"timestamp-millis\"}},{\"name\":\"b\",\"type\":{\"type\":\"record\",\"name\":\"inputRowXY\",\"fields\":[{\"name\":\"x\",\"type\":\"string\"},{\"name\":\"y\",\"type\":{\"type\":\"record\",\"name\":\"inputRowDE\",\"fields\":[{\"name\":\"d\",\"type\":{\"type\":\"record\",\"name\":\"inputRowJK\",\"fields\":[{\"name\":\"j\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"inputRowL\",\"fields\":[{\"name\":\"l\",\"type\":[\"null\",\"string\"],\"default\":null}]}}},{\"name\":\"k\",\"type\":[\"null\",\"string\"],\"default\":null}]}},{\"name\":\"e\",\"type\":[\"null\",\"string\"],\"default\":null}]}}]}},{\"name\":\"c\",\"type\":{\"type\":\"record\",\"name\":\"inputRowFG\",\"fields\":[{\"name\":\"f\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"g\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"inputRowHI\",\"fields\":[{\"name\":\"h\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"i\",\"type\":[\"null\",\"string\"],\"default\":null}]}}}]}},{\"name\":\"m\",\"type\":{\"type\":\"array\",\"items\":\"string\"}}]}");
+    }
+
     @Test
     public void testConvertSchema() {
+
+        String[] aPath = {"a"};
+        Stack<String> stackPath = new Stack<String>();
+        stackPath.addAll(Arrays.asList(aPath));
+
 
         // String to int
         String[] path1 = {"a"};
@@ -211,7 +265,9 @@ public class TypeConverterUtilsTest {
 
         Assert.assertEquals(expectedParentSchema2.toString(), newSchema2.toString());
 
-        // TODO Test all types
+
+
+
     }
 
     @Test

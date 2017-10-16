@@ -129,7 +129,7 @@ public class TypeConverterUtils {
         Schema result = Schema.create(outputType.getTargetType());
         switch (outputType) {
             case Decimal:
-                result = LogicalTypes.decimal(1, 1).addToSchema(result);
+                result = LogicalTypes.decimal(20,4).addToSchema(result);
                 break;
             case Time:
                 result = LogicalTypes.timeMillis().addToSchema(result);
