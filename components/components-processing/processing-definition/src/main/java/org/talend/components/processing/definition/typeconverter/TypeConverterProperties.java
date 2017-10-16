@@ -14,11 +14,10 @@ package org.talend.components.processing.definition.typeconverter;
 
 import org.apache.avro.Schema;
 import org.talend.components.api.component.Connector;
-import org.talend.components.api.component.ISchemaListener;
 import org.talend.components.api.component.PropertyPathConnector;
 import org.talend.components.common.FixedConnectorsComponentProperties;
-import org.talend.components.processing.definition.filterrow.LogicalOpType;
 import org.talend.daikon.converter.Converter;
+import org.talend.daikon.converter.TypeConverter;
 import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.PropertiesImpl;
 import org.talend.daikon.properties.PropertiesList;
@@ -26,11 +25,11 @@ import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
-import org.talend.daikon.converter.TypeConverter;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -47,8 +46,8 @@ public class TypeConverterProperties extends FixedConnectorsComponentProperties 
         Integer(Schema.Type.INT, Integer.class),
         Long(Schema.Type.LONG, Long.class),
         String(Schema.Type.STRING, String.class),
-        Time(Schema.Type.INT, Date.class),
-        DateTime(Schema.Type.LONG, Date.class);
+        Time(Schema.Type.INT, LocalTime.class),
+        DateTime(Schema.Type.LONG, LocalDateTime.class);
 
         // Avro schema output type
         private Schema.Type targetType;

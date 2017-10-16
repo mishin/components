@@ -7,9 +7,14 @@ import org.apache.avro.generic.GenericRecordBuilder;
 import org.apache.avro.generic.IndexedRecord;
 import org.talend.components.processing.definition.typeconverter.TypeConverterProperties;
 import org.talend.daikon.avro.AvroUtils;
+import org.talend.daikon.converter.BigDecimalConverter;
 import org.talend.daikon.converter.Converter;
-import org.talend.daikon.properties.property.Property;
+import org.talend.daikon.converter.LocalDateTimeConverter;
+import org.talend.daikon.converter.LocalTimeConverter;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -72,17 +77,28 @@ public class TypeConverterUtils {
      * @param outputRecordBuilder
      * @param pathSteps
      * @param outputType
-     * @param outputFormat
+     * @param inputFormat
      */
-    public static void convertValue(GenericRecordBuilder outputRecordBuilder, Stack<String> pathSteps, TypeConverterProperties.TypeConverterOutputTypes outputType, String outputFormat) {
+    public static void convertValue(GenericRecordBuilder outputRecordBuilder, Stack<String> pathSteps, TypeConverterProperties.TypeConverterOutputTypes outputType, String inputFormat) {
         String fieldName = pathSteps.pop();
         Object value = outputRecordBuilder.get(fieldName);
         if (pathSteps.size() == 0) {
             Converter converter = outputType.getConverter();
-            // TODO Configure converter according to output format for Decimal and DateTime
+            if (TypeConverterProperties.TypeConverterOutputTypes.Time.equals(outputType) && inputFormat != null && !inputFormat.isEmpty()) {
+                ((LocalTimeConverter) converter).withDateTimeFormatter(DateTimeFormatter.ofPattern(inputFormat));
+            } else if (TypeConverterProperties.TypeConverterOutputTypes.DateTime.equals(outputType) && inputFormat != null && !inputFormat.isEmpty()) {
+                ((LocalDateTimeConverter) converter).withDateTimeFormatter(DateTimeFormatter.ofPattern(inputFormat));
+            } else if (TypeConverterProperties.TypeConverterOutputTypes.Decimal.equals(outputType) && inputFormat != null && !inputFormat.isEmpty()) {
+                DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+                symbols.setDecimalSeparator('.');
+                symbols.setGroupingSeparator(',');
+                DecimalFormat decimalFormat = new DecimalFormat(inputFormat, symbols);
+                decimalFormat.setParseBigDecimal(true);
+                ((BigDecimalConverter) converter).withDecimalFormat(decimalFormat);
+            }
             outputRecordBuilder.set(fieldName, converter.convert(value));
         } else {
-            TypeConverterUtils.convertValue((GenericRecordBuilder) value, pathSteps, outputType, outputFormat);
+            TypeConverterUtils.convertValue((GenericRecordBuilder) value, pathSteps, outputType, inputFormat);
         }
     }
 
@@ -104,6 +120,7 @@ public class TypeConverterUtils {
 
     /**
      * Generate a schema from output type and format
+     *
      * @param outputType
      * @param outputFormat
      * @return

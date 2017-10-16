@@ -7,10 +7,14 @@ import org.apache.avro.generic.GenericRecordBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 import org.talend.components.processing.definition.typeconverter.TypeConverterProperties;
-import org.talend.components.processing.runtime.normalize.NormalizeUtilsTest;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Stack;
 
 public class TypeConverterUtilsTest {
 
@@ -164,13 +168,6 @@ public class TypeConverterUtilsTest {
             .set("parentList", listRecords) //
             .build();
 
-    /**
-     * Input schema: {@link NormalizeUtilsTest#inputParentSchema}
-     * <p>
-     * The field `a` is a string.
-     * <p>
-     * Expected schema: the schema of the field `a` should be modified to an int
-     */
     @Test
     public void testConvertSchema() {
 
@@ -213,6 +210,8 @@ public class TypeConverterUtilsTest {
                 .endRecord();
 
         Assert.assertEquals(expectedParentSchema2.toString(), newSchema2.toString());
+
+        // TODO Test all types
     }
 
     @Test
@@ -237,11 +236,11 @@ public class TypeConverterUtilsTest {
     }
 
 
-    public void testConvertValue(Object input, TypeConverterProperties.TypeConverterOutputTypes outputType, String outputFormat, Class outputClass) {
+    public void testConvertValue(Object input, TypeConverterProperties.TypeConverterOutputTypes outputType, String inputFormat, Class outputClass) {
         GenericRecordBuilder outputRecordBuilder = new GenericRecordBuilder(inputSchemaL).set("l", input);
         Stack<String> converterPath = new Stack<String>();
         converterPath.add("l");
-        TypeConverterUtils.convertValue(outputRecordBuilder, converterPath, outputType, outputFormat);
+        TypeConverterUtils.convertValue(outputRecordBuilder, converterPath, outputType, inputFormat);
         GenericRecord outputRecord = outputRecordBuilder.build();
         Assert.assertEquals(outputClass, outputRecord.get(0).getClass());
     }
@@ -250,11 +249,6 @@ public class TypeConverterUtilsTest {
     @Test
     public void testConvertValueToBoolean() {
         testConvertValue("false", TypeConverterProperties.TypeConverterOutputTypes.Boolean, null, Boolean.class);
-    }
-
-    // @Test
-    public void testConvertValueToDecimal() {
-        testConvertValue("1.5", TypeConverterProperties.TypeConverterOutputTypes.Decimal, null, BigDecimal.class);
     }
 
     @Test
@@ -282,14 +276,34 @@ public class TypeConverterUtilsTest {
         testConvertValue(1, TypeConverterProperties.TypeConverterOutputTypes.String, null, String.class);
     }
 
-    // @Test
-    public void testConvertValueToDateTime() {
-        testConvertValue("2017/01/15", TypeConverterProperties.TypeConverterOutputTypes.DateTime, null, Date.class);
+    @Test
+    public void testConvertValueToTimeNoFormat() {
+        testConvertValue("10:20:15", TypeConverterProperties.TypeConverterOutputTypes.Time, null, LocalTime.class);
     }
 
-    // @Test
-    public void testConvertValueToTime() {
-        testConvertValue("2017/01/15", TypeConverterProperties.TypeConverterOutputTypes.Time, null, Date.class);
+    @Test
+    public void testConvertValueToTimeWithFormat() {
+        testConvertValue("10:20:15", TypeConverterProperties.TypeConverterOutputTypes.Time, "ss:mm:HH", LocalTime.class);
+    }
+
+    @Test
+    public void testConvertValueToDateTimeNoFormat() {
+        testConvertValue("2007-12-03T10:15:30", TypeConverterProperties.TypeConverterOutputTypes.DateTime, null, LocalDateTime.class);
+    }
+
+    @Test
+    public void testConvertValueToDateTimeWithFormat() {
+        testConvertValue("03/12/2007 10:15:30", TypeConverterProperties.TypeConverterOutputTypes.DateTime, "dd/MM/yyyy HH:mm:ss", LocalDateTime.class);
+    }
+
+    @Test
+    public void testConvertValueToDecimalNoFormat() {
+        testConvertValue("3.5", TypeConverterProperties.TypeConverterOutputTypes.Decimal, null, BigDecimal.class);
+    }
+
+    @Test
+    public void testConvertValueToDecimalWithFormat() {
+        testConvertValue("1,234", TypeConverterProperties.TypeConverterOutputTypes.Decimal, "#,###", BigDecimal.class);
     }
 
     @Test
