@@ -28,6 +28,7 @@ import org.talend.daikon.properties.property.PropertyFactory;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashSet;
@@ -46,6 +47,7 @@ public class TypeConverterProperties extends FixedConnectorsComponentProperties 
         Integer(Schema.Type.INT, Integer.class),
         Long(Schema.Type.LONG, Long.class),
         String(Schema.Type.STRING, String.class),
+        Date(Schema.Type.INT, LocalDate.class),
         Time(Schema.Type.INT, LocalTime.class),
         DateTime(Schema.Type.LONG, LocalDateTime.class);
 

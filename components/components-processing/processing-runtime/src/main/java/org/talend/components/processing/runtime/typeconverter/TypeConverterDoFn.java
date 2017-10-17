@@ -34,8 +34,10 @@ public class TypeConverterDoFn extends DoFn<IndexedRecord, IndexedRecord>
         // Convert values
         for (TypeConverterProperties.TypeConverterPropertiesInner currentValueConverter : properties.converters.subProperties) {
             // Loop on converters
-            Stack<String> pathSteps = TypeConverterUtils.getPathSteps(currentValueConverter.field.getValue());
-            TypeConverterUtils.convertValue(outputRecordBuilder, pathSteps, currentValueConverter.outputType.getValue(), currentValueConverter.outputFormat.getValue());
+            if (currentValueConverter.field != null && currentValueConverter.outputType != null) {
+                Stack<String> pathSteps = TypeConverterUtils.getPathSteps(currentValueConverter.field.getValue());
+                TypeConverterUtils.convertValue(outputRecordBuilder, pathSteps, currentValueConverter.outputType.getValue(), currentValueConverter.outputFormat.getValue());
+            }
         }
 
         context.output(outputRecordBuilder.build());

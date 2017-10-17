@@ -131,6 +131,9 @@ public class TypeConverterUtils {
             case Decimal:
                 result = LogicalTypes.decimal(20,4).addToSchema(result);
                 break;
+            case Date:
+                result = LogicalTypes.date().addToSchema(result);
+                break;
             case Time:
                 result = LogicalTypes.timeMillis().addToSchema(result);
                 break;
