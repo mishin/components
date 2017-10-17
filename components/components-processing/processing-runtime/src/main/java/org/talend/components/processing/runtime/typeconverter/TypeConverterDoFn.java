@@ -8,8 +8,7 @@ import org.talend.components.processing.definition.typeconverter.TypeConverterPr
 
 import java.util.Stack;
 
-public class TypeConverterDoFn extends DoFn<IndexedRecord, IndexedRecord>
-{
+public class TypeConverterDoFn extends DoFn<IndexedRecord, IndexedRecord> {
 
     private TypeConverterProperties properties;
 
@@ -34,7 +33,7 @@ public class TypeConverterDoFn extends DoFn<IndexedRecord, IndexedRecord>
         // Convert values
         for (TypeConverterProperties.TypeConverterPropertiesInner currentValueConverter : properties.converters.subProperties) {
             // Loop on converters
-            if (currentValueConverter.field != null && currentValueConverter.outputType != null) {
+            if (currentValueConverter.field != null && currentValueConverter.field.getValue() != null && currentValueConverter.outputType != null && currentValueConverter.outputType.getValue() != null) {
                 Stack<String> pathSteps = TypeConverterUtils.getPathSteps(currentValueConverter.field.getValue());
                 TypeConverterUtils.convertValue(outputRecordBuilder, pathSteps, currentValueConverter.outputType.getValue(), currentValueConverter.outputFormat.getValue());
             }
@@ -43,7 +42,7 @@ public class TypeConverterDoFn extends DoFn<IndexedRecord, IndexedRecord>
         context.output(outputRecordBuilder.build());
     }
 
-    public TypeConverterDoFn withProperties(TypeConverterProperties properties){
+    public TypeConverterDoFn withProperties(TypeConverterProperties properties) {
         this.properties = properties;
         return this;
     }

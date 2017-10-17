@@ -7,10 +7,7 @@ import org.apache.avro.generic.GenericRecordBuilder;
 import org.apache.avro.generic.IndexedRecord;
 import org.talend.components.processing.definition.typeconverter.TypeConverterProperties;
 import org.talend.daikon.avro.AvroUtils;
-import org.talend.daikon.converter.BigDecimalConverter;
-import org.talend.daikon.converter.Converter;
-import org.talend.daikon.converter.LocalDateTimeConverter;
-import org.talend.daikon.converter.LocalTimeConverter;
+import org.talend.daikon.converter.*;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -84,7 +81,9 @@ public class TypeConverterUtils {
         Object value = outputRecordBuilder.get(fieldName);
         if (pathSteps.size() == 0) {
             Converter converter = outputType.getConverter();
-            if (TypeConverterProperties.TypeConverterOutputTypes.Time.equals(outputType) && inputFormat != null && !inputFormat.isEmpty()) {
+            if (TypeConverterProperties.TypeConverterOutputTypes.Date.equals(outputType) && inputFormat != null && !inputFormat.isEmpty()) {
+                ((LocalDateConverter) converter).withDateTimeFormatter(DateTimeFormatter.ofPattern(inputFormat));
+            } else if (TypeConverterProperties.TypeConverterOutputTypes.Time.equals(outputType) && inputFormat != null && !inputFormat.isEmpty()) {
                 ((LocalTimeConverter) converter).withDateTimeFormatter(DateTimeFormatter.ofPattern(inputFormat));
             } else if (TypeConverterProperties.TypeConverterOutputTypes.DateTime.equals(outputType) && inputFormat != null && !inputFormat.isEmpty()) {
                 ((LocalDateTimeConverter) converter).withDateTimeFormatter(DateTimeFormatter.ofPattern(inputFormat));
@@ -129,7 +128,7 @@ public class TypeConverterUtils {
         Schema result = Schema.create(outputType.getTargetType());
         switch (outputType) {
             case Decimal:
-                result = LogicalTypes.decimal(20,4).addToSchema(result);
+                result = LogicalTypes.decimal(20, 4).addToSchema(result);
                 break;
             case Date:
                 result = LogicalTypes.date().addToSchema(result);
