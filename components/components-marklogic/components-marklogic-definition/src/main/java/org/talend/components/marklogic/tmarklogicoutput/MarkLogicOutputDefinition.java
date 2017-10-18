@@ -12,6 +12,9 @@
 // ============================================================================
 package org.talend.components.marklogic.tmarklogicoutput;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 import org.talend.components.api.component.ConnectorTopology;
 import org.talend.components.api.component.runtime.ExecutionEngine;
 import org.talend.components.api.properties.ComponentProperties;
@@ -19,9 +22,6 @@ import org.talend.components.marklogic.AbstractMarkLogicComponentDefinition;
 import org.talend.components.marklogic.RuntimeInfoProvider;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.runtime.RuntimeInfo;
-
-import java.util.EnumSet;
-import java.util.Set;
 
 public class MarkLogicOutputDefinition extends AbstractMarkLogicComponentDefinition {
 
@@ -37,7 +37,7 @@ public class MarkLogicOutputDefinition extends AbstractMarkLogicComponentDefinit
     }
 
     @Override
-    public Property[] getReturnProperties() {
+    public Property<?>[] getReturnProperties() {
         return new Property[] { RETURN_TOTAL_RECORD_COUNT_PROP, RETURN_SUCCESS_RECORD_COUNT_PROP, RETURN_REJECT_RECORD_COUNT_PROP,
                 RETURN_ERROR_MESSAGE_PROP };
     }

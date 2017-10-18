@@ -20,6 +20,7 @@ import java.util.EnumSet;
 
 import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.api.properties.ComponentReferenceProperties;
+import org.talend.components.common.datastore.DatastoreProperties;
 import org.talend.components.marklogic.MarkLogicProvideConnectionProperties;
 import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.ValidationResult;
@@ -29,7 +30,7 @@ import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.StringProperty;
 import org.talend.daikon.properties.service.Repository;
 
-public class MarkLogicConnectionProperties extends ComponentPropertiesImpl implements MarkLogicProvideConnectionProperties {
+public class MarkLogicConnectionProperties extends ComponentPropertiesImpl implements MarkLogicProvideConnectionProperties, DatastoreProperties {
 
     public final ComponentReferenceProperties<MarkLogicConnectionProperties> referencedComponent = new ComponentReferenceProperties<>(
             "referencedComponent", MarkLogicConnectionDefinition.COMPONENT_NAME);
