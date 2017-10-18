@@ -10,7 +10,6 @@ import org.junit.Test;
 import org.talend.components.processing.definition.typeconverter.TypeConverterProperties;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 
 public class TypeConverterDoFnTest {
@@ -76,8 +75,8 @@ public class TypeConverterDoFnTest {
 
         Assert.assertEquals(Integer.class, outputs.get(0).get(0).getClass());
         Assert.assertEquals(Boolean.class, outputs.get(0).get(1).getClass());
-        Assert.assertEquals(LocalDate.class, outputs.get(0).get(2).getClass());
-        Assert.assertEquals(LocalDate.class, outputs.get(0).get(3).getClass());
+        Assert.assertEquals(Long.class, outputs.get(0).get(2).getClass());
+        Assert.assertEquals(Long.class, outputs.get(0).get(3).getClass());
         Assert.assertEquals(BigDecimal.class, outputs.get(0).get(4).getClass());
         Assert.assertFalse((Boolean) outputs.get(0).get(1));
         Assert.assertEquals(12345, ((BigDecimal)outputs.get(0).get(4)).intValue());

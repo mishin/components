@@ -9,8 +9,6 @@ import org.junit.Test;
 import org.talend.components.processing.definition.typeconverter.TypeConverterProperties;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -334,22 +332,22 @@ public class TypeConverterUtilsTest {
 
     @Test
     public void testConvertValueToTimeNoFormat() {
-        testConvertValue("10:20:15", TypeConverterProperties.TypeConverterOutputTypes.Time, null, LocalTime.class);
+        testConvertValue("10:20:15", TypeConverterProperties.TypeConverterOutputTypes.Time, null, Long.class);
     }
 
     @Test
     public void testConvertValueToTimeWithFormat() {
-        testConvertValue("10:20:15", TypeConverterProperties.TypeConverterOutputTypes.Time, "ss:mm:HH", LocalTime.class);
+        testConvertValue("10:20:15", TypeConverterProperties.TypeConverterOutputTypes.Time, "ss:mm:HH", Long.class);
     }
 
     @Test
     public void testConvertValueToDateTimeNoFormat() {
-        testConvertValue("2007-12-03T10:15:30", TypeConverterProperties.TypeConverterOutputTypes.DateTime, null, LocalDateTime.class);
+        testConvertValue("2007-12-03T10:15:30", TypeConverterProperties.TypeConverterOutputTypes.DateTime, null, Long.class);
     }
 
     @Test
     public void testConvertValueToDateTimeWithFormat() {
-        testConvertValue("03/12/2007 10:15:30", TypeConverterProperties.TypeConverterOutputTypes.DateTime, "dd/MM/yyyy HH:mm:ss", LocalDateTime.class);
+        testConvertValue("03/12/2007 10:15:30", TypeConverterProperties.TypeConverterOutputTypes.DateTime, "dd/MM/yyyy HH:mm:ss", Long.class);
     }
 
     @Test

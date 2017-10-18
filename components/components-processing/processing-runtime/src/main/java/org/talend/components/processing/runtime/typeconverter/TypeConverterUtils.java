@@ -11,6 +11,10 @@ import org.talend.daikon.converter.*;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -81,6 +85,7 @@ public class TypeConverterUtils {
         Object value = outputRecordBuilder.get(fieldName);
         if (pathSteps.size() == 0) {
             Converter converter = outputType.getConverter();
+            // Configure converters if needed
             if (TypeConverterProperties.TypeConverterOutputTypes.Date.equals(outputType) && inputFormat != null && !inputFormat.isEmpty()) {
                 ((LocalDateConverter) converter).withDateTimeFormatter(DateTimeFormatter.ofPattern(inputFormat));
             } else if (TypeConverterProperties.TypeConverterOutputTypes.Time.equals(outputType) && inputFormat != null && !inputFormat.isEmpty()) {
@@ -95,10 +100,31 @@ public class TypeConverterUtils {
                 decimalFormat.setParseBigDecimal(true);
                 ((BigDecimalConverter) converter).withDecimalFormat(decimalFormat);
             }
-            outputRecordBuilder.set(fieldName, converter.convert(value));
+
+            Object convertedValue = converter.convert(value);
+            // Convert to underlying types for Avro logical types
+            convertedValue = TypeConverterUtils.convertToAvroPrimitiveType(outputType, convertedValue);
+
+            outputRecordBuilder.set(fieldName, convertedValue);
         } else {
             TypeConverterUtils.convertValue((GenericRecordBuilder) value, pathSteps, outputType, inputFormat);
         }
+    }
+
+    private static Object convertToAvroPrimitiveType(TypeConverterProperties.TypeConverterOutputTypes outputType, Object convertedValue) {
+        Object result = convertedValue;
+        switch (outputType) {
+            case Date:
+                result = ((LocalDate) convertedValue).toEpochDay();
+                break;
+            case Time:
+                result = ((LocalTime) convertedValue).toNanoOfDay();
+                break;
+            case DateTime:
+                result = ((LocalDateTime) convertedValue).toEpochSecond(ZoneOffset.ofTotalSeconds(0));
+                break;
+        }
+        return result;
     }
 
     /**
@@ -142,4 +168,5 @@ public class TypeConverterUtils {
         }
         return result;
     }
+
 }
