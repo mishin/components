@@ -56,25 +56,25 @@ public interface RuntimesController {
 
     /** Validate connection to datastore from ui-specs */
     @RequestMapping(value = "check", method = POST, consumes = { APPLICATION_JSON_UTF8_VALUE,
-            ServiceConstants.MLTPL_UI_SPEC_CONTENT_TYPE })
+            ServiceConstants.UI_SPEC_CONTENT_TYPE })
     ResponseEntity<ValidationResultsDto> validateDataStoreConnection(@RequestBody UiSpecsPropertiesDto propertiesContainer);
 
     /** Validate connection to datastore from jsonio */
-    @RequestMapping(value = "check", method = POST, consumes = ServiceConstants.MULTPL_JSONIO_CONTENT_TYPE)
+    @RequestMapping(value = "check", method = POST, consumes = ServiceConstants.JSONIO_CONTENT_TYPE)
     ResponseEntity<ValidationResultsDto> validateDataStoreConnection(@RequestBody SerPropertiesDto propertiesContainer);
 
     /** return the schema associated to a given dataset from ui-specs. */
     @RequestMapping(value = "schema", method = POST, consumes = { APPLICATION_JSON_UTF8_VALUE,
-            ServiceConstants.MLTPL_UI_SPEC_CONTENT_TYPE }, produces = APPLICATION_JSON_UTF8_VALUE)
+            ServiceConstants.UI_SPEC_CONTENT_TYPE }, produces = APPLICATION_JSON_UTF8_VALUE)
     String getDatasetSchema(@RequestBody UiSpecsPropertiesDto connectionInfo) throws IOException;
 
     /** return the schema associated to a given dataset from json-io. */
-    @RequestMapping(value = "schema", method = POST, consumes = ServiceConstants.MULTPL_JSONIO_CONTENT_TYPE, produces = APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "schema", method = POST, consumes = ServiceConstants.JSONIO_CONTENT_TYPE, produces = APPLICATION_JSON_UTF8_VALUE)
     String getDatasetSchema(@RequestBody SerPropertiesDto connectionInfo) throws IOException;
 
     /** Get dataset content from ui-specs */
     @RequestMapping(value = "data", method = POST, consumes = { APPLICATION_JSON_UTF8_VALUE,
-            ServiceConstants.MLTPL_UI_SPEC_CONTENT_TYPE }, produces = { APPLICATION_JSON_UTF8_VALUE,
+            ServiceConstants.UI_SPEC_CONTENT_TYPE }, produces = { APPLICATION_JSON_UTF8_VALUE,
                     AVRO_JSON_MIME_TYPE_OFFICIAL_INVALID, AVRO_JSON_MIME_TYPES_UNOFFICIAL_VALID,
                     AVRO_JSON_MIME_TYPES_UNOFFICIAL_VALID_REGISTERED })
     Void getDatasetData(@RequestBody UiSpecsPropertiesDto connectionInfo,
@@ -82,7 +82,7 @@ public interface RuntimesController {
             @RequestParam(value = "limit", required = false) Integer limit, OutputStream response);
 
     /** Get dataset content from json-io */
-    @RequestMapping(value = "data", method = POST, consumes = ServiceConstants.MULTPL_JSONIO_CONTENT_TYPE, produces = {
+    @RequestMapping(value = "data", method = POST, consumes = ServiceConstants.JSONIO_CONTENT_TYPE, produces = {
             APPLICATION_JSON_UTF8_VALUE, AVRO_JSON_MIME_TYPE_OFFICIAL_INVALID, AVRO_JSON_MIME_TYPES_UNOFFICIAL_VALID,
             AVRO_JSON_MIME_TYPES_UNOFFICIAL_VALID_REGISTERED })
     Void getDatasetData(@RequestBody SerPropertiesDto connectionInfo,
@@ -91,14 +91,14 @@ public interface RuntimesController {
 
     /** get dataset content in binary form from ui-specs */
     @RequestMapping(value = "data", method = POST, consumes = { APPLICATION_JSON_UTF8_VALUE,
-            ServiceConstants.MLTPL_UI_SPEC_CONTENT_TYPE }, produces = { AVRO_BINARY_MIME_TYPE_OFFICIAL_INVALID,
+            ServiceConstants.UI_SPEC_CONTENT_TYPE }, produces = { AVRO_BINARY_MIME_TYPE_OFFICIAL_INVALID,
                     AVRO_BINARY_MIME_TYPES_UNOFFICIAL_VALID, AVRO_BINARY_MIME_TYPES_UNOFFICIAL_VALID_REGISTERED })
     Void getDatasetDataAsBinary(@RequestBody UiSpecsPropertiesDto connectionInfo,
             @RequestParam(value = "from", required = false) Integer from,
             @RequestParam(value = "limit", required = false) Integer limit, OutputStream response);
 
     /** get dataset content in binary form from json-io */
-    @RequestMapping(value = "data", method = POST, consumes = ServiceConstants.MULTPL_JSONIO_CONTENT_TYPE, produces = {
+    @RequestMapping(value = "data", method = POST, consumes = ServiceConstants.JSONIO_CONTENT_TYPE, produces = {
             AVRO_BINARY_MIME_TYPE_OFFICIAL_INVALID, AVRO_BINARY_MIME_TYPES_UNOFFICIAL_VALID,
             AVRO_BINARY_MIME_TYPES_UNOFFICIAL_VALID_REGISTERED })
     Void getDatasetDataAsBinary(@RequestBody SerPropertiesDto connectionInfo,

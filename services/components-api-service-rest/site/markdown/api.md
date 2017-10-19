@@ -17,22 +17,20 @@ The following endpoints have been implemented:
 | POST |  [/v0/runtimes/check](#check-datastore-connection) | Check datastore connection |
 | POST |  [/v0/runtimes/schema](#get-dataset-schema) | Get dataset schema |
 | POST |  [/v0/runtimes/data?limit=100](#get-dataset-data) | Get dataset data |
-| PUT |  [/v0/runtimes/data?limit=100](#write-dataset-data) | write dataset data |
+| PUT |  [/v0/runtimes/data](#write-dataset-data) | write dataset data |
 
 
 :warning: _Definition names must be unique_
-# whats new in V0 ;)
-1. all routes are prefixed with V0.
+# whats new in v0 ;)
+1. all routes are prefixed with v0.
 2. a New route (/properties/serialize) has been added to be called before persisting any Properties. This will provide a way to encrypt sensitive data and offer a migration path when deserialized.
 3. All the POST routes taking a definition name as parameter have had this parameter removed to avoid duplication. 
-4. Almost all POST routes taking [multiple ui-specs](#multiple-ui-spec-properties-format) also take [multiple JsonIo](#multiple-json-io-properties-format) properties.
-5. ui specs and json-io input and output payload have specific content types that you must use when querying the service see [here](#multiple-ui-spec-properties-format) and below.
+4. Almost all POST routes taking [ui-specs](#ui-spec-properties-format) also take [JsonIo](#json-io-properties-format) properties.
+5. ui specs and json-io input and output payload have specific content types that you must use when querying the service see [here](#ui-spec-properties-format) and below.
 6. some routes have changed their url for more clarity
    * `/properties/{definitionName}?formName=MAIN` became `v0/properties/uispecs?formName=MAIN`
    * `/properties/{definitionName}/{trigger}/{propName}?formName=MAIN]` became `/v0/properties/trigger/{trigger}/{propName}?formName=MAIN`
    * `/runtimes/{datasetDefinitionName}` became `/v0/runtimes/check` 
-
-**Q: How do we get the component properties for a given dataset+datastore?**
 
 
 # List definitions
@@ -99,7 +97,7 @@ This converts ui-spec properties into a json form to be persisted that can be mi
 
 Parameters:
 
-- `request body` : the form properties with its dependencies in the form of [multiple ui-spec properties](#multiple-ui-spec-properties-format)
+- `request body` : the form properties with its dependencies in the form of [ui-spec properties](#ui-spec-properties-format)
 
 Returns the [json io](#json-io-properties-format)
 
@@ -115,7 +113,7 @@ POST /properties/uispec?formName=MAIN
 Parameters:
 
 - `formName` : Optional name of the wanted form. Accepted values are `Main`, `CitizenUser`. If not specified, the main form will be requested.
-- `request body` : the form properties with its dependencies in the form of [multiple ui-spec properties](#multiple-ui-spec-properties-format) or [multiple jsonio properties](#multiple-json-io-properties-format)
+- `request body` : the form properties with its dependencies in the form of [ui-spec properties](#ui-spec-properties-format) or [jsonio properties](#json-io-properties-format)
 
 
 Returns the [ui specs](#ui-spec-format)
@@ -140,7 +138,7 @@ Parameters:
 
 - `trigger` : can be one of [validate, beforeActivate, beforeRender, after]
 - `propName` : the property name
-- `request body` : the form properties with its dependencies in the form of [multiple ui-spec properties](#multiple-ui-spec-properties-format)
+- `request body` : the form properties with its dependencies in the form of [ui-spec properties](#ui-spec-properties-format)
 - `formName` : Optional name of the wanted form. Accepted values are `Main`, `CitizenUser`. If not specified, the main form will be requested.
 
 Returns the [ui specs](#ui-spec-format)
@@ -155,7 +153,7 @@ POST /properties/validate
 
 Parameters:
 
-- `request body` : the form properties with its dependencies in the form of [multiple ui-spec properties](#multiple-ui-spec-properties-format) or [multiple jsonio properties](#multiple-json-io-properties-format)
+- `request body` : the form properties with its dependencies in the form of [ui-spec properties](#ui-spec-properties-format) or [jsonio properties](#json-io-properties-format)
 
 
 Returns:
@@ -191,7 +189,7 @@ POST /properties/dataset?formName=XXX
 
 Parameters:
 
-- `request body` : the data store properties with its dependencies in the form of [multiple ui-spec properties](#multiple-ui-spec-properties-format) or [multiple jsonio properties](#multiple-json-io-properties-format)
+- `request body` : the data store properties with its dependencies in the form of [ui-spec properties](#ui-spec-properties-format) or [jsonio properties](#json-io-properties-format)
 - `formName` : Optional name of the wanted form. Accepted values are `Main`, `CitizenUser`. If not specified, the main form will be requested.
 
 Returns:
@@ -208,7 +206,7 @@ POST /runtimes/check
 
 Parameters:
 
-- `request body` : the form properties with its dependencies in the form of [multiple ui-spec properties](#multiple-ui-spec-properties-format) or [multiple jsonio properties](#multiple-json-io-properties-format)
+- `request body` : the form properties with its dependencies in the form of [ui-spec properties](#ui-spec-properties-format) or [jsonio properties](#json-io-properties-format)
 
 Returns:
 
@@ -232,7 +230,7 @@ _TODO Marc/Geoffroy: We can replace this endpoint with custom buttons on the UI 
 Parameters:
 
 - `datasetDefinitionName` the dataset definition name
-- `request body` : the data set properties with its dependencies in the form of [multiple ui-spec properties](#multiple-ui-spec-properties-format) or [multiple jsonio properties](#multiple-json-io-properties-format)
+- `request body` : the data set properties with its dependencies in the form of [ui-spec properties](#ui-spec-properties-format) or [jsonio properties](#json-io-properties-format)
 
 Returns:
 
@@ -248,7 +246,7 @@ POST /runtimes/data?from=1000&limit=5000
 
 Parameters:
 
-- `request body` : the data set properties with its dependencies in the form of [multiple ui-spec properties](#multiple-ui-spec-properties-format) or [multiple jsonio properties](#multiple-json-io-properties-format)
+- `request body` : the data set properties with its dependencies in the form of [ui-spec properties](#ui-spec-properties-format) or [jsonio properties](#json-io-properties-format)
 - `from` (optional) where to start in the dataset
 - `limit` (optional) how many rows should be returned
 - `content-type header` to specify the response type:
@@ -274,39 +272,26 @@ Parameters:
 
 
 
-# TODO
 
-raise a specific error when we need to migrate properties
-
-# Multiple UI-spec Properties format
-
-When posting uispec properties to TComp API, the structure is always in the form:
-
-```javascript
-{
-        "properties":{"@definitionName":"my definition"},
-        "dependencies":[
-            {"@definitionName":"dependency definition"},
-            {}
-        ]
-    }
-```
-ui-spec properties payload is associated with the following content header(with an 's' at the end of uispec) :`application/uispecs+json;charset=UTF-8";`
-
-# UI-spec format
+# UI-spec Properties format
 
 When getting uispec  from TComp API, the structure is always in the form:
 
 ```javascript
 {
-    {jsonSchema: ...},
-    {uiSchema: ...},
-    {properties: ...}
+    "properties": {...},
+    "jsonSchema":{...},
+    "uiSchema": {...}
+    "dependencies":[
+        {properties}
+    ]
 }
 ```
+The **dependencies**, **jsonSchema**, **uiSchema** attributes are optional.
+
 ui-spec properties payload is associated with the following content header :`application/uispec+json;charset=UTF-8";`
 
-# Multiple Json-IO Properties format
+# Json-IO Properties format
 
 When posting jsonio properties to TComp API, the structure is always in the form:
 
@@ -317,19 +302,10 @@ When posting jsonio properties to TComp API, the structure is always in the form
             {...json-io payload...},
             {}
         ]
-    }
-```
-jsonio properties payload are associated with the following content header (with an 's' at the end of jsonio) :`application/jsonios+json;charset=UTF-8";`
-
-# Json-IO Properties format
-
-When posting jsonio properties to TComp API, the structure is always in the form:
-
-```javascript
-{
-     ...json-io payload...
 }
 ```
+The **dependencies** attribute is optional.
+
 jsonio properties payload are associated with the following content header :`application/jsonio+json;charset=UTF-8";`
 
 

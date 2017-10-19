@@ -76,7 +76,7 @@ public class FullExampleComponentTestIT {
         SerPropertiesDto serProperties = new SerPropertiesDto();
         serProperties.setProperties(new FullExampleDatastoreProperties("").init().toSerialized());
 
-        given().content(serProperties).contentType(ServiceConstants.MULTPL_JSONIO_CONTENT_TYPE) //
+        given().content(serProperties).contentType(ServiceConstants.JSONIO_CONTENT_TYPE) //
                 .accept(ServiceConstants.UI_SPEC_CONTENT_TYPE) //
                 .expect().statusCode(200).log().ifError() //
                 .when()//
@@ -93,7 +93,7 @@ public class FullExampleComponentTestIT {
     public void initializeFullExampleDatasetProperties() throws java.io.IOException {
         SerPropertiesDto serPropertiesDto = createDatasetDatastoreSerPropertiesDto();
 
-        given().content(serPropertiesDto).contentType(ServiceConstants.MULTPL_JSONIO_CONTENT_TYPE) //
+        given().content(serPropertiesDto).contentType(ServiceConstants.JSONIO_CONTENT_TYPE) //
                 .accept(ServiceConstants.UI_SPEC_CONTENT_TYPE) //
                 .expect().statusCode(200).log().ifError() //
                 .when()//
@@ -115,7 +115,7 @@ public class FullExampleComponentTestIT {
     @Test
     public void testAfterDatastoreCalled() throws java.io.IOException {
         SerPropertiesDto serPropertiesDto = createDatasetDatastoreSerPropertiesDto();
-        given().content(serPropertiesDto).contentType(ServiceConstants.MULTPL_JSONIO_CONTENT_TYPE) //
+        given().content(serPropertiesDto).contentType(ServiceConstants.JSONIO_CONTENT_TYPE) //
                 .accept(ServiceConstants.UI_SPEC_CONTENT_TYPE) //
                 .expect().statusCode(200).log().ifError() //
                 .when()//

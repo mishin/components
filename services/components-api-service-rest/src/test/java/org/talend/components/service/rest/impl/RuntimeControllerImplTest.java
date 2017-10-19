@@ -38,7 +38,7 @@ public class RuntimeControllerImplTest extends AbstractSpringIntegrationTests {
         UiSpecsPropertiesDto propertiesDto = buildTestDataStoreFormData();
         given().accept(APPLICATION_JSON_UTF8_VALUE) //
                 .with().content(propertiesDto) //
-                .contentType(ServiceConstants.MLTPL_UI_SPEC_CONTENT_TYPE) //
+                .contentType(ServiceConstants.UI_SPEC_CONTENT_TYPE) //
                 .when()//
                 .post(getVersionPrefix() + "/runtimes/check")//
                 .then()//
@@ -53,7 +53,7 @@ public class RuntimeControllerImplTest extends AbstractSpringIntegrationTests {
 
         given().accept(APPLICATION_JSON_UTF8_VALUE) //
                 .with().content(propertiesDto) //
-                .contentType(ServiceConstants.MULTPL_JSONIO_CONTENT_TYPE) //
+                .contentType(ServiceConstants.JSONIO_CONTENT_TYPE) //
                 .when()//
                 .post(getVersionPrefix() + "/runtimes/check")//
                 .then()//
@@ -69,7 +69,7 @@ public class RuntimeControllerImplTest extends AbstractSpringIntegrationTests {
 
         given().accept(APPLICATION_JSON_UTF8_VALUE) //
                 .with().content(formDataContainer) //
-                .contentType(ServiceConstants.MLTPL_UI_SPEC_CONTENT_TYPE) //
+                .contentType(ServiceConstants.UI_SPEC_CONTENT_TYPE) //
                 .when()//
                 .post(getVersionPrefix() + "/runtimes/schema")//
                 .then()//
@@ -85,7 +85,7 @@ public class RuntimeControllerImplTest extends AbstractSpringIntegrationTests {
 
         given().accept(APPLICATION_JSON_UTF8_VALUE) //
                 .with().content(formDataContainer) //
-                .contentType(ServiceConstants.MULTPL_JSONIO_CONTENT_TYPE) //
+                .contentType(ServiceConstants.JSONIO_CONTENT_TYPE) //
                 .when()//
                 .post(getVersionPrefix() + "/runtimes/schema")//
                 .then()//
@@ -100,7 +100,7 @@ public class RuntimeControllerImplTest extends AbstractSpringIntegrationTests {
 
         given().accept(APPLICATION_JSON_UTF8_VALUE) //
                 .with().content(formDataContainer) //
-                .contentType(ServiceConstants.MLTPL_UI_SPEC_CONTENT_TYPE) //
+                .contentType(ServiceConstants.UI_SPEC_CONTENT_TYPE) //
                 .when()//
                 .post(getVersionPrefix() + "/runtimes/data")//
                 .then()//
@@ -115,7 +115,7 @@ public class RuntimeControllerImplTest extends AbstractSpringIntegrationTests {
 
         given().accept(APPLICATION_JSON_UTF8_VALUE) //
                 .with().content(formDataContainer) //
-                .contentType(ServiceConstants.MULTPL_JSONIO_CONTENT_TYPE) //
+                .contentType(ServiceConstants.JSONIO_CONTENT_TYPE) //
                 .when()//
                 .post(getVersionPrefix() + "/runtimes/data")//
                 .then()//

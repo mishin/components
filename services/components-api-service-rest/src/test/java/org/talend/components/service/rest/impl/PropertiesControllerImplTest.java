@@ -97,7 +97,7 @@ public class PropertiesControllerImplTest extends AbstractSpringIntegrationTests
                 .statusCode(200).log().ifError() //
                 .with() //
                 .content(buildTestDataStoreFormData()) //
-                .contentType(ServiceConstants.MLTPL_UI_SPEC_CONTENT_TYPE) //
+                .contentType(ServiceConstants.UI_SPEC_CONTENT_TYPE) //
                 .post(getVersionPrefix() + "/properties/validate").as(ObjectNode.class);
         assertNotNull(validationResult);
         assertEquals("OK", validationResult.get("status").textValue());
@@ -110,7 +110,7 @@ public class PropertiesControllerImplTest extends AbstractSpringIntegrationTests
                 .statusCode(200).log().ifError() //
                 .with() //
                 .content(buildTestDataStoreSerProps()) //
-                .contentType(ServiceConstants.MULTPL_JSONIO_CONTENT_TYPE) //
+                .contentType(ServiceConstants.JSONIO_CONTENT_TYPE) //
                 .post(getVersionPrefix() + "/properties/validate").as(ObjectNode.class);
         assertNotNull(validationResult);
         assertEquals("OK", validationResult.get("status").textValue());
@@ -125,7 +125,7 @@ public class PropertiesControllerImplTest extends AbstractSpringIntegrationTests
                 .statusCode(200).log().ifError() //
                 .with() //
                 .content(buildTestDataStoreFormData()) //
-                .contentType(ServiceConstants.MLTPL_UI_SPEC_CONTENT_TYPE) //
+                .contentType(ServiceConstants.UI_SPEC_CONTENT_TYPE) //
                 .post(getVersionPrefix() + "/properties/trigger/{callback}/{propName}", callback, propName);
         assertNotNull(response);
         String content = response.asString();
@@ -141,7 +141,7 @@ public class PropertiesControllerImplTest extends AbstractSpringIntegrationTests
                 .statusCode(400).log().ifValidationFails() //
                 .with() //
                 .content(buildTestDataStoreFormData()) //
-                .contentType(ServiceConstants.MLTPL_UI_SPEC_CONTENT_TYPE) //
+                .contentType(ServiceConstants.UI_SPEC_CONTENT_TYPE) //
                 .post(getVersionPrefix() + "/properties/trigger/{callback}/{propName}", callback, propName).as(ApiError.class);
 
         assertEquals("Talend_ALL_UNEXPECTED_ARGUMENT", errorContainer.getCode());
@@ -156,7 +156,7 @@ public class PropertiesControllerImplTest extends AbstractSpringIntegrationTests
                 .statusCode(200).log().ifError() //
                 .with() //
                 .content(buildTestDataStoreFormData()) //
-                .contentType(ServiceConstants.MLTPL_UI_SPEC_CONTENT_TYPE) //
+                .contentType(ServiceConstants.UI_SPEC_CONTENT_TYPE) //
                 .post(getVersionPrefix() + "/properties/dataset");
     }
 
@@ -167,7 +167,7 @@ public class PropertiesControllerImplTest extends AbstractSpringIntegrationTests
                 .statusCode(200).log().ifError() //
                 .with() //
                 .content(buildTestDataStoreSerProps()) //
-                .contentType(ServiceConstants.MULTPL_JSONIO_CONTENT_TYPE) //
+                .contentType(ServiceConstants.JSONIO_CONTENT_TYPE) //
                 .post(getVersionPrefix() + "/properties/dataset");
     }
 
@@ -216,7 +216,7 @@ public class PropertiesControllerImplTest extends AbstractSpringIntegrationTests
                 .statusCode(200).log().ifError() //
                 .with() //
                 .content(buildTestDataSetSerProps()) //
-                .contentType(ServiceConstants.MULTPL_JSONIO_CONTENT_TYPE) //
+                .contentType(ServiceConstants.JSONIO_CONTENT_TYPE) //
                 .post(getVersionPrefix() + "/properties/uispec");
         assertNotNull(response);
         String content = response.asString();
@@ -230,7 +230,7 @@ public class PropertiesControllerImplTest extends AbstractSpringIntegrationTests
                 .statusCode(200).log().ifError() //
                 .with() //
                 .content(buildTestDataSetFormData()) //
-                .contentType(ServiceConstants.MLTPL_UI_SPEC_CONTENT_TYPE) //
+                .contentType(ServiceConstants.UI_SPEC_CONTENT_TYPE) //
                 .post(getVersionPrefix() + "/properties/uispec");
         assertNotNull(response);
         String content = response.asString();
@@ -244,7 +244,7 @@ public class PropertiesControllerImplTest extends AbstractSpringIntegrationTests
                 .statusCode(200).log().ifError() //
                 .with().port(localServerPort) //
                 .content(buildTestDataSetFormData()) //
-                .contentType(ServiceConstants.MLTPL_UI_SPEC_CONTENT_TYPE) //
+                .contentType(ServiceConstants.UI_SPEC_CONTENT_TYPE) //
                 .post(getVersionPrefix() + "/properties/serialize");
         assertNotNull(response);
         String content = response.asString();

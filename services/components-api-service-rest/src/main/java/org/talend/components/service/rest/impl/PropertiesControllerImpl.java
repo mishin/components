@@ -216,12 +216,14 @@ public class PropertiesControllerImpl implements PropertiesController {
     }
 
     @Override
-    public String serialize(UiSpecsPropertiesDto propertiesContainer) {
+    public SerPropertiesDto serialize(UiSpecsPropertiesDto propertiesContainer) {
         Properties properties = propertiesHelpers.propertiesFromDto(propertiesContainer);
         if (properties == null) {
-            return "{}";
+            return new SerPropertiesDto();
         }
-        return properties.toSerialized();
+        SerPropertiesDto serPropertiesDto = new SerPropertiesDto();
+        serPropertiesDto.setProperties(properties.toSerialized());
+        return serPropertiesDto;
     }
 
     public String generateUiSpecs(String formName, Properties properties) {

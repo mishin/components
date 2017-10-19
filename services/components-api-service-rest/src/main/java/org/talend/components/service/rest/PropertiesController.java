@@ -54,25 +54,25 @@ public interface PropertiesController {
     /**
      * Get a properties (UI spec) with a JSON IO payload that contains existing data.
      */
-    @RequestMapping(value = "uispec", method = POST, consumes = ServiceConstants.MULTPL_JSONIO_CONTENT_TYPE, produces = ServiceConstants.UI_SPEC_CONTENT_TYPE)
+    @RequestMapping(value = "uispec", method = POST, consumes = ServiceConstants.JSONIO_CONTENT_TYPE, produces = ServiceConstants.UI_SPEC_CONTENT_TYPE)
     String initializeProperties(@RequestParam(required = false, defaultValue = Form.MAIN) String formName,
             @RequestBody SerPropertiesDto propertiesContainer);
 
     /**
      * Get a properties (UI spec) with a ui-properties payload that contains existing data.
      */
-    @RequestMapping(value = "uispec", method = POST, consumes = { ServiceConstants.MLTPL_UI_SPEC_CONTENT_TYPE,
+    @RequestMapping(value = "uispec", method = POST, consumes = { ServiceConstants.UI_SPEC_CONTENT_TYPE,
             APPLICATION_JSON_UTF8_VALUE }, produces = ServiceConstants.UI_SPEC_CONTENT_TYPE)
     String initializeProperties(@RequestParam(required = false, defaultValue = Form.MAIN) String formName,
             @RequestBody UiSpecsPropertiesDto propertiesContainer);
 
     /** Validate the coherence of a set of properties for a specific component. **/
-    @RequestMapping(value = "validate", method = POST, consumes = { ServiceConstants.MLTPL_UI_SPEC_CONTENT_TYPE,
+    @RequestMapping(value = "validate", method = POST, consumes = { ServiceConstants.UI_SPEC_CONTENT_TYPE,
             APPLICATION_JSON_UTF8_VALUE })
     ResponseEntity<ValidationResultsDto> validateProperties(@RequestBody UiSpecsPropertiesDto propertiesContainer);
 
     /** Validate the coherence of a set of properties for a specific component. **/
-    @RequestMapping(value = "validate", method = POST, consumes = ServiceConstants.MULTPL_JSONIO_CONTENT_TYPE)
+    @RequestMapping(value = "validate", method = POST, consumes = ServiceConstants.JSONIO_CONTENT_TYPE)
     ResponseEntity<ValidationResultsDto> validateProperties(@RequestBody SerPropertiesDto propertiesContainer);
 
     /**
@@ -97,7 +97,7 @@ public interface PropertiesController {
 
     /** execute a trigger on one field. */
     @RequestMapping(value = "trigger/{trigger}/{property}", method = POST, consumes = {
-            ServiceConstants.MLTPL_UI_SPEC_CONTENT_TYPE,
+            ServiceConstants.UI_SPEC_CONTENT_TYPE,
             APPLICATION_JSON_UTF8_VALUE }, produces = ServiceConstants.UI_SPEC_CONTENT_TYPE)
     ResponseEntity<String> triggerOnProperty(@PathVariable("trigger") PropertyTrigger trigger, //
             @PathVariable("property") String property, //
@@ -105,18 +105,18 @@ public interface PropertiesController {
             @RequestBody UiSpecsPropertiesDto propertiesContainer);
 
     /** Get dataset properties from ui-properties of an existing datastore **/
-    @RequestMapping(value = "dataset", method = POST, consumes = { ServiceConstants.MLTPL_UI_SPEC_CONTENT_TYPE,
+    @RequestMapping(value = "dataset", method = POST, consumes = { ServiceConstants.UI_SPEC_CONTENT_TYPE,
             APPLICATION_JSON_UTF8_VALUE }, produces = ServiceConstants.UI_SPEC_CONTENT_TYPE)
     String getDatasetProperties(@RequestParam(required = false, defaultValue = Form.MAIN) String formName, //
             @RequestBody UiSpecsPropertiesDto propertiesContainer);
 
     /** Get dataset properties from jsonio serialized existing datastore **/
-    @RequestMapping(value = "dataset", method = POST, consumes = ServiceConstants.MULTPL_JSONIO_CONTENT_TYPE, produces = ServiceConstants.UI_SPEC_CONTENT_TYPE)
+    @RequestMapping(value = "dataset", method = POST, consumes = ServiceConstants.JSONIO_CONTENT_TYPE, produces = ServiceConstants.UI_SPEC_CONTENT_TYPE)
     String getDatasetProperties(@RequestParam(required = false, defaultValue = Form.MAIN) String formName, //
             @RequestBody SerPropertiesDto propertiesContainer);
 
     /** Serialize the ui-specs into a json-io persitable representation of properties **/
-    @RequestMapping(value = "serialize", method = POST, consumes = ServiceConstants.MLTPL_UI_SPEC_CONTENT_TYPE, produces = ServiceConstants.JSONIO_CONTENT_TYPE)
-    String serialize(@RequestBody UiSpecsPropertiesDto propertiesContainer);
+    @RequestMapping(value = "serialize", method = POST, consumes = ServiceConstants.UI_SPEC_CONTENT_TYPE, produces = ServiceConstants.JSONIO_CONTENT_TYPE) SerPropertiesDto serialize(
+            @RequestBody UiSpecsPropertiesDto propertiesContainer);
 
 }

@@ -280,7 +280,7 @@ public class JdbcComponentTestIT {
         properties.setProperties(getJdbcDataStoreProperties());
 
         // when
-        Response response = given().content(properties).contentType(ServiceConstants.MLTPL_UI_SPEC_CONTENT_TYPE) //
+        Response response = given().content(properties).contentType(ServiceConstants.UI_SPEC_CONTENT_TYPE) //
                 .accept(ServiceConstants.UI_SPEC_CONTENT_TYPE) //
                 .expect().statusCode(200).log().ifError() //
                 .post(getVersionPrefix() + "/properties/dataset");
@@ -319,7 +319,7 @@ public class JdbcComponentTestIT {
         properties.setProperties(getFileAsObjectNode("jdbc_data_store_properties.json"));
 
         // when
-        Response response = given().content(properties).contentType(ServiceConstants.MLTPL_UI_SPEC_CONTENT_TYPE) //
+        Response response = given().content(properties).contentType(ServiceConstants.UI_SPEC_CONTENT_TYPE) //
                 .accept(ServiceConstants.UI_SPEC_CONTENT_TYPE) //
                 .expect().statusCode(200).log().ifError() //
                 .post(getVersionPrefix() + "/properties/trigger/{trigger}/{property}", triggerName, triggerProperty);
@@ -357,7 +357,7 @@ public class JdbcComponentTestIT {
         propDto.setProperties(new JDBCDatastoreProperties("").init().toSerialized());
 
         // when
-        Response response = given().content(propDto).contentType(ServiceConstants.MULTPL_JSONIO_CONTENT_TYPE) //
+        Response response = given().content(propDto).contentType(ServiceConstants.JSONIO_CONTENT_TYPE) //
                 .accept(ServiceConstants.UI_SPEC_CONTENT_TYPE) //
                 .expect().statusCode(200).log().ifError() //
                 .post(getVersionPrefix() + "/properties/uispec");
@@ -379,7 +379,7 @@ public class JdbcComponentTestIT {
         propDto.setDependencies(singletonList(new JDBCDatastoreProperties("").init().toSerialized()));
 
         // when
-        Response response = given().content(propDto).contentType(ServiceConstants.MULTPL_JSONIO_CONTENT_TYPE) //
+        Response response = given().content(propDto).contentType(ServiceConstants.JSONIO_CONTENT_TYPE) //
                 .accept(ServiceConstants.UI_SPEC_CONTENT_TYPE) //
                 .expect().statusCode(200).log().ifError() //
                 .post(getVersionPrefix() + "/properties/uispec");
