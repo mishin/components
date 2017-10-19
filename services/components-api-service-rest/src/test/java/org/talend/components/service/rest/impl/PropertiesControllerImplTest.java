@@ -19,6 +19,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
 import static org.talend.components.service.rest.PropertiesController.IMAGE_SVG_VALUE;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.Locale;
 
@@ -171,22 +172,6 @@ public class PropertiesControllerImplTest extends AbstractSpringIntegrationTests
                 .post(getVersionPrefix() + "/properties/dataset");
     }
 
-    @Test
-    public void testGetDatasetProperties_wrongDataStoreName() throws Exception {
-        String dataStoreName = "toto";
-        ApiError errorContainer = given().accept(APPLICATION_JSON_UTF8_VALUE) //
-                .expect() //
-                .statusCode(500) //
-                .log().ifValidationFails() //
-                .with() //
-                .content(buildTestDataStoreFormData()) //
-                .contentType(APPLICATION_JSON_UTF8_VALUE) //
-                .post("/properties/{name}/dataset", dataStoreName).as(ApiError.class);
-
-        assertEquals("Talend_ALL_UNEXPECTED_EXCEPTION", errorContainer.getCode());
-        assertNotNull(errorContainer.getMessageTitle());
-        assertNotNull(errorContainer.getMessage());
-    }
     
     @Test
     public void testGetProperties_internationalized() throws Exception {
@@ -198,12 +183,12 @@ public class PropertiesControllerImplTest extends AbstractSpringIntegrationTests
     }
 
     private String getDataStoreDefinitionPropertiesTitle(Locale locale) throws IOException {
-        Response response = given().accept(APPLICATION_JSON_UTF8_VALUE) //
+        Response response = given().accept(ServiceConstants.UI_SPEC_CONTENT_TYPE) //
                 .expect() //
                 .statusCode(200).log().ifError() //
                 .with().port(localServerPort) //
                 .header(HttpHeaders.ACCEPT_LANGUAGE, locale.toLanguageTag())
-                .get("/properties/{name}", DATA_STORE_DEFINITION_NAME);
+                .get(getVersionPrefix() + "/properties/{name}", DATA_STORE_DEFINITION_NAME);
 
         JsonNode jsonNode = mapper.readTree(response.asInputStream());
         return jsonNode.get("jsonSchema").get("title").asText();
@@ -249,10 +234,40 @@ public class PropertiesControllerImplTest extends AbstractSpringIntegrationTests
         assertNotNull(response);
         String content = response.asString();
         assertNotNull(content);
-        Deserialized<MockDatasetProperties> fromSerializedPersistent = Properties.Helper.fromSerializedPersistent(content,
-                MockDatasetProperties.class);
+        //take the jsonIO
+        JsonNode jsonNode = mapper.readTree(content);
+        String jsonioProperties = jsonNode.get("properties").asText();
+
+        Deserialized<MockDatasetProperties> fromSerializedPersistent = Properties.Helper.fromSerializedPersistent(
+                jsonioProperties, MockDatasetProperties.class);
         assertNotNull(fromSerializedPersistent);
         assertNotNull(fromSerializedPersistent.object);
+        MockDatasetProperties deserializedProps = fromSerializedPersistent.object;
+        assertEquals("tata", deserializedProps.tag.getValue());
+    }
+
+
+    @Test
+    public void testSerializeDeserializeProperties() throws Exception {
+        Response response = given().accept(ServiceConstants.JSONIO_CONTENT_TYPE) //
+                .expect() //
+                .statusCode(200).log().ifError() //
+                .with().port(localServerPort) //
+                .content(buildTestDataSetFormData()) //
+                .contentType(ServiceConstants.UI_SPEC_CONTENT_TYPE) //
+                .post(getVersionPrefix() + "/properties/serialize");
+        assertNotNull(response);
+        String content = response.asString();
+        assertNotNull(content);
+        response = given().accept(ServiceConstants.UI_SPEC_CONTENT_TYPE) //
+                .expect() //
+                .statusCode(200).log().ifError() //
+                .with() //
+                .content(content) //
+                .contentType(ServiceConstants.JSONIO_CONTENT_TYPE) //
+                .post(getVersionPrefix() + "/properties/uispec");
+        assertNotNull(response);
+        assertEquals(getMockDatasetMainFormUISpecs(), response.asString());
     }
 
 }
