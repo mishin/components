@@ -17,6 +17,8 @@ import org.talend.components.api.component.runtime.WriteOperation;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.marklogic.exceptions.MarkLogicErrorCode;
 import org.talend.components.marklogic.exceptions.MarkLogicException;
+import org.talend.components.marklogic.runtime.MarkLogicSourceOrSink;
+import org.talend.components.marklogic.runtime.MarkLogicWriteOperation;
 import org.talend.components.marklogic.tmarklogicoutput.MarkLogicOutputProperties;
 
 public class MarkLogicSink extends MarkLogicSourceOrSink implements Sink {

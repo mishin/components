@@ -70,10 +70,17 @@ public class MarkLogicInputDefinitionTest {
     }
 
     @Test
-    public void testGetRuntimeInfo() {
+    public void testGetRuntimeInfoForOutgoingTopology() {
         RuntimeInfo runtimeInfo = definition.getRuntimeInfo(ExecutionEngine.DI, null, ConnectorTopology.OUTGOING);
         String runtimeClassName = runtimeInfo.getRuntimeClassName();
-        assertThat(runtimeClassName, equalTo("org.talend.components.marklogic.runtime.MarkLogicSource"));
+        assertThat(runtimeClassName, equalTo("org.talend.components.marklogic.runtime.input.MarkLogicSource"));
+    }
+
+    @Test
+    public void testGetRuntimeInfoForIncomingAndOutgoingTopology() {
+        RuntimeInfo runtimeInfo = definition.getRuntimeInfo(ExecutionEngine.DI, null, ConnectorTopology.INCOMING_AND_OUTGOING);
+        String runtimeClassName = runtimeInfo.getRuntimeClassName();
+        assertThat(runtimeClassName, equalTo("org.talend.components.marklogic.runtime.input.MarkLogicInputSink"));
     }
 
     @Test
@@ -95,9 +102,9 @@ public class MarkLogicInputDefinitionTest {
     public void testGetSupportedConnectorTopologies() {
         Set<ConnectorTopology> connectorTopologies = definition.getSupportedConnectorTopologies();
 
-        assertThat(connectorTopologies, contains(ConnectorTopology.OUTGOING));
+        assertThat(connectorTopologies, contains(ConnectorTopology.OUTGOING, ConnectorTopology.INCOMING_AND_OUTGOING, ConnectorTopology.NONE));
         assertThat(connectorTopologies,
-                not((contains(ConnectorTopology.INCOMING, ConnectorTopology.NONE, ConnectorTopology.INCOMING_AND_OUTGOING))));
+                not((contains(ConnectorTopology.INCOMING))));
     }
 
     @Test

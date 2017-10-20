@@ -21,8 +21,6 @@ import org.talend.components.marklogic.MarkLogicProvideConnectionProperties;
 import org.talend.components.marklogic.tmarklogicconnection.MarkLogicConnectionProperties;
 import org.talend.daikon.avro.AvroUtils;
 import org.talend.daikon.avro.SchemaConstants;
-import org.talend.daikon.properties.ReferenceProperties;
-import org.talend.daikon.properties.ValidationResult;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
@@ -33,22 +31,32 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static org.talend.daikon.avro.SchemaConstants.TALEND_IS_LOCKED;
 import static org.talend.daikon.properties.presentation.Widget.widget;
 
 public class MarkLogicInputProperties extends FixedConnectorsComponentProperties implements MarkLogicProvideConnectionProperties {
 
     public MarkLogicConnectionProperties connection = new MarkLogicConnectionProperties("connection");
 
-    public SchemaProperties schema = new SchemaProperties("schema");
+    public SchemaProperties inputSchema = new SchemaProperties("inputSchema") {
+            public void afterSchema() {
+                updateDocIdColumnPossibleValues();
+            }
+    };
+
+    public SchemaProperties outputSchema = new SchemaProperties("outputSchema");
 
     public MarkLogicInputProperties(String name) {
         super(name);
     }
 
-    protected transient PropertyPathConnector MAIN_CONNECTOR = new PropertyPathConnector(Connector.MAIN_NAME, "schema");
+    protected transient PropertyPathConnector MAIN_CONNECTOR = new PropertyPathConnector(Connector.MAIN_NAME, "inputSchema");
 
+    protected transient PropertyPathConnector FLOW_CONNECTOR = new PropertyPathConnector(Connector.MAIN_NAME, "outputSchema");
+
+    public Property<Boolean> criteriaSearch = PropertyFactory.newBoolean("criteriaSearch");
     public Property<String> criteria = PropertyFactory.newString("criteria");
+    public Property<String> docIdColumn =  PropertyFactory.newString("docIdColumn");
+    //FIXME should be long as in old component?
 
     public Property<Integer> maxRetrieve = PropertyFactory.newInteger("maxRetrieve");
     public Property<Integer> pageSize = PropertyFactory.newInteger("pageSize");
@@ -56,13 +64,15 @@ public class MarkLogicInputProperties extends FixedConnectorsComponentProperties
     public Property<String> queryLiteralType = PropertyFactory.newString("queryLiteralType");
     public Property<String> queryOptionName = PropertyFactory.newString("queryOptionName");
     public Property<String> queryOptionLiterals = PropertyFactory.newString("queryOptionLiterals");
-
     @Override
     public void setupProperties() {
         super.setupProperties();
         connection.setupProperties();
-
+        criteriaSearch.setRequired();
+        criteriaSearch.setValue(true);
         criteria.setRequired();
+        docIdColumn.setRequired();
+
 
         useQueryOption.setValue(false);
 
@@ -71,7 +81,7 @@ public class MarkLogicInputProperties extends FixedConnectorsComponentProperties
 
         queryLiteralType.setPossibleValues("XML", "JSON");
         queryLiteralType.setValue("XML");
-        setupSchema();
+        setupSchemas();
     }
 
     @Override
@@ -82,12 +92,29 @@ public class MarkLogicInputProperties extends FixedConnectorsComponentProperties
             for (Form childForm : connection.getForms()) {
                 connection.refreshLayout(childForm);
             }
+            if (!isPlainOutputConnectionMode()) {
+                updateDocIdColumnPossibleValues();
+            }
+
+
+            form.getWidget(inputSchema).setHidden(isPlainOutputConnectionMode());
+            form.getWidget(outputSchema).setVisible(isPlainOutputConnectionMode());
+
+            form.getWidget(criteria).setVisible(isPlainOutputConnectionMode());
+            form.getWidget(docIdColumn).setHidden(isPlainOutputConnectionMode());
         }
 
         if (form.getName().equals(Form.ADVANCED)) {
-           form.getWidget(queryLiteralType).setVisible(useQueryOption);
-           form.getWidget(queryOptionName).setVisible(useQueryOption);
-           form.getWidget(queryOptionLiterals).setVisible(useQueryOption);
+            if (isPlainOutputConnectionMode()) {
+                form.getWidget(queryLiteralType).setVisible(useQueryOption);
+                form.getWidget(queryOptionName).setVisible(useQueryOption);
+                form.getWidget(queryOptionLiterals).setVisible(useQueryOption);
+            } else {
+                form.getWidget(useQueryOption).setHidden();
+                form.getWidget(queryLiteralType).setHidden();
+                form.getWidget(queryOptionName).setHidden();
+                form.getWidget(queryOptionLiterals).setHidden();
+            }
         }
     }
 
@@ -96,8 +123,11 @@ public class MarkLogicInputProperties extends FixedConnectorsComponentProperties
         super.setupLayout();
         Form mainForm = new Form(this, Form.MAIN);
         mainForm.addRow(connection.getForm(Form.REFERENCE));
-        mainForm.addRow(schema.getForm(Form.REFERENCE));
+        mainForm.addRow(inputSchema.getForm(Form.REFERENCE));
+        mainForm.addRow(outputSchema.getForm(Form.REFERENCE));
+        mainForm.addRow(criteriaSearch);
         mainForm.addRow(criteria);
+        mainForm.addColumn(widget(docIdColumn).setWidgetType(Widget.ENUMERATION_WIDGET_TYPE));
 
         Form advancedForm = new Form(this, Form.ADVANCED);
         advancedForm.addRow(maxRetrieve);
@@ -108,7 +138,7 @@ public class MarkLogicInputProperties extends FixedConnectorsComponentProperties
         advancedForm.addRow(widget(queryOptionLiterals).setWidgetType(Widget.TEXT_AREA_WIDGET_TYPE));
     }
 
-    void setupSchema() {
+    void setupSchemas() {
         Schema stringSchema = AvroUtils._string();
 
         // create Schema for MarkLogic
@@ -119,24 +149,43 @@ public class MarkLogicInputProperties extends FixedConnectorsComponentProperties
         List<Schema.Field> fields = new ArrayList<>();
         fields.add(docIdField);
         fields.add(docContentField);
-        Schema initialSchema = Schema.createRecord("jira", null, null, false, fields);
+        Schema initialSchema = Schema.createRecord("markLogic", null, null, false, fields);
 
-        schema.schema.setValue(initialSchema);
+        inputSchema.schema.setValue(initialSchema);
+        outputSchema.schema.setValue(initialSchema);
     }
 
     public void afterUseQueryOption() {
         refreshLayout(getForm(Form.ADVANCED));
     }
-    @Override
-    protected Set<PropertyPathConnector> getAllSchemaPropertiesConnectors(boolean isOutputConnection) {
-        if (isOutputConnection) {
-            return Collections.singleton(MAIN_CONNECTOR);
-        }
-        return Collections.emptySet();
+
+    public void afterCriteriaSearch() {
+        refreshLayout(getForm(Form.MAIN));
+        refreshLayout(getForm(Form.ADVANCED));
     }
 
     @Override
+    protected Set<PropertyPathConnector> getAllSchemaPropertiesConnectors(boolean isOutputConnection) {
+        if (isOutputConnection) {
+            return Collections.singleton(FLOW_CONNECTOR);
+        } else {
+            return Collections.singleton(MAIN_CONNECTOR);
+        }
+    }
+    @Override
     public MarkLogicConnectionProperties getConnectionProperties() {
         return connection;
+    }
+
+    private boolean isPlainOutputConnectionMode() {
+        return criteriaSearch.getValue();
+    }
+
+    private void updateDocIdColumnPossibleValues() {
+        List<String> inputFields = new ArrayList<>();
+        for (Schema.Field inputField: inputSchema.schema.getValue().getFields()) {
+            inputFields.add(inputField.name());
+        }
+        docIdColumn.setPossibleValues(inputFields);
     }
 }

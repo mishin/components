@@ -93,13 +93,6 @@ public class MarkLogicSourceOrSinkTest {
     }
 
     @Test
-    public void testValidateWithoutContainer() {
-        ValidationResult vr = sourceOrSink.validate(null);
-        assertEquals(ValidationResult.Result.ERROR, vr.getStatus());
-        assertFalse(vr.getMessage().isEmpty());
-    }
-
-    @Test
     public void testValidateWithReferenceConnection() {
         RuntimeContainer container = mock(RuntimeContainer.class);
         DatabaseClient mockedClient = mock(DatabaseClient.class);

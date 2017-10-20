@@ -21,10 +21,10 @@ import org.talend.components.marklogic.tmarklogicconnection.MarkLogicConnectionP
 import org.talend.components.marklogic.tmarklogicconnection.MarkLogicConnectionPropertiesTest;
 import org.talend.daikon.properties.presentation.Form;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -47,7 +47,8 @@ public class MarkLogicInputPropertiesTest {
     @Test
     public void testSetupLayout() {
         testInputProperties.connection.init();
-        testInputProperties.schema.init();
+        testInputProperties.inputSchema.init();
+        testInputProperties.outputSchema.init();
 
         testInputProperties.setupLayout();
         Form main = testInputProperties.getForm(Form.MAIN);
@@ -98,24 +99,28 @@ public class MarkLogicInputPropertiesTest {
 
     @Test
     public void testSchemaDocIdFieldIsLocked() {
-        testInputProperties.setupSchema();
-        assertNull(testInputProperties.schema.schema.getValue().getProp(TALEND_IS_LOCKED));
-        assertEquals("true", testInputProperties.schema.schema.getValue().getField("docId").getProp(TALEND_IS_LOCKED));
-        assertNull(testInputProperties.schema.schema.getValue().getField("docContent").getProp(TALEND_IS_LOCKED));
+        testInputProperties.setupSchemas();
+        assertNull(testInputProperties.outputSchema.schema.getValue().getProp(TALEND_IS_LOCKED));
+        assertEquals("true", testInputProperties.outputSchema.schema.getValue().getField("docId").getProp(TALEND_IS_LOCKED));
+        assertNull(testInputProperties.outputSchema.schema.getValue().getField("docContent").getProp(TALEND_IS_LOCKED));
     }
 
     @Test
-    public void testGetAllSchemaPropertiesConnectors() {
+    public void testGetAllSchemaPropertiesConnectorsForIOConnection() {
         Set<PropertyPathConnector> actualConnectors = testInputProperties.getAllSchemaPropertiesConnectors(true);
 
-        assertThat(actualConnectors, Matchers.contains(testInputProperties.MAIN_CONNECTOR));
+        assertThat(actualConnectors, Matchers.contains(testInputProperties.FLOW_CONNECTOR));
+        assertTrue(actualConnectors.size() == 1);
+        assertEquals("outputSchema", new ArrayList<>(actualConnectors).get(0).getPropertyPath());
     }
 
     @Test
-    public void testGetAllSchemaPropertiesConnectorsForWrongConnection() {
+    public void testGetAllSchemaPropertiesConnectorsForOnlyOutputConnection() {
         Set<PropertyPathConnector> actualConnectors = testInputProperties.getAllSchemaPropertiesConnectors(false);
 
-        assertThat(actualConnectors, empty());
+        assertThat(actualConnectors, Matchers.contains(testInputProperties.MAIN_CONNECTOR));
+        assertTrue(actualConnectors.size() == 1);
+        assertEquals("inputSchema", new ArrayList<>(actualConnectors).get(0).getPropertyPath());
     }
 
 
@@ -129,7 +134,7 @@ public class MarkLogicInputPropertiesTest {
         testInputProperties.refreshLayout(testInputProperties.getForm(Form.MAIN));
         testInputProperties.refreshLayout(testInputProperties.getForm(Form.ADVANCED));
 
-        boolean schemaHidden = testInputProperties.getForm(Form.MAIN).getWidget("schema").isHidden();
+        boolean schemaHidden = testInputProperties.getForm(Form.MAIN).getWidget("outputSchema").isHidden();
         boolean isConnectionPropertiesHidden = testInputProperties.getForm(Form.MAIN).getWidget("connection").isHidden();
         boolean isQueryCriteriaHidden = testInputProperties.getForm(Form.MAIN).getWidget("criteria").isHidden();
         boolean isMaxRetrieveHidden = testInputProperties.getForm(Form.ADVANCED).getWidget("maxRetrieve").isHidden();
