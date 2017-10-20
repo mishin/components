@@ -52,13 +52,8 @@ public class MarkLogicSourceOrSink extends MarkLogicConnection implements Source
     @Override
     public ValidationResult validate(RuntimeContainer container) {
         ValidationResultMutable vr = new ValidationResultMutable();
-        try {
-            connect(container);
-        }
-        catch (IOException e) {
-            vr.setStatus(ValidationResult.Result.ERROR);
-            vr.setMessage(MESSAGES.getMessage("error.cannotConnect", e.getMessage()));
-        }
+
+        connect(container);
 
         return vr;
     }
