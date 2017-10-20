@@ -12,68 +12,59 @@
 // ============================================================================
 package org.talend.components.marklogic.tmarklogicconnection;
 
-import org.talend.components.common.dataset.DatasetProperties;
-import org.talend.components.common.datastore.DatastoreDefinition;
+import java.util.EnumSet;
+import java.util.Set;
+
+import org.talend.components.api.component.AbstractComponentDefinition;
+import org.talend.components.api.component.ConnectorTopology;
+import org.talend.components.api.component.runtime.ExecutionEngine;
+import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.marklogic.RuntimeInfoProvider;
-import org.talend.components.marklogic.tmarklogicinput.MarkLogicInputDefinition;
-import org.talend.components.marklogic.tmarklogicoutput.MarkLogicOutputDefinition;
-import org.talend.daikon.definition.DefinitionImageType;
-import org.talend.daikon.definition.I18nDefinition;
+import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.runtime.RuntimeInfo;
 
-public class MarkLogicConnectionDefinition extends I18nDefinition implements DatastoreDefinition<MarkLogicConnectionProperties> {
-
-    private static final long serialVersionUID = 6898364632388586813L;
+public class MarkLogicConnectionDefinition extends AbstractComponentDefinition {
 
     public static final String COMPONENT_NAME = "tMarkLogicNEWConnection"; //$NON-NLS-1$
 
     public MarkLogicConnectionDefinition() {
-        super(COMPONENT_NAME);
+        super(COMPONENT_NAME, ExecutionEngine.DI, ExecutionEngine.BEAM);
     }
 
     @Override
-    public DatasetProperties<MarkLogicConnectionProperties> createDatasetProperties(MarkLogicConnectionProperties storeProp) {
-        return null;
+    public String[] getFamilies() {
+        return new String[] { "Databases/MarkLogic", "Big Data/MarkLogic" };
     }
 
     @Override
-    public RuntimeInfo getRuntimeInfo(MarkLogicConnectionProperties properties) {
-        return RuntimeInfoProvider.getCommonRuntimeInfo("org.talend.components.marklogic.runtime.TMarkLogicConnectionStandalone");
-    }
-
-    @Override
-    public String getInputCompDefinitionName() {
-        return MarkLogicInputDefinition.COMPONENT_NAME;
-    }
-
-    @Override
-    public String getOutputCompDefinitionName() {
-        return MarkLogicOutputDefinition.COMPONENT_NAME;
-    }
-
-    @Override
-    public Class<MarkLogicConnectionProperties> getPropertiesClass() {
+    public Class<? extends ComponentProperties> getPropertyClass() {
         return MarkLogicConnectionProperties.class;
     }
 
     @Override
-    public String getImagePath() {
-        return COMPONENT_NAME + "_icon32.png";
+    public Property<?>[] getReturnProperties() {
+        return new Property[] { RETURN_ERROR_MESSAGE_PROP };
     }
 
     @Override
-    public String getImagePath(DefinitionImageType type) {
-        switch (type) {
-        case PALETTE_ICON_32X32:
-            return COMPONENT_NAME + "_icon32.png";
-        default:
+    public RuntimeInfo getRuntimeInfo(ExecutionEngine engine, ComponentProperties properties,
+            ConnectorTopology connectorTopology) {
+        assertEngineCompatibility(engine);
+        if (connectorTopology == ConnectorTopology.NONE) {
+            return RuntimeInfoProvider
+                    .getCommonRuntimeInfo("org.talend.components.marklogic.runtime.TMarkLogicConnectionStandalone");
+        } else {
             return null;
         }
     }
 
     @Override
-    public String getIconKey() {
-        return null;
+    public boolean isStartable() {
+        return true;
     }
 
+    @Override
+    public Set<ConnectorTopology> getSupportedConnectorTopologies() {
+        return EnumSet.of(ConnectorTopology.NONE);
+    }
 }

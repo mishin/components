@@ -12,10 +12,22 @@
 // ============================================================================
 package org.talend.components.marklogic.tmarklogicconnection;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.talend.components.api.component.ComponentDefinition.RETURN_ERROR_MESSAGE_PROP;
+
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.talend.components.api.component.ConnectorTopology;
+import org.talend.components.api.component.runtime.ExecutionEngine;
+import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.runtime.RuntimeInfo;
 
 public class MarkLogicConnectionDefinitionTest {
@@ -28,18 +40,54 @@ public class MarkLogicConnectionDefinitionTest {
     }
 
     @Test
+    public void testGetSupportedConnectorTopologies() {
+        Set<ConnectorTopology> connectorTopologies = definition.getSupportedConnectorTopologies();
+
+        assertThat(connectorTopologies, contains(ConnectorTopology.NONE));
+        assertThat(connectorTopologies,
+                not((contains(ConnectorTopology.INCOMING, ConnectorTopology.OUTGOING, ConnectorTopology.INCOMING_AND_OUTGOING))));
+    }
+
+    @Test
     public void testGetRuntimeInfo() {
-        RuntimeInfo runtimeInfo = definition.getRuntimeInfo(null);
+        RuntimeInfo runtimeInfo = definition.getRuntimeInfo(ExecutionEngine.DI, null, ConnectorTopology.NONE);
 
         assertEquals("org.talend.components.marklogic.runtime.TMarkLogicConnectionStandalone",
                 runtimeInfo.getRuntimeClassName());
     }
 
     @Test
+    public void testGetRuntimeInfoForWrongTopology() {
+        RuntimeInfo runtimeInfo = definition.getRuntimeInfo(ExecutionEngine.DI, null, ConnectorTopology.INCOMING);
+        assertNull(runtimeInfo);
+    }
+
+    @Test
+    public void testComponentShouldBeStartable() {
+        assertTrue(definition.isStartable());
+    }
+
+    @Test
+    public void testGetFamilies() {
+        String[] expectedFamilies = new String[] { "Databases/MarkLogic", "Big Data/MarkLogic" };
+
+        String[] actualFamilies = definition.getFamilies();
+
+        assertArrayEquals(expectedFamilies, actualFamilies);
+    }
+
+    @Test
     public void testGetPropertyClass() {
         Class<?> expectedPropertyClass = MarkLogicConnectionProperties.class;
 
-        assertEquals(expectedPropertyClass, definition.getPropertiesClass());
+        assertEquals(expectedPropertyClass, definition.getPropertyClass());
+    }
+
+    @Test
+    public void testGetReturnProperties() {
+        Property<?>[] expectedReturnProperties = new Property[] { RETURN_ERROR_MESSAGE_PROP };
+
+        assertArrayEquals(expectedReturnProperties, definition.getReturnProperties());
     }
 
 }
