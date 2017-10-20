@@ -33,6 +33,7 @@ public class MarkLogicInputWriteOperation implements WriteOperation<Result> {
 
     @Override
     public Writer<Result> createWriter(RuntimeContainer adaptor) {
+        //Row reader is actually writer which takes docId and write docId and docContent result as feedback
         return new MarkLogicRowReader(this, adaptor, inputProperties);
     }
 

@@ -113,8 +113,8 @@ public class MarkLogicWriter implements WriterWithFeedback<Result, IndexedRecord
         }
         IndexedRecord indexedRecord = (IndexedRecord) indexedRecordDatum;
 
-        String docId = (String) (indexedRecord).get(0);
-        Object docContent = (indexedRecord).get(1);
+        String docId = (String) indexedRecord.get(0);
+        Object docContent = indexedRecord.get(1);
 
         try {
             switch (properties.action.getValue()) {

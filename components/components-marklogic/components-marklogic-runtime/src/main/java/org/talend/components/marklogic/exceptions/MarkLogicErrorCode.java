@@ -12,7 +12,7 @@ public class MarkLogicErrorCode implements ErrorCode {
 
     public static final String PRODUCT_TALEND_COMPONENTS = "TCOMP";
 
-    public static final String GROUP_COMPONENT_NETSUITE = "MARKLOGIC";
+    public static final String GROUP_COMPONENT_MARKLOGIC = "MARKLOGIC";
 
     private String code;
     private int httpStatus;
@@ -43,7 +43,7 @@ public class MarkLogicErrorCode implements ErrorCode {
 
     @Override
     public String getGroup() {
-        return GROUP_COMPONENT_NETSUITE;
+        return GROUP_COMPONENT_MARKLOGIC;
     }
 
     @Override

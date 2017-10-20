@@ -99,7 +99,8 @@ public class MarkLogicInputPropertiesTest {
 
     @Test
     public void testSchemaDocIdFieldIsLocked() {
-        testInputProperties.setupSchemas();
+        testInputProperties.setupDefaultSchema(testInputProperties.inputSchema);
+        testInputProperties.setupDefaultSchema(testInputProperties.outputSchema);
         assertNull(testInputProperties.outputSchema.schema.getValue().getProp(TALEND_IS_LOCKED));
         assertEquals("true", testInputProperties.outputSchema.schema.getValue().getField("docId").getProp(TALEND_IS_LOCKED));
         assertNull(testInputProperties.outputSchema.schema.getValue().getField("docContent").getProp(TALEND_IS_LOCKED));

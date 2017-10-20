@@ -14,7 +14,7 @@ import java.io.File;
 public class DocContentReader {
     private DocumentManager docManager;
 
-    private Class docContentType;
+    private Class<?> docContentType;
 
     private Schema schema;
 
@@ -24,7 +24,7 @@ public class DocContentReader {
         this.schema = schema;
     }
 
-    public Class<?> readDocContentTypeFromSchema(Schema.Field docContentField) {
+    private Class<?> readDocContentTypeFromSchema(Schema.Field docContentField) {
         Schema.Type schemaType = docContentField.schema().getType();
         switch (schemaType) {
             case BYTES: {

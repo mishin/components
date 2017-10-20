@@ -11,6 +11,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.marklogic.connection.MarkLogicConnection;
+import org.talend.components.marklogic.exceptions.MarkLogicException;
 import org.talend.components.marklogic.tmarklogicclose.MarkLogicCloseProperties;
 import org.talend.components.marklogic.tmarklogicconnection.MarkLogicConnectionDefinition;
 import org.talend.components.marklogic.tmarklogicconnection.MarkLogicConnectionProperties;
@@ -112,7 +113,7 @@ public class MarkLogicSourceOrSinkTest {
         assertEquals(ValidationResult.Result.OK, vr.getStatus());
     }
 
-    @Test
+    @Test(expected = MarkLogicException.class)
     public void testValidateCannotConnect() {
         DatabaseClient mockedClient = mock(DatabaseClient.class);
         when(mockedClient.openTransaction()).thenThrow((Class<IOException>) IOException.class);
@@ -122,8 +123,6 @@ public class MarkLogicSourceOrSinkTest {
         MarkLogicInputProperties inputProperties = new MarkLogicInputProperties("inputProperties");
         sourceOrSink.initialize(null, inputProperties);
 
-        ValidationResult vr = sourceOrSink.validate(null);
-        assertEquals(ValidationResult.Result.ERROR, vr.getStatus());
-        assertFalse(vr.getMessage().isEmpty());
+        sourceOrSink.validate(null);
     }
 }

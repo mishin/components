@@ -40,10 +40,12 @@ import static org.talend.daikon.properties.property.PropertyFactory.newString;
 public class MarkLogicOutputProperties extends FixedConnectorsComponentProperties implements
         MarkLogicProvideConnectionProperties {
 
+
     public enum Action {
         UPSERT,
         PATCH,
-        DELETE
+        DELETE;
+
     }
 
     public enum DocType {
@@ -51,9 +53,9 @@ public class MarkLogicOutputProperties extends FixedConnectorsComponentPropertie
         PLAIN_TEXT,
         JSON,
         XML,
-        BINARY
-    }
+        BINARY;
 
+    }
 
     public MarkLogicConnectionProperties connection = new MarkLogicConnectionProperties("connection");
 
@@ -62,6 +64,12 @@ public class MarkLogicOutputProperties extends FixedConnectorsComponentPropertie
     public SchemaProperties schemaReject = new SchemaProperties("schemaReject"); //$NON-NLS-1$
 
     public SchemaProperties schemaFlow = new SchemaProperties("schemaFlow");
+
+    protected transient PropertyPathConnector MAIN_CONNECTOR = new PropertyPathConnector(Connector.MAIN_NAME, "schema");
+
+    protected transient PropertyPathConnector REJECT_CONNECTOR = new PropertyPathConnector(Connector.REJECT_NAME, "schemaReject");
+
+    protected transient PropertyPathConnector FLOW_CONNECTOR = new PropertyPathConnector(Connector.MAIN_NAME, "schemaFlow");
 
     public EnumProperty<Action> action = newEnum("action", Action.class);
 
@@ -126,12 +134,6 @@ public class MarkLogicOutputProperties extends FixedConnectorsComponentPropertie
 
         }
     }
-
-    protected transient PropertyPathConnector MAIN_CONNECTOR = new PropertyPathConnector(Connector.MAIN_NAME, "schema");
-
-    protected transient PropertyPathConnector REJECT_CONNECTOR = new PropertyPathConnector(Connector.REJECT_NAME, "schemaReject");
-
-    protected transient PropertyPathConnector FLOW_CONNECTOR = new PropertyPathConnector(Connector.MAIN_NAME, "schemaFlow");
 
     @Override
     protected Set<PropertyPathConnector> getAllSchemaPropertiesConnectors(boolean isOutputConnection) {

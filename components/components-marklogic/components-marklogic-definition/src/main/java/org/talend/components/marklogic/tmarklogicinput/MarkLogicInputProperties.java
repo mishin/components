@@ -37,11 +37,7 @@ public class MarkLogicInputProperties extends FixedConnectorsComponentProperties
 
     public MarkLogicConnectionProperties connection = new MarkLogicConnectionProperties("connection");
 
-    public SchemaProperties inputSchema = new SchemaProperties("inputSchema") {
-            public void afterSchema() {
-                updateDocIdColumnPossibleValues();
-            }
-    };
+    public SchemaProperties inputSchema = new SchemaProperties("inputSchema");
 
     public SchemaProperties outputSchema = new SchemaProperties("outputSchema");
 
@@ -81,7 +77,8 @@ public class MarkLogicInputProperties extends FixedConnectorsComponentProperties
 
         queryLiteralType.setPossibleValues("XML", "JSON");
         queryLiteralType.setValue("XML");
-        setupSchemas();
+        setupDefaultSchema(inputSchema);
+        setupDefaultSchema(outputSchema);
     }
 
     @Override
@@ -138,21 +135,27 @@ public class MarkLogicInputProperties extends FixedConnectorsComponentProperties
         advancedForm.addRow(widget(queryOptionLiterals).setWidgetType(Widget.TEXT_AREA_WIDGET_TYPE));
     }
 
-    void setupSchemas() {
+    void setupDefaultSchema(SchemaProperties schemaToSet) {
+        Schema stringSchema = AvroUtils._string();
+        Schema.Field docContentField = new Schema.Field("docContent", stringSchema, null, (Object) null, Schema.Field.Order.IGNORE);
+
+        setupDefaultSchema(schemaToSet, docContentField);
+    }
+
+    void setupDefaultSchema(SchemaProperties schemaToSet, Schema.Field docContentField) {
         Schema stringSchema = AvroUtils._string();
 
         // create Schema for MarkLogic
         Schema.Field docIdField = new Schema.Field("docId", stringSchema, null, (Object) null, Schema.Field.Order.ASCENDING);
         docIdField.addProp(SchemaConstants.TALEND_COLUMN_IS_KEY, "true");
         docIdField.addProp(SchemaConstants.TALEND_IS_LOCKED, "true");
-        Schema.Field docContentField = new Schema.Field("docContent", stringSchema, null, (Object) null, Schema.Field.Order.IGNORE);
+        Schema.Field newDocContentField = new Schema.Field("docContent", docContentField.schema(),null,(Object) null, Schema.Field.Order.IGNORE);
         List<Schema.Field> fields = new ArrayList<>();
         fields.add(docIdField);
-        fields.add(docContentField);
+        fields.add(newDocContentField);
         Schema initialSchema = Schema.createRecord("markLogic", null, null, false, fields);
 
-        inputSchema.schema.setValue(initialSchema);
-        outputSchema.schema.setValue(initialSchema);
+        schemaToSet.schema.setValue(initialSchema);
     }
 
     public void afterUseQueryOption() {
@@ -162,6 +165,16 @@ public class MarkLogicInputProperties extends FixedConnectorsComponentProperties
     public void afterCriteriaSearch() {
         refreshLayout(getForm(Form.MAIN));
         refreshLayout(getForm(Form.ADVANCED));
+    }
+
+    public void afterInputSchema() {
+        updateDocIdColumnPossibleValues();
+        if (inputSchema.schema.getValue().getFields().size() < 2) {
+            setupDefaultSchema(outputSchema);
+        }
+        else {
+            setupDefaultSchema(outputSchema, inputSchema.schema.getValue().getFields().get(1));
+        }
     }
 
     @Override
